@@ -32,44 +32,72 @@ window.SITE = {
   soundBadgeText: 'VIEW THE WORK \u2022 VIEW THE WORK \u2022 ',
 
   /* ── ABOUT PAGE ───────────────────────────────────────────
-     aboutHeadline: each fragment has { text, size: 'large' | 'small' }
-     'large' renders in the serif display face at headline scale.
-     'small' renders smaller and muted — use for connective words.
-     TODO: rewrite these fragments with your own statement. */
-  aboutHeadline: [
-    { text: 'I work across',    size: 'small' },
-    { text: 'film,',            size: 'large' },
-    { text: 'interface,',       size: 'large' },
-    { text: 'and',              size: 'small' },
-    { text: 'image —',          size: 'large' },
-    { text: 'as one practice.', size: 'small' },
+     Structured for editorial Michael Gatt reference layout:
+     Full-bleed media hero, Zapf-Humanist typography with inline connectors,
+     stepped narrative layouts, project orbit showcase, and section indicator. */
+  aboutHeadline: {
+    line1: { name: 'SRIRAM', connector: 'IS A' },
+    line2: { role: 'DESIGNER', connector: 'FOR', media: 'ALL MEDIA' },
+    subline: [
+      { connector: 'AS WELL AS', text: 'VIDEO EDITOR' },
+      { connector: 'AND', text: 'VISUAL CRAFTSMAN' }
+    ]
+  },
+
+  aboutBg: 'media/about-hero-bg.jpg',
+  aboutBgType: 'image',
+
+  aboutSections: [
+    {
+      id: 'section-hero',
+      label: 'All Media',
+      eyebrow: 'SRIRAM MJ — MULTIDISCIPLINARY DESIGNER'
+    },
+    {
+      id: 'section-foundations',
+      label: 'Foundations & Rhythm',
+      eyebrow: 'EARLY CRAFT & PACING',
+      stepped: ['SRIRAM', 'BEGAN', 'CRAFTING', 'AND EDITING', 'STORIES', 'FROM DAY ONE'],
+      text: 'Starting in the high-adrenaline world of stunt riding films and kinetic cinematography, Sriram developed an instinctive feel for visual velocity, frame-by-frame rhythm, and atmospheric color grading. Every cut is engineered with sound, tension, and narrative momentum.'
+    },
+    {
+      id: 'section-interface',
+      label: 'Interface Architecture',
+      eyebrow: 'SYSTEMATIC INTERACTION DESIGN',
+      stepped: ['BRIDGING', 'RAW KINETIC CINEMA', 'WITH SYSTEMATIC', 'DIGITAL ARCHITECTURE'],
+      text: 'Translating cinematic motion into cohesive digital experiences. From complex enterprise design systems to intuitive mobile applications, Sriram treats interface design as living choreography — where hierarchy, micro-interactions, and visual craftsmanship merge seamlessly.'
+    },
+    {
+      id: 'section-orbit',
+      label: 'Disciplines Orbit',
+      eyebrow: 'DISCIPLINES & EXPERIMENTS',
+      lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
+      sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
+      cards: ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city']
+    },
+    {
+      id: 'section-socials',
+      label: 'Outreach & Connect',
+      eyebrow: 'COLLABORATIONS',
+      lead: 'FOR MORE UPDATES & SELECT WORKS',
+      sublead: 'FOLLOW SRIRAM ON',
+      socials: [
+        { label: 'INSTAGRAM', url: 'https://instagram.com/delusional.efx' },
+        { label: 'LINKEDIN', url: 'https://linkedin.com' },
+        { label: 'EMAIL', url: 'mailto:contact@srirammj.design' }
+      ]
+    }
   ],
 
-  /* TODO: set to your real background asset when ready.
-     Example: 'media/about-bg.jpg'  |  'media/about-bg.mp4'
-     Leave empty ('') to show the dashed placeholder. */
-  aboutBg: '',
-  aboutBgType: 'image',  // 'image' | 'video'
-
-  /* TODO: write your intro statement (2-3 sentences, first person). */
-  aboutIntro: 'TODO — Replace this with your intro statement in data.js. Two or three sentences, first person, describing what you do and how you approach your work.',
-
-  /* TODO: update each discipline and its tools list. */
-  aboutTools: [
-    { discipline: 'Video Editing',   tools: ['DaVinci Resolve', 'Premiere Pro', 'After Effects', 'Audition'] },
-    { discipline: 'UI / UX Design',  tools: ['Figma', 'Protopie', 'Miro', 'Maze'] },
-    { discipline: 'Graphic Design',  tools: ['Illustrator', 'Photoshop', 'Procreate', 'Affinity Designer'] },
-  ],
-
-  /* TODO: write your longer biography — background, journey, approach. */
-  aboutBio: 'TODO — Replace this with your longer biography in data.js. Background, creative journey, and what connects the three disciplines you practice.',
+  aboutIntro: 'Multidisciplinary designer practicing across video editing, UI/UX architecture, and graphic craft. Driven by kinetic pacing, atmospheric lighting, and systemic clarity.',
+  aboutBio: 'With deep roots in fast-paced cinematic editing and motorcycle stunt films, Sriram MJ bridges raw visual energy with refined digital product design. Based between creative film suites and design systems Figma files, every piece of work balances high-contrast aesthetics with uncompromising precision.',
 
   /* TODO: update contactText and links with your real handles */
   contactText: 'For edits, designs, collabs, or the full reel \u2014 reach out.',
   contactLinks: [
     { label: 'Instagram', href: 'https://instagram.com/delusional.efx' },
-    { label: 'LinkedIn',  href: 'https://linkedin.com/in/your-handle' },
-    { label: 'Email',     href: 'mailto:you@example.com' }
+    { label: 'LinkedIn', href: 'https://linkedin.com' },
+    { label: 'Email', href: 'mailto:contact@srirammj.design' }
   ]
 };
 
@@ -84,7 +112,7 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Main Cut',               type: 'play', meta: '0:00' },
+      { title: 'Main Cut', type: 'play', meta: '0:00' },
       { title: 'Slow-Mo Highlight Reel', type: 'play', meta: '0:00' }
     ]
   },
@@ -192,7 +220,7 @@ window.PROJECTS = [
     category: 'Graphic Design',
     short: 'A set of typographic event posters.',
     description: 'Experimental typographic poster series exploring brutalist grid layouts and film stills.',
-    thumb: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?q=80&w=800&auto=format&fit=crop',
+    thumb: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
       { title: 'Poster 01', type: 'view', meta: 'PNG' }
@@ -228,7 +256,7 @@ window.PROJECTS = [
     category: 'Video',
     short: 'Frame grabs and color study from cinematic projects.',
     description: 'A curated selection of high-resolution stills from 35mm and digital film shoots.',
-    thumb: 'https://images.unsplash.com/photo-1518173946687-a4c8a383392e?q=80&w=800&auto=format&fit=crop',
+    thumb: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
       { title: '35mm Stills', type: 'view', meta: 'PNG' }

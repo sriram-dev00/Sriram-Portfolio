@@ -3,7 +3,7 @@ PORTFOLIO SITES — built from the michaelgatt.com reference
 
 Two ready-to-run websites sharing one engine:
 
-  /shared/           the layout engine (style.css + app.js) — don't
+  /shared/           the layout engine (style.css + app_engine.js) — don't
                       need to touch this unless you want to tweak the
                       look/behavior for both sites at once.
 

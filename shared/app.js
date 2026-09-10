@@ -1,1272 +1,1420 @@
-/* ===========================================================
-   Portfolio engine — shared behaviour
-   Reads config from window.SITE and window.PROJECTS
-   (defined per-portfolio in data.js)
-
-   Routes
-   ------
-     #space          — 3-D scattered gallery  (Space View)
-     #index          — numbered project list  (Index View)
-     #project/<slug> — individual project page
-     #about          — about page
-     #contact        — contact page
-
-   Backward-compat redirects
-     #home → #space   (saved links won't break)
-     #work → #space
-   =========================================================== */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PORTFOLIO ENGINE — Shared SPA Router, 3D Space Field & Navigation
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 (function () {
-  const SITE = window.SITE;
-  const PROJECTS = window.PROJECTS;
-  const app = document.getElementById('app');
-  let activeView = 'space';
-  let lastNavigatedView = 'space';
+  'use strict';
 
-  // MASTER CONFIG: Single source of truth for numeric & timing constants across modules
+  // Global project & site fallback declarations
+  const SITE = window.SITE || {};
+  const PROJECTS = window.PROJECTS || [];
+
+  // Configuration Constants — Michael Gatt-style 3D Spatial Field
   const CONFIG = {
-    // CONTEXT Baseline Typography Scale Tokens (px equivalents for JS/Canvas computations)
-    SIZE_NAME_PX: 24,                  // 1.5rem — top-center name
-    SIZE_ROLE_PX: 12,                  // 0.75rem — role subtitle
-    SIZE_HERO_DESKTOP_PX: 28,          // 1.75rem — desktop resting hero line
-    SIZE_HERO_MOBILE_PX: 18.4,         // 1.15rem — mobile hero line
-    SIZE_SPLASH_DESKTOP_PX: 32,        // 2rem — splash line
-    SIZE_SPLASH_MOBILE_PX: 20,         // 1.25rem — mobile splash line
-    SIZE_SPLASH_SKIP_PX: 11.2,         // 0.7rem — enter without sound
-    SIZE_CAPTION_TITLE_DESKTOP_PX: 24, // 1.5rem — hovered tile title
-    SIZE_CAPTION_TITLE_MOBILE_PX: 17.6,// 1.1rem — mobile hovered tile title
-    SIZE_CAPTION_DESC_PX: 12,          // 0.75rem — tile description text
-    SIZE_CAPTION_CTA_PX: 11.2,         // 0.7rem — learn more label
-    SIZE_INDEX_NUMBER_PX: 11.2,        // 0.7rem — index row number
-    SIZE_NAV_PX: 12,                   // 0.75rem — footer nav
-    SIZE_NAV_CONNECTOR_PX: 10.4,       // 0.65rem — connector words
-    SIZE_ABOUT_BODY_PX: 17.6,          // 1.1rem — about bio text
+    // Reference Space View Dimensions (Discovered from Michael Gatt source: CcN6nvJA.js)
+    REF_WIDTH: 5760,              // Reference space field horizontal length (px)
+    REF_HEIGHT: 3100,             // Reference space field vertical length (px)
+    REF_ASPECT: 5760 / 3100,      // 1.8580645 reference aspect ratio
+    REF_MOBILE_WIDTH: 2137,       // Mobile horizontal length (px)
+    REF_MOBILE_HEIGHT: 1644,      // Mobile vertical length (px)
+    REF_MOBILE_ASPECT: 2137 / 1644, // 1.299878 mobile aspect ratio
 
-    // CONTEXT Baseline Spacing & Positions
-    HEADER_TOP_OFFSET_PX: 40,          // 40px viewport top offset
-    FOOTER_BOTTOM_OFFSET_PX: 32,       // 32px viewport bottom offset
-    INDEX_TOGGLE_PLUS_PX: 14,          // 14px font size for "+"
-    INDEX_TOGGLE_LABEL_PX: 11.2,       // 0.7rem (11.2px) for label
-    INDEX_TOGGLE_GAP_PX: 8,            // 8px gap between "+" and label
-    SOUND_TOGGLE_SIZE_PX: 20,          // 20px icon
-    SOUND_TOGGLE_OFFSET_PX: 24,        // 24px from bottom & right edge
+    // 3D Spatial Field Geometry (matching reference cylinder)
+    CYLINDER_MIN_RADIUS: 2500,
+    CYLINDER_MAX_RADIUS: 5500,
+    POPULATED_ANGLE: 270,          // deg
 
-    // Splash Screen Drops
-    SPLASH_DROP_DESKTOP: 18,
-    SPLASH_DROP_MOBILE: 10,
+    STAGE_PERSPECTIVE: 1100,       // px, expansive 3D camera perspective field
+    CONCAVE_CURVE_STRENGTH: 180,   // px, subtle concave fisheye depth
+    PITCH_COEFF: 5.5,              // deg, gentle pitch tilt along concave curve
+    YAW_COEFF: -9.5,               // deg, subtle inward horizontal yaw rotation
+    
+    // Hover Interaction Timing
+    HOVER_INTENT_DELAY: 25,        // ms
+    HOVER_TOUCH_DELAY: 25,         // ms
+    HOVER_EXIT_DELAY: 60,          // ms
 
-    // Cursor Panning, Motion Blur & Parallax Tilt (MODULE 6 Tokens)
-    PAN_DEAD_RADIUS: 0.05,          // 0.0-0.5, center dead zone
-    PAN_MAX_SPEED: 42,              // px/frame max pan velocity
-    PAN_POWER_CURVE: 1.1,           // exponent, 1.0 = linear
-    PAN_SMOOTHING: 0.12,            // inertia interpolation factor
-    BLUR_MULTIPLIER: 0.07,          // panSpeed * this = blur px
-    BLUR_MAX: 1.8,                  // px, upper cap on blur
-    TILT_GLOBAL_X: 15,              // global cursor parallax tilt, deg
-    TILT_GLOBAL_Y: -18,             // deg
-    TILT_TILE_HOVER: 18,            // deg, per-tile hover tilt magnitude
-
-    // Tile Rest & Hover Interaction Tokens (MODULE 7 & Section 5 Tokens)
-    TILE_REST_OPACITY: 0.45,
-    TILE_REST_BRIGHTNESS: 0.38,
-    TILE_REST_SATURATE: 0.65,
-    TILE_REST_BLUR_PX: 1.5,
-    HOVER_INTENT_DELAY: 260,       // ms, intent delay desktop
-    HOVER_TOUCH_DELAY: 120,        // ms, intent delay touch
-    HOVER_EXIT_DELAY: 80,          // ms, exit grace period
-    HOVER_TRANSITION_MS: 320,
-    TOGGLE_FADE_TRANSITION_MS: 200,
-
-    // 3D Stage Perspective, Dome Depth & Floating Motion (MODULE 5 Tokens)
-    STAGE_PERSPECTIVE: 1200,       // px, .home-stage perspective
-    DOME_CURVE_COEFF: 230,         // curvature multiplier by distance from visual center
-    DEPTH_Z_SCALE: 120,            // depth * this = base Z offset
-    PITCH_COEFF: 26,               // vertical tilt from center, deg
-    YAW_COEFF: -32,                // horizontal tilt from center, deg
-    FLOAT_Y_AMP: 0,                // px, primary vertical float (disabled per user preference)
-    FLOAT_Y_AMP_2: 0,              // px, secondary vertical float
-    FLOAT_X_AMP: 0,                // px, horizontal drift
-    FLOAT_Z_AMP: 0,                // px, depth oscillation
-    FLOAT_RX_AMP: 0,               // deg
-    FLOAT_RY_AMP: 0,               // deg
-    FLOAT_RZ_AMP: 0,               // deg
-    FLOAT_FREQ: 0,                 // base time frequency
-    MOBILE_MOTION_SCALE: { dome: 0.5, float: 0.6 },
-
-    // Motion Blur Physics
-
-    // Intro Animation Sequence
-    INTRO_DURATION_MS: 8000,
-    INTRO_Z_START: -580,
-
-    // Space Gallery Tiles & Scale
-    MOBILE_TILE_SCALE: 0.55,
-    SPACE_TILE_MIN_W: 160,
-    SPACE_TILE_MAX_W: 310,
-    RESTING_TILE_BRIGHTNESS: 0.65,
-    RESTING_TILE_OPACITY: 0.68,
-    RESTING_TILE_BLUR_PX: 0.5
+    TILE_REST_BRIGHTNESS: 0.55,
+    TILE_REST_SATURATE: 0.75,
   };
 
-  /* ──────────────────────────────────────────────────────────
-     PERSISTENT CHROME
-     All text pulled from SITE object — no hardcoded names.
-     ────────────────────────────────────────────────────────── */
+  // State Management
+  let activeView = 'intro';
+  let previousView = 'intro';
+  let isAudioPlaying = false;
+  let audioInstance = null;
+  let animationFrameId = null;
+  let targetMouseX = 0;
+  let targetMouseY = 0;
+  let lastMouseX = null;
+  let lastMouseY = null;
+  let rawMouseSpeed = 0;
+  let smoothMouseSpeed = 0;
+  let mouseVelTimer = null;
+  let cameraX = 0;
+  let cameraY = 0;
+  let activeHoveredTile = null;
+  let hoverIntentTimer = null;
+  let hoverExitTimer = null;
 
-  /* Scramble / decode animation on first load (Section 1 spec) */
+  // DOM Containers
+  const appContainer = document.getElementById('app') || document.body;
+  let views = {};
+  let field = null;
+  let stage = null;
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     1. PERSISTENT CHROME (Brand Header, Footer Nav, Index Toggle, Sound)
+     ═══════════════════════════════════════════════════════════════════════════ */
+
   function scrambleText(el, finalStr) {
+    if (!el) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       el.textContent = finalStr;
       return;
     }
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const len = finalStr.length;
-    const startTimes = Array.from({ length: len }, (_, i) => i * 15);
-    const durations = Array.from({ length: len }, () => 60 + Math.floor(Math.random() * 60));
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    const duration = 420;
     const startTime = performance.now();
-    const totalDuration = 420;
-
-    function step(now) {
+    
+    function update(now) {
       const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1.0);
       let result = '';
-      for (let i = 0; i < len; i++) {
+      for (let i = 0; i < finalStr.length; i++) {
         if (finalStr[i] === ' ') {
           result += ' ';
           continue;
         }
-        if (elapsed < startTimes[i]) {
-          result += chars[Math.floor(Math.random() * chars.length)];
-        } else if (elapsed < startTimes[i] + durations[i]) {
-          result += chars[Math.floor(Math.random() * chars.length)];
-        } else {
+        const letterProgress = Math.max(0, (progress - (i * 0.03)) / (1.0 - (i * 0.03)));
+        if (letterProgress >= 1.0) {
           result += finalStr[i];
+        } else {
+          result += chars[Math.floor(Math.random() * chars.length)];
         }
       }
       el.textContent = result;
-      if (elapsed < totalDuration) {
-        requestAnimationFrame(step);
+      if (progress < 1.0) {
+        requestAnimationFrame(update);
+      }
+    }
+    requestAnimationFrame(update);
+  }
+
+  function initPersistentChrome() {
+    document.title = `${SITE.name || 'Portfolio'} — ${SITE.role || 'Designer'}`;
+
+    // Brand Header
+    const brand = document.createElement('div');
+    brand.className = 'brand';
+    brand.innerHTML = `<span class="name"></span><span class="role">${SITE.role || ''}</span>`;
+    brand.addEventListener('click', () => go('intro'));
+    brand.style.cursor = 'pointer';
+    brand.style.pointerEvents = 'auto';
+    brand.setAttribute('data-cursor', 'Intro');
+    document.body.appendChild(brand);
+
+    const nameEl = brand.querySelector('.name');
+    scrambleText(nameEl, SITE.name || 'Sriram MJ');
+
+    // Index View Toggle (Center + to X)
+    const indexToggle = document.createElement('div');
+    indexToggle.className = 'index-toggle show';
+    indexToggle.setAttribute('aria-label', 'Toggle Index View');
+    indexToggle.innerHTML = `
+      <span class="plus"></span>
+      <span class="label">INDEX VIEW</span>
+    `;
+    indexToggle.addEventListener('click', () => {
+      if (activeView === 'space') {
+        go('index');
       } else {
-        el.textContent = finalStr;
+        go('space');
       }
-    }
-    requestAnimationFrame(step);
-  }
+    });
+    document.body.appendChild(indexToggle);
 
-  document.title = `${SITE.name} — ${SITE.role}`;
-
-  const brand = document.createElement('div');
-  brand.className = 'brand';
-  brand.innerHTML = `<span class="name">${SITE.name}</span><span class="role">${SITE.role}</span>`;
-  if (activeView === 'index') {
-    brand.style.setProperty('display', 'none', 'important');
-  }
-  document.body.appendChild(brand);
-
-  const nameEl = brand.querySelector('.name');
-  if (nameEl && !sessionStorage.getItem('name-scrambled')) {
-    sessionStorage.setItem('name-scrambled', 'true');
-    scrambleText(nameEl, SITE.name);
-  }
-
-  const footerNav = document.createElement('div');
-  footerNav.className = 'footer-nav';
-  footerNav.innerHTML = `
-    <span class="lead">${SITE.navLead1 || 'the'}</span>
-    <button data-nav="space" data-cursor="Explore">${SITE.navWork || 'Work'}</button>
-    <span class="joiner">${SITE.navLead2 || 'and'}</span>
-    <button data-nav="about" data-cursor="Explore">About</button>
-    <span class="joiner" data-nav="about">me</span>
-    <br/>
-    <span class="joiner">${SITE.navLead3 || 'or'}</span>
-    <button data-nav="contact" data-cursor="Contact">${SITE.navContact || 'Contact'}</button>
-  `;
-  document.body.appendChild(footerNav);
-
-  if (SITE.soundBadgeText) {
-    const badge = document.createElement('div');
-    badge.className = 'sound-badge';
-    badge.id = 'audio-vizualizer-target';
-    badge.innerHTML = buildSoundBadge(SITE.soundBadgeText);
-    badge.addEventListener('click', () => go('space'));
-    document.body.appendChild(badge);
-  }
-
-  // "+  Index View" toggle — centered in viewport (50%/50%), + rotates 45deg to x on hover over 200ms
-  const indexToggle = document.createElement('div');
-  indexToggle.className = 'index-toggle';
-  indexToggle.setAttribute('data-cursor', 'Open');
-  indexToggle.innerHTML = `<span class="plus">+</span><span class="label">INDEX VIEW</span>`;
-  indexToggle.addEventListener('click', () => go('index'));
-  document.body.appendChild(indexToggle);
-
-  footerNav.querySelectorAll('[data-nav]').forEach(btn => {
-    btn.addEventListener('click', () => go(btn.dataset.nav));
-  });
-
-  /* ══════════════════════════════════════════════════════════
-     AMBIENT SOUND SYSTEM
-     Single looping track that persists across all views/routes.
-     Speaker toggle lives at bottom-right.
-     State is saved in localStorage so it survives page reloads.
-
-     TODO: drop your track at  D:/portfolio/media/ambient.mp3
-           Formats: .mp3  .ogg  .wav  |  Aim for ≤ 3 MB, loops cleanly.
-           The engine handles a missing file silently — no errors
-           until you add the file and the user clicks the toggle.
-     ══════════════════════════════════════════════════════════ */
-
-  // TODO: change path below if you rename / relocate the track
-  const AMBIENT_SRC = 'media/ambient.mp3';
-
-  const ambientAudio = document.createElement('audio');
-  ambientAudio.loop = true;
-  ambientAudio.preload = 'none'; // don't fetch until play() is called
-  ambientAudio.volume = 0.35;
-  ambientAudio.src = AMBIENT_SRC;
-  document.body.appendChild(ambientAudio);
-
-  // Restore saved preference.  Default = off (browsers block autoplay anyway).
-  let soundOn = localStorage.getItem('ambient-sound') === 'on';
-
-  // Speaker SVG — "on" (with two arcs) / "off" (with X cross)
-  const SVG_SPEAKER_ON = `<svg viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="1.5"
-      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M11 5 6 9H2v6h4l5 4V5z"/>
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-  </svg>`;
-
-  const SVG_SPEAKER_OFF = `<svg viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="1.5"
-      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M11 5 6 9H2v6h4l5 4V5z"/>
-    <line x1="23" y1="9"  x2="17" y2="15"/>
-    <line x1="17" y1="9"  x2="23" y2="15"/>
-  </svg>`;
-
-  const soundBtn = document.createElement('button');
-  soundBtn.className = 'sound-toggle';
-  soundBtn.id = 'soundToggle';
-  soundBtn.setAttribute('aria-label', 'Toggle ambient sound');
-  soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
-  soundBtn.setAttribute('data-cursor', 'Sound');
-  document.body.appendChild(soundBtn);
-
-  function syncSoundUI() {
-    soundBtn.innerHTML = soundOn ? SVG_SPEAKER_ON : SVG_SPEAKER_OFF;
-    soundBtn.classList.toggle('is-on', soundOn);
-    soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
-    soundBtn.title = soundOn ? 'Sound on — click to mute' : 'Sound off — click to enable';
-
-    const vizTarget = document.getElementById('audio-vizualizer-target');
-    if (vizTarget) {
-      vizTarget.classList.toggle('is-playing', soundOn);
-    }
-  }
-
-  async function applyAmbient() {
-    if (soundOn) {
-      try {
-        await ambientAudio.play();
-      } catch (err) {
-        // File missing or browser policy — silently ignore.
-        // Add media/ambient.mp3 to the project root to enable audio.
-      }
-    } else {
-      ambientAudio.pause();
-    }
-  }
-
-  soundBtn.addEventListener('click', async () => {
-    soundOn = !soundOn;
-    localStorage.setItem('ambient-sound', soundOn ? 'on' : 'off');
-    syncSoundUI();
-    await applyAmbient();
-  });
-
-  // If the visitor had sound enabled last session, resume on their very next
-  // gesture (browsers require a user interaction before play() can succeed).
-  if (soundOn) {
-    const resumeOnGesture = () => {
-      applyAmbient();
-      document.removeEventListener('click', resumeOnGesture);
-      document.removeEventListener('touchstart', resumeOnGesture);
-    };
-    document.addEventListener('click', resumeOnGesture, { once: true });
-    document.addEventListener('touchstart', resumeOnGesture, { once: true });
-  }
-
-  syncSoundUI(); // set initial icon
-
-  /* ──────────────────────────────────────────────────────────
-     SCATTERED DIAGONAL TYPOGRAPHY & ENTRY SPLASH SCREEN
-     ────────────────────────────────────────────────────────── */
-  function createScatteredTextHTML(text, customClass = '') {
-    if (!text) return '';
-    const words = text.split(' ');
-    const totalWords = words.length;
-    let html = `<div class="scattered-text ${customClass}">`;
-    let globalCharIndex = 0;
-
-    words.forEach((word, wIdx) => {
-      const dropDesk = (wIdx * CONFIG.SPLASH_DROP_DESKTOP).toFixed(1) + 'px';
-      const dropMob = (wIdx * CONFIG.SPLASH_DROP_MOBILE).toFixed(1) + 'px';
-      const wordDx = (wIdx * 18).toFixed(1) + 'px';
-
-      html += `<span class="scatter-word" style="--wdx:${wordDx}; --wdy-desk:${dropDesk}; --wdy-mob:${dropMob};">`;
-      Array.from(word).forEach((ch, cIdx) => {
-        const rot = ((globalCharIndex % 2 === 0 ? 1 : -1) * (1.5 + (globalCharIndex % 3) * 1.5)).toFixed(1) + 'deg';
-        const delay = (globalCharIndex * 0.03).toFixed(3) + 's';
-        html += `<span class="scatter-char" style="--rot:${rot}; --delay:${delay};">${ch}</span>`;
-        globalCharIndex++;
+    // Footer Navigation
+    const footerNav = document.createElement('nav');
+    footerNav.className = 'footer-nav';
+    footerNav.innerHTML = `
+      <div class="footer-row">
+        <button class="nav-btn ${activeView === 'intro' ? 'active' : ''}" data-target="intro">${SITE.navIntro || 'INTRO'}</button>
+        <span class="joiner">·</span>
+        <span class="lead">${SITE.navLead1 || 'THE'}</span>
+        <button class="nav-btn ${activeView === 'space' || activeView === 'index' ? 'active' : ''}" data-target="space">${SITE.navWork || 'WORK'}</button>
+        <span class="joiner">${SITE.navLead2 || 'AND'}</span>
+        <button class="nav-btn ${activeView === 'about' ? 'active' : ''}" data-target="about">ABOUT</button>
+        <span class="joiner">ME</span>
+      </div>
+      <div class="footer-row">
+        <span class="joiner">${SITE.navLead3 || 'OR'}</span>
+        <button class="nav-btn ${activeView === 'contact' ? 'active' : ''}" data-target="contact">${SITE.navContact || 'CONTACT'}</button>
+      </div>
+    `;
+    footerNav.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget.dataset.target;
+        go(target);
       });
-      html += `</span>`;
-      if (wIdx < totalWords - 1) {
-        html += `<span class="scatter-space">&nbsp;</span>`;
+    });
+    document.body.appendChild(footerNav);
+
+    // Sound Toggle (Bottom-Right)
+    const soundToggle = document.createElement('button');
+    soundToggle.className = 'sound-toggle';
+    soundToggle.setAttribute('aria-label', 'Toggle Ambient Audio');
+    soundToggle.innerHTML = `
+      <svg class="icon-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      </svg>
+      <svg class="icon-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none;">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <line x1="23" y1="9" x2="17" y2="15"></line>
+        <line x1="17" y1="9" x2="23" y2="15"></line>
+      </svg>
+    `;
+    soundToggle.addEventListener('click', toggleAudio);
+    document.body.appendChild(soundToggle);
+
+    // Init Audio persistence
+    const savedAudio = localStorage.getItem('portfolio_audio');
+    if (savedAudio === 'enabled') {
+      enableAudio(false);
+    }
+  }
+
+  function toggleAudio() {
+    if (isAudioPlaying) {
+      disableAudio();
+    } else {
+      enableAudio(true);
+    }
+  }
+
+  function enableAudio(userInitiated) {
+    if (!audioInstance) {
+      const isSubsite = window.location.pathname.includes('/uiux/') || window.location.pathname.includes('/video-editor/');
+      const basePath = isSubsite ? '../' : './';
+      audioInstance = new Audio(`${basePath}media/ambient.mp3`);
+      audioInstance.loop = true;
+      audioInstance.volume = 0.4;
+    }
+    audioInstance.play().then(() => {
+      isAudioPlaying = true;
+      localStorage.setItem('portfolio_audio', 'enabled');
+      updateAudioUI();
+    }).catch(err => {
+      isAudioPlaying = false;
+      updateAudioUI();
+      if (userInitiated) {
+        console.warn('Audio playback unavailable or missing media/ambient.mp3 file:', err);
       }
     });
-    html += `</div>`;
-    return html;
   }
 
-  function renderScatterText(el, text, options = {}) {
-    if (!el) return;
-    const customClass = options.class || '';
-    el.innerHTML = createScatteredTextHTML(text, customClass);
+  function disableAudio() {
+    if (audioInstance) {
+      audioInstance.pause();
+    }
+    isAudioPlaying = false;
+    localStorage.setItem('portfolio_audio', 'disabled');
+    updateAudioUI();
   }
 
-  window.renderScatterText = renderScatterText;
-
-  function initSplashScreen() {
-    if (sessionStorage.getItem('splash-dismissed') === 'true') return;
-
-    const splashText = (window.SITE && window.SITE.splashText) ? window.SITE.splashText : "CLICK ANYWHERE TO TURN ON YOUR SOUND";
-
-    const splash = document.createElement('div');
-    splash.className = 'splash-screen';
-
-    const splashKicker = document.createElement('p');
-    splashKicker.className = 'splash-kicker';
-    splashKicker.textContent = 'SOUND EXPERIENCE';
-    splash.appendChild(splashKicker);
-
-    const promptContainer = document.createElement('div');
-    promptContainer.className = 'splash-prompt';
-    renderScatterText(promptContainer, splashText);
-    splash.appendChild(promptContainer);
-
-    const optionsDiv = document.createElement('div');
-    optionsDiv.className = 'splash-options';
-    optionsDiv.innerHTML = `<button class="splash-btn splash-no">enter without sound</button>`;
-    splash.appendChild(optionsDiv);
-
-    document.body.appendChild(splash);
-
-    async function dismiss(enableSound) {
-      sessionStorage.setItem('splash-dismissed', 'true');
-      soundOn = enableSound;
-      localStorage.setItem('ambient-sound', soundOn ? 'on' : 'off');
-      syncSoundUI();
-      if (soundOn) {
-        await applyAmbient();
+  function updateAudioUI() {
+    const soundToggle = document.querySelector('.sound-toggle');
+    if (soundToggle) {
+      const iconOn = soundToggle.querySelector('.icon-on');
+      const iconOff = soundToggle.querySelector('.icon-off');
+      if (isAudioPlaying) {
+        if (iconOn) iconOn.style.display = 'block';
+        if (iconOff) iconOff.style.display = 'none';
+        soundToggle.classList.add('is-playing');
       } else {
-        ambientAudio.pause();
+        if (iconOn) iconOn.style.display = 'none';
+        if (iconOff) iconOff.style.display = 'block';
+        soundToggle.classList.remove('is-playing');
       }
-      splash.classList.add('fade-out');
-      const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const timeoutDuration = isReducedMotion ? 0 : 850;
-      setTimeout(() => {
-        if (splash.parentNode) splash.parentNode.removeChild(splash);
-      }, timeoutDuration);
     }
 
-    splash.addEventListener('click', (e) => {
-      if (e.target && e.target.closest('.splash-no')) {
-        e.stopPropagation();
-        dismiss(false);
-      } else {
-        dismiss(true);
+    const introAudioBtn = document.querySelector('#introAudioBtn');
+    if (introAudioBtn) {
+      introAudioBtn.classList.toggle('is-playing', isAudioPlaying);
+      const textEl = introAudioBtn.querySelector('.intro-audio-text');
+      const introData = SITE.intro || {};
+      if (textEl) {
+        textEl.textContent = isAudioPlaying ? 'SOUND PLAYING ♫' : (introData.soundPrompt || 'SOUND EXPERIENCE');
       }
-    });
+    }
   }
 
-  // Trigger splash screen on app boot
-  initSplashScreen();
+  /* ═══════════════════════════════════════════════════════════════════════════
+     2. 3D FIELD LAYOUT — Mapped within reference 5760x3100 space view canvas
+     ═══════════════════════════════════════════════════════════════════════════ */
 
-  /* ──────────────────────────────────────────────────────────
-     HELPER — circular spinning-text badge
-     ────────────────────────────────────────────────────────── */
-  function buildSoundBadge(text) {
-    const id = 'circlePath';
+  const LAYOUT = [
+    // 0. NIGHT RIDE — Tall vertical portrait anchor on far left edge
+    { refX: 1200, refY: 1510, refW: 460, refH: 690, x: -920, y: -20,  w: 240, h: 360, zPx: 180, rx: 1.5,  ry: -5.5, rz: -1.5, sizeClass: 'large' },
+    // 1. WHEELIE CITY — Motorcycle upper-center-left
+    { refX: 2390, refY: 1170, refW: 510, refH: 330, x: -320, y: -220, w: 280, h: 180, zPx: 120, rx: -2.0, ry: 2.5,  rz: 1.2,  sizeClass: 'medium' },
+    // 2. BURNOUT — White car on highway upper-mid-right
+    { refX: 3500, refY: 1150, refW: 530, refH: 350, x: 380,  y: -230, w: 290, h: 190, zPx: 140, rx: -2.5, ry: -3.5, rz: -1.8, sizeClass: 'medium' },
+    // 3. BEHIND THE LENS — Clapperboard in desert lower-mid-left
+    { refX: 2280, refY: 1930, refW: 510, refH: 340, x: -360, y: 220,  w: 280, h: 185, zPx: 150, rx: 2.0,  ry: 2.2,  rz: 1.0,  sizeClass: 'medium' },
+    // 4. REEL 2026 — Neon cinema facade lower-center below index toggle
+    { refX: 2935, refY: 2020, refW: 450, refH: 350, x: 40,   y: 250,  w: 250, h: 190, zPx: 110, rx: 2.0,  ry: -1.0, rz: -0.5, sizeClass: 'medium' },
+    // 5. LUMINAL HR — Dark analytics screen under car
+    { refX: 3780, refY: 1410, refW: 290, refH: 210, x: 490,  y: -80,  w: 160, h: 115, zPx: -60, rx: 2.5,  ry: -3.0, rz: -1.5, sizeClass: 'small' },
+    // 6. HR ADMIN FLOW — Desk laptop mid-far-right
+    { refX: 4320, refY: 1730, refW: 330, refH: 240, x: 740,  y: 110,  w: 180, h: 130, zPx: 60,  rx: -1.8, ry: -4.5, rz: 1.2,  sizeClass: 'small' },
+    // 7. MANAGER FLOW — Cafe laptop lower-left under clapperboard
+    { refX: 1980, refY: 2150, refW: 255, refH: 310, x: -550, y: 290,  w: 140, h: 170, zPx: 30,  rx: 2.8,  ry: 4.5,  rz: -1.8, sizeClass: 'small' },
+    // 8. EMPLOYEE FLOW — Sketches hands top-left distant
+    { refX: 1860, refY: 1080, refW: 240, refH: 170, x: -620, y: -230, w: 130, h: 95,  zPx: -220,rx: 1.8,  ry: 3.5,  rz: -1.0, sizeClass: 'small' },
+    // 9. POSTER SERIES — Poster series bottom-mid-right
+    { refX: 3520, refY: 2280, refW: 270, refH: 330, x: 360,  y: 350,  w: 150, h: 180, zPx: 50,  rx: 2.0,  ry: -2.8, rz: -1.0, sizeClass: 'small' },
+    // 10. BRAND IDENTITY — Wireframes & sketches top-center distant
+    { refX: 2990, refY: 880,  refW: 220, refH: 165, x: 70,   y: -320, w: 120, h: 90,  zPx: -250,rx: -1.2, ry: 1.2,  rz: 0.8,  sizeClass: 'small' },
+    // 11. ILLUSTRATION SET — Art peaking from lower-left under cinema
+    { refX: 2580, refY: 2250, refW: 255, refH: 180, x: -160, y: 340,  w: 140, h: 100, zPx: -120,rx: 2.2,  ry: -2.8, rz: -1.5, sizeClass: 'small' },
+    // 12. CINEMA STILLS — Open book & glasses above motorcycle
+    { refX: 2320, refY: 780,  refW: 255, refH: 170, x: -330, y: -380, w: 140, h: 95,  zPx: -200,rx: -2.5, ry: 3.0,  rz: 1.2,  sizeClass: 'small' },
+    // 13. INTERFACE CRAFT — Far upper-left wing
+    { refX: 1320, refY: 860,  refW: 270, refH: 190, x: -880, y: -340, w: 150, h: 105, zPx: -180,rx: -2.2, ry: 4.8,  rz: 1.5,  sizeClass: 'small' },
+    // 14. EDITORIAL LAYOUT — Far upper-right wing
+    { refX: 4420, refY: 880,  refW: 270, refH: 190, x: 860,  y: -330, w: 150, h: 105, zPx: -190,rx: 2.6,  ry: -4.8, rz: -1.5, sizeClass: 'small' },
+    // 15. MOTION GRAPHICS — Synth console far-lower-right
+    { refX: 4220, refY: 2180, refW: 255, refH: 180, x: 780,  y: 280,  w: 140, h: 100, zPx: -80, rx: 2.5,  ry: -4.2, rz: -1.5, sizeClass: 'small' }
+  ];
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     3. TILE MEDIA GENERATOR
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  function getTileMedia(proj, index) {
+    if (!proj) return '';
+    const src = proj.thumb || (proj.media && proj.media.src) || '';
+    const isVideo = proj.thumbType === 'video' || (proj.media && proj.media.type === 'video');
+
+    if (isVideo) {
+      return `<video src="${src}" autoplay loop muted playsinline poster="${proj.media ? proj.media.poster || '' : ''}"></video>`;
+    }
+    
+    if (src) {
+      return `<img src="${src}" alt="${proj.title || ''}" loading="lazy" />`;
+    }
+
+    // High-fidelity fallback SVG thumbnail
+    const colors = ['#1a1918', '#22201e', '#1c1b1a', '#242220', '#1e1c1b'];
+    const bgCol = colors[index % colors.length];
     return `
-      <svg viewBox="0 0 100 100">
-        <defs><path id="${id}" d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"/></defs>
-        <circle class="dot" cx="50" cy="10" r="2.2"></circle>
-        <text><textPath href="#${id}" startOffset="0%">${text}</textPath></text>
+      <svg width="100%" height="100%" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <rect width="400" height="260" fill="${bgCol}"/>
+        <circle cx="200" cy="130" r="70" fill="none" stroke="rgba(201,168,117,0.15)" stroke-width="1.5"/>
+        <path d="M160 130 L240 130 M200 90 L200 170" stroke="rgba(233,231,226,0.2)" stroke-width="1"/>
+        <text x="200" y="134" font-family="Cinzel, serif" font-size="12" fill="#c9a875" letter-spacing="3" text-anchor="middle" opacity="0.6">${(proj.title || 'PROJECT').toUpperCase()}</text>
       </svg>
     `;
   }
 
-  /* ──────────────────────────────────────────────────────────
-     VIEW FACTORY
-     ────────────────────────────────────────────────────────── */
-  const views = {};
-  function makeView(name) {
-    const el = document.createElement('div');
-    el.className = 'view';
-    el.dataset.view = name;
-    app.appendChild(el);
-    views[name] = el;
-    return el;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     4. RENDER SPACE FIELD & CENTER DESCRIPTION FADE-IN SYSTEM
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  function showCenterDesc(proj) {
+    const descEl = document.getElementById('spaceCenterDesc');
+    const indexToggleEl = document.querySelector('.index-toggle');
+    if (!descEl || !proj) return;
+
+    const titleEl = document.getElementById('spaceCenterTitle');
+    const descTextEl = document.getElementById('spaceCenterDescText');
+
+    if (titleEl) titleEl.textContent = proj.title || '';
+    if (descTextEl) descTextEl.textContent = proj.short || proj.description || '';
+
+    descEl.dataset.slug = proj.slug || '';
+    descEl.classList.add('is-active');
+    if (indexToggleEl) indexToggleEl.classList.add('hide-for-desc');
   }
 
-  /* ══════════�  // Module B: Deterministic 3D Field Layout (16 Curated Floating Positions)
-  // 4 Size classes: small (~100-180w), medium (~180-320w), large (~320-520w), extra-large (~500-650w)
-  // Rotation: stable -5deg to +4deg per element
-  // Spacing: asymmetrical, unequal, overlapping, clear center for Index View toggle
-  const LAYOUT = [
-    // Top-Left & Far Upper Wing
-    { x: -115, y: -95,  sizeClass: 'small',       w: 160, h: 110, rx: -3, ry: 4,  rz: -4, depth: .3 },
-    { x: -35,  y: -110, sizeClass: 'medium',      w: 260, h: 175, rx: 4,  ry: -3, rz: 2,  depth: .7 },
-
-    // Top-Right & Upper Outer Wing
-    { x: 75,   y: -120, sizeClass: 'large',       w: 440, h: 280, rx: -5, ry: 2,  rz: -2, depth: .6 },
-    { x: 185,  y: -100, sizeClass: 'medium',      w: 300, h: 195, rx: 2,  ry: -4, rz: 3,  depth: .8 },
-
-    // Mid-Left & Far Offscreen Left
-    { x: -150, y: -15,  sizeClass: 'large',       w: 480, h: 300, rx: 3,  ry: -5, rz: 1,  depth: .85 },
-    { x: -75,  y: 15,   sizeClass: 'small',       w: 170, h: 115, rx: -4, ry: 3,  rz: -3, depth: .4 },
-
-    // Off-Center Viewport (Keeping Center 50%, 50% Clear for Index Toggle)
-    { x: -22,  y: -30,  sizeClass: 'small',       w: 140, h: 95,  rx: -2, ry: 2,  rz: -1, depth: .35 },
-    { x: 130,  y: -20,  sizeClass: 'extra-large', w: 560, h: 350, rx: 4,  ry: -3, rz: 2,  depth: .9 },
-
-    // Mid-Right & Outer Right Wing
-    { x: 205,  y: 50,   sizeClass: 'medium',      w: 320, h: 210, rx: -3, ry: 4,  rz: -2, depth: .65 },
-    { x: 255,  y: 125,  sizeClass: 'small',       w: 180, h: 120, rx: 2,  ry: -2, rz: 4,  depth: .5 },
-
-    // Lower-Center & Mid Bottom Floor
-    { x: -45,  y: 115,  sizeClass: 'extra-large', w: 580, h: 360, rx: -4, ry: 3,  rz: -3, depth: .9 },
-    { x: 50,   y: 105,  sizeClass: 'medium',      w: 310, h: 200, rx: 3,  ry: -4, rz: 2,  depth: .7 },
-
-    // Bottom-Left & Lower Edge Boundary
-    { x: -135, y: 165,  sizeClass: 'medium',      w: 340, h: 220, rx: -2, ry: 4,  rz: -1, depth: .6 },
-    { x: 18,   y: 180,  sizeClass: 'small',       w: 160, h: 105, rx: 4,  ry: -3, rz: 3,  depth: .4 },
-
-    // Bottom-Right & Far Outer Boundary
-    { x: 145,  y: 190,  sizeClass: 'large',       w: 460, h: 290, rx: -5, ry: 2,  rz: -2, depth: .75 },
-    { x: 235,  y: 215,  sizeClass: 'small',       w: 185, h: 125, rx: 2,  ry: -4, rz: 1,  depth: .45 }
-  ];
-
-  function getTileMedia(p, i) {
-    if (p && p.thumb) {
-      return p.thumbType === 'video'
-        ? `<video src="${p.thumb}" muted loop playsinline autoplay></video>`
-        : `<img src="${p.thumb}" alt="${p.title || ''}" loading="lazy"/>`;
-    }
-    const palettes = [
-      ['#1a1c29', '#0d0f18', '#3a2e4c'],
-      ['#1f1414', '#2a1a15', '#4a2820'],
-      ['#0f1f1d', '#0a1413', '#1e4039'],
-      ['#1c1a24', '#121019', '#2e283d'],
-      ['#161d24', '#0d1217', '#253545'],
-      ['#241b18', '#140f0d', '#3d2a23']
-    ];
-    const g = palettes[i % palettes.length];
-    const categoryLabel = (p && p.category ? p.category : 'WORK').toUpperCase();
-    const title = p && p.title ? p.title : 'PROJECT';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="240" viewBox="0 0 360 240">
-      <defs>
-        <linearGradient id="bg${i}" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${g[0]}"/>
-          <stop offset="50%" stop-color="${g[1]}"/>
-          <stop offset="100%" stop-color="${g[2]}"/>
-        </linearGradient>
-      </defs>
-      <rect width="360" height="240" fill="url(#bg${i})"/>
-      <circle cx="${130 + (i * 45) % 150}" cy="${80 + (i * 35) % 100}" r="90" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="2"/>
-      <rect x="25" y="25" width="310" height="190" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-      <text x="50%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="rgba(201,168,117,0.7)" font-family="sans-serif" font-size="10" letter-spacing="3">${categoryLabel}</text>
-      <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="rgba(233,231,226,0.85)" font-family="serif" font-size="19" letter-spacing="2">${title}</text>
-    </svg>`;
-    return `<img src="data:image/svg+xml;utf8,${encodeURIComponent(svg)}" alt="${title}"/>`;
+  function hideCenterDesc() {
+    const descEl = document.getElementById('spaceCenterDesc');
+    const indexToggleEl = document.querySelector('.index-toggle');
+    if (descEl) descEl.classList.remove('is-active');
+    if (indexToggleEl) indexToggleEl.classList.remove('hide-for-desc');
   }
 
-  let hoverIntentTimer = null;
-  let hoverExitTimer = null;
-  let activeHoveredTile = null;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     ASPECT-RATIO & REFERENCE SPACE GEOMETRY ENGINE
+     Calibrated against Michael Gatt's 5760x3100 space view canvas
+     ═══════════════════════════════════════════════════════════════════════════ */
+  function getSpatialScaleFactor() {
+    const isMobile = window.innerWidth < 768;
+    const refW = isMobile ? CONFIG.REF_MOBILE_WIDTH : CONFIG.REF_WIDTH;
+    const refH = isMobile ? CONFIG.REF_MOBILE_HEIGHT : CONFIG.REF_HEIGHT;
+    const refAspect = refW / refH;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const vpAspect = vw / vh;
+
+    // Visible viewport window in reference space corresponds to 25% (1/4) of the 5760x3100 field
+    const baseW = refW * 0.25; // 1440px desktop, 534.25px mobile
+    const baseH = refH * 0.25; // 775px desktop, 411px mobile
+
+    // Aspect-ratio-aware scaling relative to reference dimensions
+    const baseScale = vpAspect > refAspect
+      ? (vh / baseH)
+      : (vw / baseW);
+
+    return isMobile ? 0.72 : Math.max(0.78, Math.min(1.28, baseScale));
+  }
 
   function renderField() {
     if (!field) return;
     field.style.display = 'block';
     field.innerHTML = '';
+
     const isMobile = window.innerWidth < 768;
-    const tileScale = isMobile ? 0.40 : 0.65;
-    const totalSlots = LAYOUT.length;
+    const scaleFactor = getSpatialScaleFactor();
+    const totalSlots = Math.min(LAYOUT.length, PROJECTS.length);
+
     for (let i = 0; i < totalSlots; i++) {
-      const p = PROJECTS[i % PROJECTS.length];
       const pos = LAYOUT[i];
-      if (!p || !pos) continue;
+      const proj = PROJECTS[i] || {};
+      
       const tile = document.createElement('div');
-      tile.className = `tile tile-${pos.sizeClass || 'small'}`;
-      tile.style.left = (pos.x !== undefined ? pos.x : 50) + '%';
-      tile.style.top = (pos.y !== undefined ? pos.y : 50) + '%';
-      tile.style.zIndex = Math.round((pos.depth || 0.5) * 100);
-      if (pos.w) tile.style.width = Math.round(pos.w * tileScale) + 'px';
-      if (pos.h) tile.style.height = Math.round(pos.h * tileScale) + 'px';
-      if (pos.aspect) {
-        tile.style.aspectRatio = pos.aspect;
-        tile.style.height = 'auto';
-      }
-      tile.dataset.slug = p.slug || '';
-      tile.dataset.x = pos.x !== undefined ? pos.x : 50;
-      tile.dataset.y = pos.y !== undefined ? pos.y : 50;
-      tile.dataset.depth = pos.depth || 0.5;
-      tile.dataset.index = i;
+      tile.className = `tile ${pos.sizeClass || 'medium'}`;
+      tile.dataset.slug = proj.slug || '';
+      tile.dataset.x = pos.x;
+      tile.dataset.y = pos.y;
+      tile.dataset.zpx = pos.zPx;
       tile.dataset.rx = pos.rx || 0;
       tile.dataset.ry = pos.ry || 0;
       tile.dataset.rz = pos.rz || 0;
-      tile.setAttribute('data-cursor', 'Learn More');amily="serif" font-size="19" letter-spacing="2">${title}</text>
-    </svg>`;
-    return `<img src="data:image/svg+xml;utf8,${encodeURIComponent(svg)}" alt="${title}"/>`;
-  }
-
-  let hoverIntentTimer = null;
-  let hoverExitTimer = null;
-  let activeHoveredTile = null;
-
-  function renderField() {
-    if (!field) return;
-    field.style.display = 'block';
-    field.innerHTML = '';
-    const isMobile = window.innerWidth < 768;
-    const tileScale = isMobile ? 0.40 : 0.65;
-    const totalSlots = LAYOUT.length;
-    for (let i = 0; i < totalSlots; i++) {
-      const p = PROJECTS[i % PROJECTS.length];
-      const pos = LAYOUT[i];
-      if (!p || !pos) continue;
-      const tile = document.createElement('div');
-      tile.className = `tile tile-${pos.sizeClass || 'small'}`;
-      tile.style.left = (pos.x !== undefined ? pos.x : 50) + '%';
-      tile.style.top = (pos.y !== undefined ? pos.y : 50) + '%';
-      tile.style.zIndex = Math.round((pos.depth || 0.5) * 100);
-      if (pos.w) tile.style.width = Math.round(pos.w * tileScale) + 'px';
-      if (pos.h) tile.style.height = Math.round(pos.h * tileScale) + 'px';
-      if (pos.aspect) {
-        tile.style.aspectRatio = pos.aspect;
-        tile.style.height = 'auto';
-      }
-      tile.dataset.slug = p.slug || '';
-      tile.dataset.x = pos.x !== undefined ? pos.x : 50;
-      tile.dataset.y = pos.y !== undefined ? pos.y : 50;
-      tile.dataset.depth = pos.depth || 0.5;
       tile.dataset.index = i;
       tile.setAttribute('data-cursor', 'Learn More');
+      if (pos.x > 35) {
+        tile.setAttribute('data-x-pos', 'right');
+      }
 
-      const media = getTileMedia(p, i);
+      // Responsive tile dimensions
+      const finalW = Math.round((pos.w || 220) * scaleFactor);
+      const finalH = pos.h ? Math.round(pos.h * scaleFactor) : Math.round(finalW * 0.65);
+      tile.style.setProperty('--tile-w', `${finalW}px`);
+      tile.style.setProperty('--tile-h', `${finalH}px`);
+
+      const mediaHTML = getTileMedia(proj, i);
 
       tile.innerHTML = `
         <div class="frame">
-          ${media}
-          <div class="cap">
-            <div class="cap-content">
-              <span class="more">Learn More</span>
-              <h3 class="t">${p.title || ''}</h3>
-              ${(p.short || p.description) ? `<p class="d">${p.short || p.description}</p>` : ''}
-            </div>
-          </div>
+          ${mediaHTML}
         </div>
       `;
 
-      const slug = p.slug || '';
-      const startHover = (isTouch) => {
-        if (hoverExitTimer) {
-          clearTimeout(hoverExitTimer);
-          hoverExitTimer = null;
-        }
-        if (hoverIntentTimer) {
-          clearTimeout(hoverIntentTimer);
-        }
-        const delay = isTouch ? CONFIG.HOVER_TOUCH_DELAY : CONFIG.HOVER_INTENT_DELAY;
+      // Hover event handling (triggers smooth fade-in of description in the center)
+      tile.addEventListener('mouseenter', () => {
+        clearTimeout(hoverExitTimer);
         hoverIntentTimer = setTimeout(() => {
           activeHoveredTile = tile;
-          tile.dataset.isHovered = 'true';
-          if (indexToggle) indexToggle.classList.add('hide-on-hover');
+          field.classList.add('has-hover');
+          field.querySelectorAll('.tile').forEach(t => {
+            if (t === tile) {
+              t.classList.add('is-hovered');
+            } else {
+              t.classList.remove('is-hovered');
+            }
+          });
+          showCenterDesc(proj);
+        }, CONFIG.HOVER_INTENT_DELAY);
+      });
 
-          // Cluster hover (all tiles sharing same project brighten together)
-          if (slug) {
-            field.querySelectorAll(`.tile[data-slug="${slug}"]`).forEach(t => t.classList.add('is-hovered'));
-          } else {
-            tile.classList.add('is-hovered');
-          }
-        }, delay);
-      };
-
-      const endHover = () => {
-        if (hoverIntentTimer) {
-          clearTimeout(hoverIntentTimer);
-          hoverIntentTimer = null;
-        }
+      tile.addEventListener('mouseleave', () => {
+        clearTimeout(hoverIntentTimer);
         hoverExitTimer = setTimeout(() => {
           if (activeHoveredTile === tile) {
             activeHoveredTile = null;
           }
-          if (indexToggle && !field.querySelector('.tile.is-hovered')) {
-            indexToggle.classList.remove('hide-on-hover');
-          }
-          if (slug) {
-            field.querySelectorAll(`.tile[data-slug="${slug}"]`).forEach(t => {
-              t.classList.remove('is-hovered');
-              delete t.dataset.isHovered;
-            });
-          } else {
-            tile.classList.remove('is-hovered');
-            delete tile.dataset.isHovered;
-          }
+          field.classList.remove('has-hover');
+          field.querySelectorAll('.tile').forEach(t => t.classList.remove('is-hovered'));
+          hideCenterDesc();
         }, CONFIG.HOVER_EXIT_DELAY);
-      };
+      });
 
-      tile.addEventListener('mouseenter', () => startHover(false));
-      tile.addEventListener('mouseleave', endHover);
-      tile.addEventListener('touchstart', () => startHover(true), { passive: true });
-      tile.addEventListener('touchend', endHover);
-      tile.addEventListener('click', () => go('project', p.slug));
+      // Navigation click
+      tile.addEventListener('click', () => {
+        if (proj.slug) {
+          go('project', proj.slug);
+        }
+      });
+
       field.appendChild(tile);
     }
   }
-  renderField();
 
-  let lastWasMobile = window.innerWidth < 768;
+  /* Precise 3D Spatial Hit-Testing Engine for Overlapping Back Tiles & Camera Sway */
+  document.addEventListener('pointermove', (e) => {
+    // Track normalized mouse coordinates across reference space (-1.0 to +1.0)
+    targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
+
+    if (activeView !== 'space' || !field) return;
+
+    const hitElement = document.elementFromPoint(e.clientX, e.clientY);
+    const hitTile = hitElement ? hitElement.closest('.tile') : null;
+
+    if (hitTile) {
+      if (activeHoveredTile !== hitTile) {
+        clearTimeout(hoverExitTimer);
+        clearTimeout(hoverIntentTimer);
+
+        hoverIntentTimer = setTimeout(() => {
+          activeHoveredTile = hitTile;
+          field.classList.add('has-hover');
+          field.querySelectorAll('.tile').forEach(t => {
+            if (t === hitTile) {
+              t.classList.add('is-hovered');
+            } else {
+              t.classList.remove('is-hovered');
+            }
+          });
+          const targetSlug = hitTile.dataset.slug;
+          const hitProj = PROJECTS.find(p => p.slug === targetSlug);
+          if (hitProj) showCenterDesc(hitProj);
+        }, 20);
+      }
+    } else if (activeHoveredTile) {
+      clearTimeout(hoverIntentTimer);
+      clearTimeout(hoverExitTimer);
+      hoverExitTimer = setTimeout(() => {
+        activeHoveredTile = null;
+        field.classList.remove('has-hover');
+        field.querySelectorAll('.tile').forEach(t => t.classList.remove('is-hovered'));
+        hideCenterDesc();
+      }, CONFIG.HOVER_EXIT_DELAY);
+    }
+  });
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     5. 3D CONCAVE SPACE ANIMATION LOOP
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  let fieldRotX = 0;
+  let fieldRotY = 0;
+
+  function spaceLoop() {
+    if (activeView !== 'space') return;
+
+    const isMobile = window.innerWidth < 768;
+    const scaleFactor = getSpatialScaleFactor();
+
+    // Michael Gatt-style camera sway across full 5760x3100 spatial gallery field
+    // Full horizontal and vertical camera travel with generous yaw/pitch and luxurious inertia
+    const targetCamX = isMobile ? 0 : targetMouseX * (scaleFactor * 460);
+    const targetCamY = isMobile ? 0 : targetMouseY * (scaleFactor * 280);
+    const targetRotY = isMobile ? 0 : targetMouseX * 10.5;
+    const targetRotX = isMobile ? 0 : -targetMouseY * 6.5;
+
+    // Power4.out deceleration easing (lerp factor 0.045 for smooth cinematic movement)
+    cameraX += (targetCamX - cameraX) * 0.045;
+    cameraY += (targetCamY - cameraY) * 0.045;
+    fieldRotY += (targetRotY - fieldRotY) * 0.045;
+    fieldRotX += (targetRotX - fieldRotX) * 0.045;
+
+    if (field) {
+      field.style.transform = `translate3d(${-cameraX.toFixed(1)}px, ${-cameraY.toFixed(1)}px, 0px) rotateX(${fieldRotX.toFixed(2)}deg) rotateY(${fieldRotY.toFixed(2)}deg)`;
+
+      field.querySelectorAll('.tile').forEach((t, i) => {
+        const rawX = isNaN(parseFloat(t.dataset.x)) ? 0 : parseFloat(t.dataset.x);
+        const rawY = isNaN(parseFloat(t.dataset.y)) ? 0 : parseFloat(t.dataset.y);
+        const baseZ = isNaN(parseFloat(t.dataset.zpx)) ? 0 : parseFloat(t.dataset.zpx);
+        
+        const baseRx = isNaN(parseFloat(t.dataset.rx)) ? 0 : parseFloat(t.dataset.rx);
+        const baseRy = isNaN(parseFloat(t.dataset.ry)) ? 0 : parseFloat(t.dataset.ry);
+        const baseRz = isNaN(parseFloat(t.dataset.rz)) ? 0 : parseFloat(t.dataset.rz);
+
+        const posX = rawX * scaleFactor;
+        const posY = rawY * scaleFactor;
+
+        // Normalized distance from center for fisheye concave curve relative to reference canvas
+        const normX = posX / (720 * scaleFactor);
+        const normY = posY / (390 * scaleFactor);
+        const distSq = (normX * normX) + (normY * normY * 0.65);
+
+        // Concave curvature pushing peripheral tiles deeper into space
+        const concaveZ = - distSq * CONFIG.CONCAVE_CURVE_STRENGTH;
+        const totalZ = baseZ + concaveZ;
+
+        // Subtle inward facing tilts along concave arc
+        const cylRotY = baseRy + (normX * CONFIG.YAW_COEFF);
+        const cylRotX = baseRx + (-normY * CONFIG.PITCH_COEFF);
+        const cylRotZ = baseRz;
+
+        const isHovered = t.classList.contains('is-hovered');
+        const hoverScale = isHovered ? 1.05 : 1.0;
+
+        // Depth-based opacity: Far (~0.38), Mid (~0.55), Near (~0.75), Hovered (1.0)
+        const normZ = Math.max(0, Math.min(1, (totalZ + 380) / 600));
+        const depthOpacity = 0.38 + normZ * 0.40;
+        t.style.opacity = isHovered ? '1.0' : depthOpacity.toFixed(2);
+
+        // Dynamic 3D Z-index: Derived directly from computed 3D depth
+        const uniqueStackIndex = Math.round((totalZ + 2000) * 10) + i;
+        t.style.zIndex = isHovered ? 9999 : uniqueStackIndex;
+
+        // Visual depth filter
+        t.style.filter = isHovered
+          ? 'brightness(1.05) saturate(1.0) drop-shadow(0px 14px 36px rgba(0,0,0,0.95))'
+          : `brightness(${CONFIG.TILE_REST_BRIGHTNESS}) saturate(${CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 10px 24px rgba(0,0,0,0.5))`;
+
+        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations + hover scale
+        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(${hoverScale})`;
+      });
+    }
+
+    animationFrameId = requestAnimationFrame(spaceLoop);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     6. VIEW FACTORIES & SPA ROUTER
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  function makeView(name) {
+    let v = document.getElementById(`view-${name}`);
+    if (!v) {
+      v = document.createElement('div');
+      v.id = `view-${name}`;
+      v.className = 'view';
+      v.setAttribute('data-view', name);
+      appContainer.appendChild(v);
+    } else if (!v.getAttribute('data-view')) {
+      v.setAttribute('data-view', name);
+    }
+    views[name] = v;
+    return v;
+  }
+
+  function setupIntroView() {
+    const introV = makeView('intro');
+    const introData = SITE.intro || {};
+    const disciplines = introData.disciplines || [];
+
+    const pillarsHTML = disciplines.map((disc, idx) => `
+      <div class="intro-pillar-card" data-slug="${disc.featuredSlug || ''}" data-cursor="Explore" tabindex="0" role="button" aria-label="Explore ${disc.title}">
+        <div class="pillar-card-num">${disc.num || `0${idx + 1}`}</div>
+        <div class="pillar-card-thumb-wrap">
+          <img src="${disc.thumb || ''}" alt="${disc.title}" class="pillar-card-img" loading="lazy" />
+          <div class="pillar-card-badge">${disc.tag || 'DISCIPLINE'}</div>
+        </div>
+        <div class="pillar-card-body">
+          <h3 class="pillar-card-title">${disc.title}</h3>
+          <p class="pillar-card-desc">${disc.desc}</p>
+          <div class="pillar-card-footer">
+            <span class="pillar-link-text">EXPLORE WORK</span>
+            <span class="pillar-arrow">→</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    introV.innerHTML = `
+      <div class="intro-page">
+        <div class="intro-bg" aria-hidden="true">
+          <div class="intro-bg-media"></div>
+          <div class="intro-bg-glow"></div>
+          <div class="intro-bg-vignette"></div>
+          <div class="intro-bg-grid"></div>
+        </div>
+
+        <div class="intro-container">
+          <header class="intro-header">
+            <div class="intro-eyebrow">
+              <span class="intro-dot"></span>
+              <span>${introData.eyebrow || 'SRIRAM MJ — MULTIDISCIPLINARY DESIGNER'}</span>
+              <span class="intro-year">© 2026</span>
+            </div>
+
+            <h1 class="intro-title" aria-label="Sriram MJ Multidisciplinary Designer">
+              <div class="intro-title-line intro-title-line--1">
+                <span class="intro-name-display">${SITE.name || 'SRIRAM MJ'}</span>
+              </div>
+              <div class="intro-title-line intro-title-line--2">
+                <span class="intro-tag-pill">PORTFOLIO</span>
+                <span class="intro-subtitle-serif">KINETIC FILMS & DIGITAL ARCHITECTURE</span>
+              </div>
+            </h1>
+
+            <p class="intro-statement">
+              ${introData.statement || 'Welcome to Sriram’s world of <em>stunt riding films</em>, systematic product architecture, and experimental visual craft.'}
+            </p>
+
+            <div class="intro-cta-hub">
+              <button class="intro-cta-btn intro-cta-btn--primary" id="introEnterBtn" data-cursor="Enter" aria-label="Enter 3D Work Gallery">
+                <span class="intro-cta-text">${introData.ctaPrimary || 'ENTER THE WORK'}</span>
+                <svg class="intro-arrow-icon" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8H13M13 8L8.5 3.5M13 8L8.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="intro-cta-btn intro-cta-btn--secondary" id="introIndexBtn" data-cursor="Index" aria-label="View Project Index List">
+                <span class="intro-plus-icon">+</span>
+                <span class="intro-cta-text">${introData.ctaSecondary || 'INDEX VIEW'}</span>
+              </button>
+              <button class="intro-cta-btn intro-cta-btn--audio ${isAudioPlaying ? 'is-playing' : ''}" id="introAudioBtn" data-cursor="Sound" aria-label="Toggle Ambient Sound">
+                <span class="intro-audio-indicator"></span>
+                <span class="intro-audio-text">${isAudioPlaying ? 'SOUND PLAYING ♫' : (introData.soundPrompt || 'SOUND EXPERIENCE')}</span>
+              </button>
+            </div>
+          </header>
+
+          <section class="intro-pillars-section" aria-label="Disciplines Showcase">
+            <div class="intro-section-label">
+              <span class="intro-section-num">03 DISCIPLINES</span>
+              <span class="intro-section-rule"></span>
+              <span class="intro-section-desc">PRACTICE ACROSS MOTION, INTERFACE & GRAPHICS</span>
+            </div>
+
+            <div class="intro-pillars-grid">
+              ${pillarsHTML}
+            </div>
+          </section>
+
+          <footer class="intro-footer-details">
+            <div class="if-status">
+              <span class="if-dot"></span>
+              <span>OPEN FOR SELECT COMMISSIONS & DESIGN ROLES</span>
+            </div>
+            <div class="if-links">
+              <button class="if-link-btn" data-target="about">READ BIOGRAPHY & CRAFT →</button>
+              <button class="if-link-btn" data-target="contact">GET IN TOUCH →</button>
+            </div>
+          </footer>
+        </div>
+      </div>
+    `;
+
+    // Event listeners
+    const enterBtn = introV.querySelector('#introEnterBtn');
+    if (enterBtn) {
+      enterBtn.addEventListener('click', () => go('space'));
+    }
+
+    const indexBtn = introV.querySelector('#introIndexBtn');
+    if (indexBtn) {
+      indexBtn.addEventListener('click', () => go('index'));
+    }
+
+    const audioBtn = introV.querySelector('#introAudioBtn');
+    if (audioBtn) {
+      audioBtn.addEventListener('click', () => {
+        toggleAudio();
+      });
+    }
+
+    introV.querySelectorAll('.intro-pillar-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const slug = card.dataset.slug;
+        if (slug) {
+          go('project', slug);
+        } else {
+          go('space');
+        }
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    introV.querySelectorAll('.if-link-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        if (target) go(target);
+      });
+    });
+  }
+
+  function setupSpaceView() {
+    const spaceV = makeView('space');
+    spaceV.innerHTML = `
+      <div class="home-stage">
+        <div class="field" id="field"></div>
+      </div>
+      <div class="space-center-desc" id="spaceCenterDesc" aria-live="polite">
+        <h2 class="sc-title" id="spaceCenterTitle">TITLE</h2>
+        <p class="sc-desc" id="spaceCenterDescText">Description</p>
+      </div>
+    `;
+    stage = spaceV.querySelector('.home-stage');
+    if (stage) {
+      updateStagePerspective();
+    }
+    field = spaceV.querySelector('#field');
+
+    const centerDesc = spaceV.querySelector('#spaceCenterDesc');
+    if (centerDesc) {
+      centerDesc.addEventListener('click', () => {
+        const slug = centerDesc.dataset.slug;
+        if (slug) go('project', slug);
+      });
+    }
+
+    renderField();
+  }
+
+  function updateStagePerspective() {
+    if (!stage) return;
+    const vh = window.innerHeight;
+    // 50° vertical FOV matching Three.js reference camera
+    const fovRad = (50 / 2) * (Math.PI / 180);
+    const cameraDist = Math.round((vh / 2) / Math.tan(fovRad));
+    const finalPerspective = Math.max(760, Math.min(1200, cameraDist));
+    stage.style.perspective = `${finalPerspective}px`;
+    stage.style.setProperty('--stage-perspective', `${finalPerspective}px`);
+  }
+
+  let resizeTimer = null;
   window.addEventListener('resize', () => {
-    const currentIsMobile = window.innerWidth < 768;
-    if (currentIsMobile !== lastWasMobile) {
-      lastWasMobile = currentIsMobile;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      updateStagePerspective();
+      if (activeView === 'space') {
+        renderField();
+      }
+    }, 120);
+  });
+
+  function setupIndexView() {
+    const indexV = makeView('index');
+    indexV.innerHTML = `
+      <button class="index-back-btn a-arrow-text" aria-label="Back to space view" data-cursor="Back">
+        <svg class="a-arrow-text_arrow" viewBox="0 0 9 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M1.17188 4.08594H8.67188" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M4.08564 7.17218L0.999396 4.08594L4.08564 0.999698" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <span class="a-arrow-text_title">BACK</span>
+        <span class="a-arrow-text_caption">TO SPACE VIEW</span>
+      </button>
+      <div class="index-hover-preview" id="indexHoverPreview">
+        <img class="index-preview-img" id="indexPreviewImg" alt="" />
+      </div>
+      <div class="index-page-inner">
+        <div class="index-list">
+          ${PROJECTS.map((p, i) => {
+            const bgSrc = p.thumb || (p.media ? p.media.src : '');
+            return `
+              <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}">
+                <span class="n">${String(i + 1).padStart(3, '0')}</span>
+                <span class="name">${p.title}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    const backBtn = indexV.querySelector('.index-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => go('space'));
+    }
+
+    const previewImg = indexV.querySelector('#indexPreviewImg');
+    const indexList = indexV.querySelector('.index-list');
+    const inner = indexV.querySelector('.index-page-inner');
+
+    indexV.querySelectorAll('.row[data-slug]').forEach(row => {
+      row.addEventListener('mouseenter', () => {
+        const bgSrc = row.dataset.bg;
+        if (!bgSrc || !previewImg) return;
+
+        const rect = row.getBoundingClientRect();
+        const rowCenterY = rect.top + rect.height / 2;
+
+        previewImg.src = bgSrc;
+        previewImg.style.top = `${rowCenterY.toFixed(1)}px`;
+        previewImg.classList.add('visible');
+      });
+
+      row.addEventListener('click', () => {
+        go('project', row.dataset.slug);
+      });
+
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          go('project', row.dataset.slug);
+        }
+      });
+    });
+
+    if (indexList && previewImg) {
+      indexList.addEventListener('mouseleave', () => {
+        previewImg.classList.remove('visible');
+      });
+    }
+
+    if (inner && previewImg) {
+      inner.addEventListener('scroll', () => {
+        const hoveredRow = indexV.querySelector('.row:hover');
+        if (hoveredRow) {
+          const rect = hoveredRow.getBoundingClientRect();
+          const rowCenterY = rect.top + rect.height / 2;
+          previewImg.style.top = `${rowCenterY.toFixed(1)}px`;
+        } else {
+          previewImg.classList.remove('visible');
+        }
+      }, { passive: true });
+    }
+  }
+
+  function setupProjectView(slug) {
+    const projV = makeView('project');
+    const p = PROJECTS.find(item => item.slug === slug) || PROJECTS[0];
+    if (!p) return;
+
+    const projIndex = PROJECTS.findIndex(item => item.slug === p.slug);
+    const nextProj = PROJECTS[(projIndex + 1) % PROJECTS.length];
+
+    const mediaSrc = (p.media && p.media.src) ? p.media.src : (p.thumb || '');
+    const isVideo = (p.media && p.media.type === 'video') || p.thumbType === 'video' || (mediaSrc && mediaSrc.endsWith('.mp4'));
+
+    const mediaHTML = isVideo
+      ? `<video src="${mediaSrc}" controls autoplay loop muted playsinline poster="${p.media ? p.media.poster || '' : ''}"></video>`
+      : (mediaSrc ? `<img src="${mediaSrc}" alt="${p.title}" />` : `<div class="ph"><span>${p.title}</span></div>`);
+
+    const itemsHTML = (p.items || []).map((it, i) => `
+      <div class="track-row ${it.type === 'view' ? 'view' : ''}" data-idx="${i}">
+        <span class="num">${String(i + 1).padStart(2, '0')}</span>
+        <button class="playmini" aria-label="${it.type === 'view' ? 'View' : 'Play'}">
+          ${it.type === 'view' 
+            ? `<span>${it.meta || 'VIEW'}</span>`
+            : `
+              <svg class="icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            `
+          }
+        </button>
+        <span class="tname">${it.title}</span>
+        <span class="time">${it.meta || ''}</span>
+      </div>
+    `).join('');
+
+    projV.innerHTML = `
+      <div class="project-page">
+        <button class="back-link">← BACK</button>
+        <header class="proj-head">
+          <div class="proj-category">${p.category || 'PROJECT'}</div>
+          <h1 class="title">${p.title}</h1>
+          ${p.short ? `<p class="proj-short">${p.short}</p>` : ''}
+          ${p.description ? `<p class="desc">${p.description}</p>` : ''}
+          ${p.moreInfo ? `
+            <button class="more-info-toggle"><span class="plus">+</span>MORE INFO</button>
+            <div class="more-info-panel"><p>${p.moreInfo}</p></div>
+          ` : ''}
+        </header>
+        <div class="proj-media">
+          ${mediaHTML}
+        </div>
+        ${itemsHTML ? `<div class="track-list">${itemsHTML}</div>` : ''}
+        <div class="next-project" data-slug="${nextProj.slug}">
+          <span class="lbl">NEXT PROJECT</span>
+          <span class="np-title">${nextProj.title} →</span>
+        </div>
+      </div>
+    `;
+
+    projV.querySelector('.back-link').addEventListener('click', () => {
+      go(previousView === 'index' ? 'index' : 'space');
+    });
+
+    const moreToggle = projV.querySelector('.more-info-toggle');
+    if (moreToggle) {
+      moreToggle.addEventListener('click', () => {
+        const panel = projV.querySelector('.more-info-panel');
+        if (panel) panel.classList.toggle('open');
+      });
+    }
+
+    projV.querySelector('.next-project').addEventListener('click', () => {
+      go('project', nextProj.slug);
+    });
+
+    projV.querySelectorAll('.track-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const idx = parseInt(row.dataset.idx, 10);
+        const itemData = (p.items || [])[idx];
+        if (row.classList.contains('view')) {
+          if (itemData && itemData.url) {
+            window.open(itemData.url, '_blank', 'noopener,noreferrer');
+          }
+          return;
+        }
+        const btn = row.querySelector('.playmini');
+        if (!btn) return;
+        const iconPlay = btn.querySelector('.icon-play');
+        const iconPause = btn.querySelector('.icon-pause');
+        const isPlaying = row.classList.contains('is-playing');
+        
+        projV.querySelectorAll('.track-row').forEach(r => {
+          r.classList.remove('is-playing');
+          const p = r.querySelector('.icon-play');
+          const pa = r.querySelector('.icon-pause');
+          if (p) p.style.display = 'block';
+          if (pa) pa.style.display = 'none';
+        });
+
+        if (!isPlaying) {
+          row.classList.add('is-playing');
+          if (iconPlay) iconPlay.style.display = 'none';
+          if (iconPause) iconPause.style.display = 'block';
+        }
+      });
+    });
+  }
+
+  function setupAboutView() {
+    const aboutV = makeView('about');
+
+    // Build Zapf-Humanist Headline
+    let headlineHTML = '';
+    const hl = SITE.aboutHeadline;
+    if (hl && typeof hl === 'object' && hl.line1 && hl.line2) {
+      const line1 = `<div class="about-hero-line about-hero-line--1">
+        <span class="zapf-display">${hl.line1.name || 'SRIRAM'}</span>
+        <span class="about-connector">${hl.line1.connector || 'IS A'}</span>
+      </div>`;
+      const line2 = `<div class="about-hero-line about-hero-line--2">
+        <span class="zapf-display">${hl.line2.role || 'DESIGNER'}</span>
+        <span class="about-connector">${hl.line2.connector || 'FOR'}</span>
+        <span class="zapf-display">${hl.line2.media || 'ALL MEDIA'}</span>
+      </div>`;
+      const sublineItems = Array.isArray(hl.subline) ? hl.subline.map(item => `
+        <span class="about-connector">${item.connector}</span>
+        <span class="zapf-sub-display">${item.text}</span>
+      `).join(' ') : '';
+      const subline = sublineItems ? `<div class="about-hero-subline">${sublineItems}</div>` : '';
+      headlineHTML = line1 + line2 + subline;
+    } else if (Array.isArray(hl)) {
+      headlineHTML = hl.map(frag => {
+        if (typeof frag === 'string') return `<span class="zapf-display">${frag}</span>`;
+        return frag.size === 'small'
+          ? `<span class="about-connector">${frag.text}</span>`
+          : `<span class="zapf-display">${frag.text}</span>`;
+      }).join(' ');
+    } else {
+      headlineHTML = `
+        <div class="about-hero-line about-hero-line--1">
+          <span class="zapf-display">SRIRAM</span>
+          <span class="about-connector">IS A</span>
+        </div>
+        <div class="about-hero-line about-hero-line--2">
+          <span class="zapf-display">DESIGNER</span>
+          <span class="about-connector">FOR</span>
+          <span class="zapf-display">ALL MEDIA</span>
+        </div>
+        <div class="about-hero-subline">
+          <span class="about-connector">AS WELL AS</span>
+          <span class="zapf-sub-display">VIDEO EDITOR</span>
+          <span class="about-connector">AND</span>
+          <span class="zapf-sub-display">VISUAL CRAFTSMAN</span>
+        </div>
+      `;
+    }
+
+    // Top projects for orbit cards in Section 3
+    const orbitSlugs = ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
+    const orbitProjects = orbitSlugs.map(slug => PROJECTS.find(p => p.slug === slug)).filter(Boolean);
+    const orbitCardsHTML = orbitProjects.map((p, i) => {
+      const thumb = p.thumb || (p.media && p.media.src) || '';
+      return `
+        <div class="about-orbit-card about-orbit-card--${i + 1}" data-slug="${p.slug}" tabindex="0" role="button" aria-label="View project ${p.title}">
+          <div class="orbit-card-inner">
+            <div class="orbit-card-thumb-wrap">
+              <img src="${thumb}" alt="${p.title}" class="orbit-card-img" loading="lazy" />
+            </div>
+            <div class="orbit-card-meta">
+              <span class="orbit-card-num">00${i + 1}</span>
+              <span class="orbit-card-title">${p.title}</span>
+              <span class="orbit-card-cat">${p.category}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    aboutV.innerHTML = `
+      <div class="about-page">
+        <!-- Vertical Right-Side Section Indicator matching o-about-section-indicator -->
+        <div class="o-about-section-indicator" aria-label="Page Sections Navigation">
+          <div class="line-wrapper">
+            <div class="o-about-section-indicator-item is-active" data-sec-idx="0" role="button" tabindex="0">
+              <span class="item-indicator"></span>
+              <span class="item-title">ALL MEDIA</span>
+            </div>
+            <div class="o-about-section-indicator-item" data-sec-idx="1" role="button" tabindex="0">
+              <span class="item-indicator"></span>
+              <span class="item-title">FOUNDATIONS & RHYTHM</span>
+            </div>
+            <div class="o-about-section-indicator-item" data-sec-idx="2" role="button" tabindex="0">
+              <span class="item-indicator"></span>
+              <span class="item-title">INTERFACE ARCHITECTURE</span>
+            </div>
+            <div class="o-about-section-indicator-item" data-sec-idx="3" role="button" tabindex="0">
+              <span class="item-indicator"></span>
+              <span class="item-title">DISCIPLINES ORBIT</span>
+            </div>
+            <div class="o-about-section-indicator-item" data-sec-idx="4" role="button" tabindex="0">
+              <span class="item-indicator"></span>
+              <span class="item-title">OUTREACH & CONNECT</span>
+            </div>
+            <div class="current-section-indicator"></div>
+          </div>
+        </div>
+
+        <!-- Section 0: Fullscreen Hero -->
+        <section class="about-section-wrap about-section-wrap--hero" id="about-sec-0">
+          <div class="about-bg-layer revealed">
+            <img class="about-bg-media" src="${SITE.aboutBg || 'media/about-hero-bg.jpg'}" alt="Sriram MJ Multidisciplinary Designer" />
+            <div class="about-bg-vignette"></div>
+          </div>
+          <div class="about-hero-content">
+            <div class="about-hero-headline-wrap">
+              <h1 class="about-hero-headline">${headlineHTML}</h1>
+            </div>
+          </div>
+          <div class="about-scroll-hint" role="presentation">
+            <span>SCROLL TO EXPLORE</span>
+            <div class="scroll-arrow">↓</div>
+          </div>
+        </section>
+
+        <!-- Section 1: Stepped Typography (Foundations & Rhythm) -->
+        <section class="about-section-wrap about-section-wrap--stepped" id="about-sec-1">
+          <div class="about-section-inner">
+            <div class="about-sec-eyebrow">EARLY CRAFT & PACING</div>
+            <div class="stepped-typography" aria-label="SRIRAM BEGAN CRAFTING AND EDITING STORIES FROM DAY ONE">
+              <div class="stepped-row step-0"><span class="zapf-step">SRIRAM</span></div>
+              <div class="stepped-row step-1"><span class="zapf-step">BEGAN</span></div>
+              <div class="stepped-row step-2"><span class="zapf-step">CRAFTING</span></div>
+              <div class="stepped-row step-3"><span class="zapf-step">AND EDITING</span></div>
+              <div class="stepped-row step-4"><span class="zapf-step">STORIES</span></div>
+              <div class="stepped-row step-5"><span class="zapf-step">FROM DAY ONE</span></div>
+            </div>
+            <div class="about-editorial-text-wrap">
+              <p class="about-editorial-p">
+                Starting in the high-velocity domain of motorcycle stunt riding and action cinematography, Sriram developed an instinctive intuition for kinetic rhythm, precise cut timing, and atmospheric color grading. Every transition is engineered with sound, momentum, and visceral emotional resonance.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2: Stepped Typography (Interface Architecture) -->
+        <section class="about-section-wrap about-section-wrap--stepped about-section-wrap--interface" id="about-sec-2">
+          <div class="about-section-inner">
+            <div class="about-sec-eyebrow">SYSTEMATIC INTERACTION DESIGN</div>
+            <div class="stepped-typography stepped-typography--alt" aria-label="BRIDGING RAW KINETIC CINEMA WITH SYSTEMATIC DIGITAL ARCHITECTURE">
+              <div class="stepped-row step-alt-0"><span class="zapf-step">BRIDGING</span></div>
+              <div class="stepped-row step-alt-1"><span class="zapf-step">RAW KINETIC CINEMA</span></div>
+              <div class="stepped-row step-alt-2"><span class="zapf-step">WITH SYSTEMATIC</span></div>
+              <div class="stepped-row step-alt-3"><span class="zapf-step">DIGITAL ARCHITECTURE</span></div>
+            </div>
+            <div class="about-editorial-text-wrap">
+              <p class="about-editorial-p">
+                Translating cinematic motion into cohesive digital experiences. From multi-persona enterprise dashboards like Luminal HR to high-velocity mobile interactions, Sriram approaches product design with systematic rigor — pairing scalable component architectures with fluid, intentional micro-interactions.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3: Disciplines Orbit (Showcase Cards) -->
+        <section class="about-section-wrap about-section-wrap--orbit" id="about-sec-3">
+          <div class="about-section-inner about-section-inner--wide">
+            <div class="about-sec-eyebrow text-center">DISCIPLINES & SHOWCASE</div>
+            <div class="about-orbit-center-statement">
+              <h2 class="orbit-lead-text">EDITING, ARCHITECTING, AND CRAFTING ACROSS ALL MEDIA</h2>
+              <p class="orbit-sub-text">COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL VISUALS</p>
+            </div>
+            <div class="about-orbit-grid">
+              ${orbitCardsHTML}
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 4: Socials & Outreach -->
+        <section class="about-section-wrap about-section-wrap--socials" id="about-sec-4">
+          <div class="about-section-inner">
+            <div class="about-sec-eyebrow text-center">COLLABORATIONS & OUTREACH</div>
+            <div class="about-socials-block">
+              <div class="about-socials-lead">FOR</div>
+              <div class="about-socials-display">MORE UPDATES</div>
+              <div class="about-socials-sub">FOLLOW SRIRAM ON</div>
+              <div class="about-socials-row">
+                <a href="https://instagram.com/delusional.efx" target="_blank" rel="noopener noreferrer" class="about-social-pill">INSTAGRAM</a>
+                <span class="about-social-or">OR</span>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="about-social-pill">LINKEDIN</a>
+              </div>
+              <div class="about-cta-actions">
+                <button class="about-action-btn about-action-btn--primary" data-nav="contact">GET IN TOUCH / CONTACT ME →</button>
+                <button class="about-action-btn about-action-btn--secondary" data-nav="space">EXPLORE 3D SPACE VIEW ↗</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+
+    // Interaction & Scroll Sync with o-about-section-indicator
+    const sections = aboutV.querySelectorAll('.about-section-wrap');
+    const indicator = aboutV.querySelector('.o-about-section-indicator');
+    const indicatorItems = indicator ? indicator.querySelectorAll('.o-about-section-indicator-item') : [];
+    const currentIndicatorBox = indicator ? indicator.querySelector('.current-section-indicator') : null;
+
+    let activeIdx = 0;
+    function setActiveSection(idx) {
+      if (idx === activeIdx && indicatorItems[idx] && indicatorItems[idx].classList.contains('is-active')) return;
+      activeIdx = idx;
+      indicatorItems.forEach((item, i) => {
+        if (i === idx) {
+          item.classList.add('is-active');
+        } else {
+          item.classList.remove('is-active');
+        }
+      });
+      if (currentIndicatorBox) {
+        currentIndicatorBox.style.transform = `translateY(${idx * 64}px)`;
+      }
+    }
+
+    // Scroll listener on aboutV container
+    let scrollTicking = false;
+    aboutV.addEventListener('scroll', () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(() => {
+          const viewRect = aboutV.getBoundingClientRect();
+          const viewCenter = viewRect.top + viewRect.height * 0.45;
+          let closestIdx = 0;
+          let minDistance = Infinity;
+
+          sections.forEach((sec, idx) => {
+            const rect = sec.getBoundingClientRect();
+            const secCenter = rect.top + rect.height * 0.4;
+            const dist = Math.abs(secCenter - viewCenter);
+            if (dist < minDistance) {
+              minDistance = dist;
+              closestIdx = idx;
+            }
+          });
+
+          setActiveSection(closestIdx);
+          scrollTicking = false;
+        });
+        scrollTicking = true;
+      }
+    }, { passive: true });
+
+    // Click on indicator tick items
+    indicatorItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const idx = parseInt(item.dataset.secIdx, 10);
+        const targetSec = sections[idx];
+        if (targetSec) {
+          targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        }
+      });
+    });
+
+    // Orbit card clicks
+    aboutV.querySelectorAll('.about-orbit-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const slug = card.dataset.slug;
+        if (slug) go('project', slug);
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    // Outro CTA buttons
+    aboutV.querySelectorAll('.about-action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.nav;
+        if (target) go(target);
+      });
+    });
+  }
+
+  function setupContactView() {
+    const contactV = makeView('contact');
+    const linksHTML = Array.isArray(SITE.contactLinks)
+      ? SITE.contactLinks.map(link => {
+          const href = link.href || link.url || '#';
+          const label = link.label || link.name || 'LINK';
+          return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="contact-pill-link">${label}</a>`;
+        }).join('')
+      : '';
+
+    contactV.innerHTML = `
+      <div class="contact-page">
+        <div class="contact-hero-wrap">
+          <div class="contact-box">
+            <div class="contact-eyebrow">CONTACT & COLLABORATIONS</div>
+            <h1 class="contact-main-heading">GET IN TOUCH</h1>
+            <p class="contact-desc">${SITE.contactText || 'Open for select freelance projects and design leadership roles.'}</p>
+            <div class="contact-pills-grid">
+              ${linksHTML}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     7. ROUTING ENGINE
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  function go(viewName, arg) {
+    hideCenterDesc();
+    if (activeView !== viewName) {
+      previousView = activeView;
+    }
+    activeView = viewName;
+    cancelAnimationFrame(animationFrameId);
+
+    const hashTarget = viewName === 'intro' ? '#intro' : (viewName === 'space' ? '#work' : `#${viewName}${arg ? '/' + arg : ''}`);
+    if (location.hash !== hashTarget && !(viewName === 'intro' && (location.hash === '' || location.hash === '#'))) {
+      history.pushState(null, '', hashTarget);
+    }
+
+    // Toggle scroll permissions
+    if (viewName === 'space' || viewName === 'index') {
+      document.body.classList.remove('scroll-ok');
+    } else {
+      document.body.classList.add('scroll-ok');
+    }
+
+    // Hide all view containers
+    Object.keys(views).forEach(k => {
+      if (views[k]) views[k].classList.remove('active');
+    });
+
+    // Update nav button active states
+    document.querySelectorAll('.footer-nav .nav-btn').forEach(btn => {
+      const target = btn.dataset.target;
+      if (target === 'space' && (viewName === 'space' || viewName === 'index')) {
+        btn.classList.add('active');
+      } else if (target === viewName) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Update index toggle button state
+    const indexToggle = document.querySelector('.index-toggle');
+    if (indexToggle) {
+      if (viewName === 'space') {
+        indexToggle.style.display = 'block';
+        indexToggle.classList.add('show');
+      } else {
+        indexToggle.style.display = 'none';
+        indexToggle.classList.remove('show');
+      }
+    }
+
+    if (viewName === 'intro') {
+      if (!views.intro) setupIntroView();
+      views.intro.classList.add('active');
+      views.intro.scrollTop = 0;
+      window.scrollTo(0, 0);
+    } else if (viewName === 'space') {
+      if (!views.space) setupSpaceView();
+      views.space.classList.add('active');
+      spaceLoop();
+    } else if (viewName === 'index') {
+      if (!views.index) setupIndexView();
+      views.index.classList.add('active');
+    } else if (viewName === 'project') {
+      setupProjectView(arg);
+      views.project.classList.add('active');
+      window.scrollTo(0, 0);
+    } else if (viewName === 'about') {
+      setupAboutView();
+      views.about.classList.add('active');
+      views.about.scrollTop = 0;
+      window.scrollTo(0, 0);
+    } else if (viewName === 'contact') {
+      setupContactView();
+      views.contact.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function routeFromHash() {
+    const raw = location.hash.replace('#', '') || 'intro';
+    const parts = raw.split('/');
+    let view = parts[0];
+    let arg = parts[1];
+
+    if (view === 'home' || view === 'cover') view = 'intro';
+    if (view === 'work') view = 'space';
+    if (!['intro', 'space', 'index', 'project', 'about', 'contact'].includes(view)) {
+      view = 'intro';
+    }
+    go(view, arg);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     8. GLOBAL EVENT LISTENERS & BOOTSTRAP
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  window.addEventListener('mousemove', (e) => {
+    const normX = (e.clientX / window.innerWidth) * 2 - 1;
+    const normY = (e.clientY / window.innerHeight) * 2 - 1;
+
+    if (lastMouseX !== null && lastMouseY !== null) {
+      const dx = e.clientX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      rawMouseSpeed = Math.sqrt(dx * dx + dy * dy);
+    }
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+
+    targetMouseX = normX;
+    targetMouseY = normY;
+
+    clearTimeout(mouseVelTimer);
+    mouseVelTimer = setTimeout(() => {
+      rawMouseSpeed = 0;
+    }, 45);
+  });
+
+  window.addEventListener('resize', () => {
+    if (activeView === 'space') {
       renderField();
     }
   });
 
-  let cameraX = 0;
-  let cameraY = 0;
-  let targetMouseX = 0;
-  let targetMouseY = 0;
-
-  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function updateEdgePanning(e) {
-    if (isReducedMotion) return;
-    if (e.target && e.target.closest('.index-toggle, .brand, .footer-nav, .sound-toggle')) {
-      return;
-    }
-    const normX = (e.clientX / window.innerWidth) - 0.5;
-    const normY = (e.clientY / window.innerHeight) - 0.5;
-
-    targetMouseX = normX;
-    targetMouseY = normY;
-  }
-
-  window.addEventListener('mousemove', updateEdgePanning);
-
-  function spaceLoop() {
-    const isMobile = window.innerWidth < 768;
-    const targetCamX = isMobile ? 0 : targetMouseX * 1200;
-    const targetCamY = isMobile ? 0 : targetMouseY * 650;
-
-    cameraX += (targetCamX - cameraX) * 0.14;
-    cameraY += (targetCamY - cameraY) * 0.14;
-
-    if (field) {
-      field.style.transform = `translate3d(${(-cameraX).toFixed(1)}px, ${(-cameraY).toFixed(1)}px, 0px)`;
-
-      field.querySelectorAll('.tile').forEach((t) => {
-        const posX = parseFloat(t.dataset.x || '50');
-        const posY = parseFloat(t.dataset.y || '50');
-        const idx = parseInt(t.dataset.index || '0', 10);
-
-        const normX = (posX - 50) / 120; // -2.2 to +2.5 expanded arc position
-        const normY = (posY - 50) / 90;  // -1.8 to +2.0 expanded arc position
-
-        const maxAngle = isMobile ? 0.25 : 0.62;
-        const theta = normX * maxAngle; // arc angle in radians (~35deg max)
-
-        // 1800R CURVED MONITOR GEOMETRY (STABLE STATE)
-        const concaveFactor = 1 - Math.cos(theta); // 0 at center, ~0.18 at edges
-        const domeCoeff = isMobile ? CONFIG.DOME_CURVE_COEFF * CONFIG.MOBILE_MOTION_SCALE.dome : CONFIG.DOME_CURVE_COEFF;
-        const cylZ = - (concaveFactor * domeCoeff * 3.4); // Center = 0px, Edges recede away
-
-        // Tangent Y-rotation and X pitch
-        const pitchCoeff = isMobile ? CONFIG.PITCH_COEFF * 0.5 : CONFIG.PITCH_COEFF;
-        const yawCoeff = isMobile ? CONFIG.YAW_COEFF * 0.5 : CONFIG.YAW_COEFF;
-        const cylRotY = (normX) * yawCoeff; // degrees
-        const cylRotX = Math.max(-1.0, Math.min(1.0, normY)) * pitchCoeff * 0.35; // degrees
-
-        t.style.transform = `translate(-50%,-50%) translate3d(0px, 0px, ${cylZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg)`;
-      });
-    }
-
-    if (views.space && views.space.classList.contains('active')) {
-      requestAnimationFrame(spaceLoop);
-    }
-  }
-
-  /* ══════════════════════════════════════════════════════════
-     INDEX VIEW  (#index)
-     Numbered project list — full route, not an overlay.
-     Hover over a row previews that project's thumb as a faint
-     full-screen background behind the list.
-     ══════════════════════════════════════════════════════════ */
-  let animFrameId = null;
-
-  const indexView = makeView('index');
-  indexView.innerHTML = `
-    <a class="back-link" href="#space" data-cursor="Close" aria-label="Close Index View and return to main gallery">
-      <span class="t1"><span class="arrow">&larr;&nbsp;</span>BACK</span>
-      <span class="t2">TO SPACE VIEW</span>
-    </a>
-    <div class="index-bg" id="indexBg" aria-hidden="true">
-      <img class="index-bg-media" id="indexBgImg" alt="">
-      <video class="index-bg-media" id="indexBgVid" muted loop playsinline></video>
-    </div>
-    <div class="index-page-inner">
-      <div class="index-list">
-        ${PROJECTS.map((p, i) => `
-          <div class="row" data-slug="${p.slug}" data-cursor="Open" role="button" tabindex="0"
-               aria-label="Open project ${p.title}" style="animation-delay: ${(0.06 + i * 0.05).toFixed(2)}s">
-            <span class="n">${String(i + 1).padStart(3, '0').split('').join(' ')}</span>
-            <span class="name">${p.title}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-
-  // Row click / keyboard → project page
-  indexView.addEventListener('click', (e) => {
-    const row = e.target.closest('[data-slug]');
-    if (row) go('project', row.dataset.slug);
-  });
-  indexView.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const row = e.target.closest('[data-slug]');
-      if (row) go('project', row.dataset.slug);
-    }
-  });
-
-  // Hover preview — faint full-screen thumb behind the row list
-  const indexBg = indexView.querySelector('#indexBg');
-  const indexBgImg = indexView.querySelector('#indexBgImg');
-  const indexBgVid = indexView.querySelector('#indexBgVid');
-
-  indexView.querySelectorAll('.row[data-slug]').forEach(row => {
-    const proj = PROJECTS.find(p => p.slug === row.dataset.slug);
-    row.addEventListener('mouseenter', () => {
-      if (!proj || !proj.thumb) { indexBg.classList.remove('show'); return; }
-      if (proj.thumbType === 'video') {
-        indexBgImg.classList.remove('visible');
-        if (indexBgVid.getAttribute('src') !== proj.thumb) {
-          indexBgVid.src = proj.thumb;
-          indexBgVid.play().catch(() => { });
-        }
-        indexBgVid.classList.add('visible');
-      } else {
-        indexBgVid.classList.remove('visible');
-        if (indexBgImg.getAttribute('src') !== proj.thumb) {
-          indexBgImg.src = proj.thumb;
-        }
-        indexBgImg.classList.add('visible');
-      }
-      indexBg.classList.add('show');
-    });
-    row.addEventListener('mouseleave', () => {
-      indexBg.classList.remove('show');
-      indexBgImg.classList.remove('visible');
-      indexBgVid.classList.remove('visible');
-    });
-  });
-
-  /* ══════════════════════════════════════════════════════════
-     PROJECT VIEW  (#project/<slug>)
-     "Back" always returns to Index View.
-     ══════════════════════════════════════════════════════════ */
-  const projectView = makeView('project');
-
-  function renderProject(slug) {
-    const idx = PROJECTS.findIndex(p => p.slug === slug);
-    const p = PROJECTS[idx] || PROJECTS[0];
-    const next = PROJECTS[(idx + 1) % PROJECTS.length];
-
-    const returnTarget = (lastNavigatedView === 'index') ? 'index' : 'space';
-    const returnLabel = (lastNavigatedView === 'index') ? 'To Index View' : 'To Main Gallery';
-
-    const mediaBlock = p.media
-      ? (p.media.type === 'video'
-        ? `<video src="${p.media.src}" controls poster="${p.media.poster || ''}" playsinline muted data-cursor="View"></video>`
-        : `<img src="${p.media.src}" alt="${p.title}" loading="lazy" data-cursor="View"/>`)
-      : (p.thumb
-        ? `<img src="${p.thumb}" alt="${p.title}" loading="lazy" data-cursor="View"/>`
-        : `<div class="ph">
-               <span>+ ${p.title} FEATURED MEDIA</span>
-               <span style="font-size:9px;letter-spacing:.1em;opacity:.7">Update media path in data.js</span>
-             </div>`);
-
-    const metaItems = [];
-    if (p.role) metaItems.push({ label: 'ROLE', value: p.role });
-    if (p.client) metaItems.push({ label: 'CLIENT', value: p.client });
-    if (p.tools) metaItems.push({ label: 'TOOLS', value: Array.isArray(p.tools) ? p.tools.join(', ') : p.tools });
-    if (p.mediaKind || p.category) metaItems.push({ label: 'TYPE', value: (p.mediaKind || p.category).toUpperCase() });
-
-    const metaGridHtml = metaItems.length > 0 ? `
-      <div class="proj-meta-grid">
-        ${metaItems.map(m => `
-          <div class="proj-meta-item">
-            <span class="pmi-label">${m.label}</span>
-            <span class="pmi-val">${m.value}</span>
-          </div>
-        `).join('')}
-      </div>
-    ` : '';
-
-    const rows = (p.items || []).map((it, i) => `
-      <div class="track-row ${it.type === 'view' ? 'view' : ''}" data-idx="${i}" data-cursor="${it.type === 'view' ? 'View' : 'Play'}">
-        <span class="num">${String(i + 1).padStart(2, '0')}</span>
-        <span class="tname">${it.title}</span>
-        <button class="playmini" aria-label="${it.type === 'view' ? 'View item' : 'Play ' + it.title}">${
-          it.type === 'view' 
-            ? '<span>View</span>' 
-            : `<svg viewBox="0 0 24 24" class="icon-play"><polygon points="8,5 19,12 8,19"/></svg><svg viewBox="0 0 24 24" class="icon-pause"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`
-        }</button>
-        <span class="time">${it.meta || '0:00'}</span>
-      </div>
-    `).join('');
-
-    projectView.innerHTML = `
-      <a class="back-link" href="#${returnTarget}" data-cursor="Close" aria-label="Close project view and return">
-        <span class="t1"><span class="arrow">&larr;</span>Back</span>
-        <span class="t2">${returnLabel}</span>
-      </a>
-      <div class="proj-head">
-        <div class="proj-category">${(p.category || '').toUpperCase()}${p.year ? ' &bull; ' + p.year : ''}</div>
-        <h1 class="title">${p.title}</h1>
-        ${p.short ? `<div class="proj-short">${p.short}</div>` : ''}
-        ${p.description ? `<div class="desc">${p.description}</div>` : ''}
-        ${metaGridHtml}
-        ${p.moreInfo ? `
-          <button class="more-info-toggle" data-more data-cursor="Open">
-            <span class="plus">+</span>More info
-          </button>
-          <div class="more-info-panel" id="moreInfoPanel">${p.moreInfo}</div>
-        ` : ''}
-      </div>
-      <div class="proj-media">
-        ${mediaBlock}
-        ${p.media && p.media.type === 'video' ? `<div class="play-btn"></div><div class="play-label">Play ${p.mediaKind || 'video'}</div>` : ''}
-      </div>
-      ${rows ? `<div class="track-list">${rows}</div>` : ''}
-      <div class="next-project" data-next data-cursor="View" role="button" tabindex="0" aria-label="Navigate to next project ${next.title}">
-        <div class="lbl">Next ${SITE.singularLabel || 'project'}</div>
-        <div class="np-title">${next.title}</div>
-      </div>
-    `;
-
-    projectView.querySelector('[data-next]').addEventListener('click', () => go('project', next.slug));
-    const moreBtn = projectView.querySelector('[data-more]');
-    if (moreBtn) {
-      moreBtn.addEventListener('click', () => {
-        document.getElementById('moreInfoPanel').classList.toggle('open');
-      });
-    }
-
-    projectView.querySelectorAll('.track-row').forEach(row => {
-      row.addEventListener('click', () => {
-        if (row.classList.contains('view')) return;
-        const isPlaying = row.classList.contains('is-playing');
-        projectView.querySelectorAll('.track-row').forEach(r => r.classList.remove('is-playing'));
-        if (!isPlaying) {
-          row.classList.add('is-playing');
-        }
-      });
-    });
-  }
-
-  // Keyboard accessibility: Escape key returns to active origin view (Index or Space)
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (views.project && views.project.classList.contains('active')) {
-        go(lastNavigatedView === 'index' ? 'index' : 'space');
-      } else if (views.index && views.index.classList.contains('active')) {
-        go('space');
-      } else if (views.about && views.about.classList.contains('active')) {
-        go('space');
-      } else if (views.contact && views.contact.classList.contains('active')) {
-        go('space');
-      }
-    }
-  });
-
-  /* ══════════════════════════════════════════════════════════
-     ABOUT VIEW  (#about)
-     Four scrollable sections, driven by SITE fields in data.js.
-     ══════════════════════════════════════════════════════════ */
-  const aboutView = makeView('about');
-
-  const headlineHtml = (SITE.aboutHeadline || []).map(f =>
-    `<span class="about-frag about-frag--${f.size}">${f.text}</span>`
-  ).join(' ');
-
-  const defaultIntro = 'Multidisciplinary designer operating at the intersection of video editing, UI/UX product design, and visual craft. Specializing in stunt riding films, interactive digital experiences, and brand narratives.';
-  const introText = (SITE.aboutIntro && !SITE.aboutIntro.startsWith('TODO')) ? SITE.aboutIntro : defaultIntro;
-
-  const defaultBio = 'Bringing together narrative motion picture cutting, user-centered interface architecture, and graphic typography into a single unified practice. Driven by rhythm, visual clarity, and intentional motion.';
-  const bioText = (SITE.aboutBio && !SITE.aboutBio.startsWith('TODO')) ? SITE.aboutBio : defaultBio;
-
-  const toolsHtml = (SITE.aboutTools || []).map(col => `
-    <div class="about-tools-col">
-      <div class="about-tools-disc">${col.discipline}</div>
-      <ul class="about-tools-list">
-        ${col.tools.map(t => `<li>${t}</li>`).join('')}
-      </ul>
-    </div>`).join('');
-
-  const SECTION_COUNT = 4;
-  const ticksHtml = Array.from({ length: SECTION_COUNT }, (_, i) =>
-    `<button class="ap-tick" data-tick="${i}" data-cursor="Explore" aria-label="Section ${i + 1}"></button>`
-  ).join('');
-
-  aboutView.innerHTML = `
-    <a class="back-link" href="#space" data-cursor="Close" aria-label="Close About view and return to main gallery">
-      <span class="t1"><span class="arrow">&larr;</span>SPACE VIEW</span>
-      <span class="t2">BACK TO GALLERY</span>
-    </a>
-
-    <nav class="about-progress" id="aboutProgress" aria-label="Page sections">
-      ${ticksHtml}
-    </nav>
-
-    <div class="about-wrap">
-      <section class="about-section about-section--hero" data-section="0">
-        <div class="about-bg-layer" id="aboutBgLayer">
-          ${SITE.aboutBg ? (SITE.aboutBgType === 'video'
-      ? `<video src="${SITE.aboutBg}" muted loop playsinline autoplay class="about-bg-media"></video>`
-      : `<img src="${SITE.aboutBg}" alt="" class="about-bg-media">`)
-      : `<div class="about-bg-ph">
-                 <span>MULTIDISCIPLINARY STUDIO</span>
-                 <span class="about-bg-ph-hint">Video Editing &bull; UI/UX Design &bull; Graphic Craft</span>
-               </div>`}
-        </div>
-        <div class="about-headline-wrap">
-          <h1 class="about-headline" aria-label="About statement">${headlineHtml}</h1>
-          <div class="about-scroll-hint">Scroll down &darr;</div>
-        </div>
-      </section>
-
-      <section class="about-section about-section--intro" data-section="1">
-        <div class="about-section-inner">
-          <div class="as-eyebrow">Statement</div>
-          <p class="about-intro-text">${introText}</p>
-        </div>
-      </section>
-
-      <section class="about-section about-section--tools" data-section="2">
-        <div class="about-section-inner">
-          <div class="as-eyebrow">Tools &amp; Disciplines</div>
-          <div class="about-tools-grid">${toolsHtml}</div>
-        </div>
-      </section>
-
-      <section class="about-section about-section--bio" data-section="3">
-        <div class="about-section-inner">
-          <div class="as-eyebrow">Background</div>
-          <p class="about-bio-text">${bioText}</p>
-        </div>
-      </section>
-    </div>
-  `;
-
-  {
-    const progressEl = aboutView.querySelector('#aboutProgress');
-    const sectionEls = aboutView.querySelectorAll('.about-section');
-    const tickEls = progressEl ? Array.from(progressEl.querySelectorAll('.ap-tick')) : [];
-
-    tickEls.forEach((tick, i) => {
-      tick.addEventListener('click', () => {
-        const sec = sectionEls[i];
-        if (sec) aboutView.scrollTo({ top: sec.offsetTop, behavior: 'smooth' });
-      });
-    });
-
-    if (typeof IntersectionObserver !== 'undefined') {
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const idx = parseInt(entry.target.dataset.section, 10);
-            tickEls.forEach((t, i) => t.classList.toggle('is-active', i === idx));
-          }
-        });
-      }, { root: aboutView, threshold: 0.45 });
-      sectionEls.forEach(s => obs.observe(s));
-    }
-
-    const scrollHint = aboutView.querySelector('.about-scroll-hint');
-    if (scrollHint) {
-      aboutView.addEventListener('scroll', () => { scrollHint.style.opacity = '0'; }, { once: true });
-    }
-  }
-
-  /* ══════════════════════════════════════════════════════════
-     CONTACT VIEW  (#contact)
-     ══════════════════════════════════════════════════════════ */
-  const contactView = makeView('contact');
-
-  const linksHtml = (SITE.contactLinks || []).map(l =>
-    `<a href="${l.href}" data-cursor="Open" target="_blank" rel="noopener" class="contact-pill-link">${l.label}</a>`
-  ).join('');
-
-  contactView.innerHTML = `
-    <a class="back-link" href="#space" data-cursor="Close" aria-label="Close Contact view and return to main gallery">
-      <span class="t1"><span class="arrow">&larr;</span>SPACE VIEW</span>
-      <span class="t2">BACK TO GALLERY</span>
-    </a>
-    <div class="contact-hero-wrap">
-      <div class="contact-box">
-        <div class="contact-eyebrow">${(SITE.role || 'MULTIDISCIPLINARY DESIGNER').toUpperCase()} &bull; GET IN TOUCH</div>
-        <h1 class="contact-main-heading">LET'S CREATE TOGETHER</h1>
-        <p class="contact-desc">${SITE.contactText || 'For edits, designs, collabs, or the full reel — reach out.'}</p>
-        
-        <div class="contact-email-container">
-          <a href="mailto:${SITE.email || 'sriram.mj@example.com'}" class="contact-email-btn" data-cursor="Open">
-            ${(SITE.email || 'SRIRAM.MJ@EXAMPLE.COM').toUpperCase()}
-          </a>
-        </div>
-
-        <div class="contact-pills-grid">
-          ${linksHtml}
-          <a class="contact-pill-link contact-pill-link--highlight" href="#" data-cursor="Open" onclick="alert('Downloading Sriram Resume / Reel'); return false;">
-            RESUME / REEL &darr;
-          </a>
-        </div>
-
-        <div class="contact-signature">
-          <span class="cs-name">${(SITE.name || 'SRIRAM MJ').toUpperCase()}</span>
-          <span class="cs-dot">&bull;</span>
-          <span class="cs-role">MULTIDISCIPLINARY DESIGNER</span>
-        </div>
-      </div>
-    </div>
-  `;
-
-  /* ══════════════════════════════════════════════════════════
-     ROUTER
-     ══════════════════════════════════════════════════════════ */
-  function go(view, arg) {
-    // Backward-compat redirects
-    if (view === 'home' || view === 'work') view = 'space';
-
-    if (view !== activeView) {
-      if (activeView !== 'project') {
-        lastNavigatedView = activeView;
-      }
-      activeView = view;
-    }
-
-    // Deactivate all views
-    Object.values(views).forEach(v => v.classList.remove('active'));
-
-    // Render dynamic content if needed
-    if (view === 'project') renderProject(arg);
-
-    // Activate target view (fall back to space)
-    const target = views[view] || views.space;
-    target.classList.add('active');
-
-    // Update active underline state for bottom navigation links
-    if (footerNav) {
-      footerNav.querySelectorAll('[data-nav]').forEach(btn => {
-        const isWorkNav = btn.dataset.nav === 'space' && (view === 'space' || view === 'index' || view === 'project');
-        const isMatch = (btn.dataset.nav === view) || isWorkNav;
-        btn.classList.toggle('active', isMatch);
-      });
-    }
-
-    if (view === 'space' || !view) {
-      if (animFrameId) cancelAnimationFrame(animFrameId);
-      animFrameId = requestAnimationFrame(spaceLoop);
-    } else {
-      if (animFrameId) cancelAnimationFrame(animFrameId);
-    }
-
-    // About hero background: reveal on arrive (1.2s dwell), reset on leave
-    {
-      const bgLayer = document.getElementById('aboutBgLayer');
-      if (bgLayer) {
-        if (view === 'about') setTimeout(() => bgLayer.classList.add('revealed'), 1200);
-        else bgLayer.classList.remove('revealed');
-      }
-    }
-
-    // Reset scroll position for scrollable views
-    target.scrollTop = 0;
-    const inner = target.querySelector('.index-page-inner');
-    if (inner) inner.scrollTop = 0;
-
-    // "+ Index View" toggle only shown while on Space View
-    indexToggle.classList.toggle('show', view === 'space');
-    const brandEl = document.querySelector('.brand');
-    if (brandEl) {
-      if (view === 'index') {
-        brandEl.style.setProperty('display', 'none', 'important');
-      } else {
-        brandEl.style.removeProperty('display');
-      }
-    }
-
-    // Update URL hash (guard prevents double-firing hashchange)
-    const newHash = arg ? `${view}/${arg}` : view;
-    if (location.hash !== '#' + newHash) location.hash = newHash;
-  }
-
-  function routeFromHash() {
-    const raw = location.hash.replace('#', '') || 'space';
-    const [view, arg] = raw.split('/');
-    go(view, arg);
-  }
-
   window.addEventListener('hashchange', routeFromHash);
-  // Execute initial routing on script load
-  routeFromHash();
 
-  /* ══════════════════════════════════════════════════════════
-     CLEAN CONTENT MANAGER / PORTFOLIO EDITOR
-     Allows the user to easily add/edit projects and media
-     ══════════════════════════════════════════════════════════ */
-  const adminBtn = document.createElement('button');
-  adminBtn.className = 'admin-trigger';
-  adminBtn.innerHTML = `⚡ Manage Content`;
-  document.body.appendChild(adminBtn);
+  /* ═══════════════════════════════════════════════════════════════════════════
+     9. CUSTOM TYPOGRAPHIC CURSOR
+     Desktop trailing text cursor with per-character inertia
+     ═══════════════════════════════════════════════════════════════════════════ */
 
-  const adminModal = document.createElement('div');
-  adminModal.className = 'admin-modal';
-  adminModal.innerHTML = `
-    <div class="admin-modal-content">
-      <div class="admin-header">
-        <h2>Portfolio Content Manager</h2>
-        <span class="admin-close">&times;</span>
-      </div>
-      <div class="admin-body">
-        <div class="admin-form-group">
-          <label>Select Project to Edit or Add New</label>
-          <select id="adminProjSelect">
-            <option value="__new__">+ Add New Project</option>
-            ${PROJECTS.map((p, idx) => `<option value="${idx}">${p.title} (${p.category})</option>`).join('')}
-          </select>
-        </div>
-        <div class="admin-form-group">
-          <label>Project Title</label>
-          <input type="text" id="adminTitle" placeholder="e.g. NIGHT RIDE" />
-        </div>
-        <div class="admin-form-group">
-          <label>Category</label>
-          <select id="adminCategory">
-            <option value="Video">Video Editing</option>
-            <option value="UI/UX">UI/UX Design</option>
-            <option value="Graphic Design">Graphic Design</option>
-          </select>
-        </div>
-        <div class="admin-form-group">
-          <label>Short Caption (Hover Subtitle)</label>
-          <input type="text" id="adminShort" placeholder="e.g. A night stunt run cut to a driving score" />
-        </div>
-        <div class="admin-form-group">
-          <label>Full Description</label>
-          <textarea id="adminDesc" rows="3" placeholder="Describe the concept, tools, story..."></textarea>
-        </div>
-        <div class="admin-form-group">
-          <label>Thumbnail Media Path / URL (e.g. media/night-ride.jpg)</label>
-          <input type="text" id="adminThumb" placeholder="media/filename.jpg" />
-        </div>
-      </div>
-      <div class="admin-actions">
-        <button class="admin-btn admin-btn-secondary" id="adminCloseBtn">Cancel</button>
-        <button class="admin-btn admin-btn-primary" id="adminSaveBtn">Save & Apply Live</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(adminModal);
-
-  const adminProjSelect = adminModal.querySelector('#adminProjSelect');
-  const adminTitle = adminModal.querySelector('#adminTitle');
-  const adminCategory = adminModal.querySelector('#adminCategory');
-  const adminShort = adminModal.querySelector('#adminShort');
-  const adminDesc = adminModal.querySelector('#adminDesc');
-  const adminThumb = adminModal.querySelector('#adminThumb');
-
-  function populateAdminForm() {
-    const val = adminProjSelect.value;
-    if (val === '__new__') {
-      adminTitle.value = '';
-      adminCategory.value = 'Video';
-      adminShort.value = '';
-      adminDesc.value = '';
-      adminThumb.value = '';
-    } else {
-      const p = PROJECTS[parseInt(val, 10)];
-      if (p) {
-        adminTitle.value = p.title || '';
-        adminCategory.value = p.category || 'Video';
-        adminShort.value = p.short || '';
-        adminDesc.value = p.description || '';
-        adminThumb.value = p.thumb || '';
-      }
-    }
-  }
-
-  adminProjSelect.addEventListener('change', populateAdminForm);
-
-  adminBtn.addEventListener('click', () => {
-    populateAdminForm();
-    adminModal.classList.add('open');
-  });
-
-  const closeModal = () => adminModal.classList.remove('open');
-  adminModal.querySelector('.admin-close').addEventListener('click', closeModal);
-  adminModal.querySelector('#adminCloseBtn').addEventListener('click', closeModal);
-
-  adminModal.querySelector('#adminSaveBtn').addEventListener('click', () => {
-    const val = adminProjSelect.value;
-    const titleVal = adminTitle.value.trim();
-    if (!titleVal) { alert('Please enter a project title'); return; }
-
-    const slug = titleVal.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const projData = {
-      slug: slug,
-      title: titleVal,
-      category: adminCategory.value,
-      short: adminShort.value,
-      description: adminDesc.value,
-      thumb: adminThumb.value,
-      items: [{ title: 'Main View', type: 'play', meta: '0:00' }]
-    };
-
-    if (val === '__new__') {
-      PROJECTS.push(projData);
-    } else {
-      const idx = parseInt(val, 10);
-      PROJECTS[idx] = { ...PROJECTS[idx], ...projData };
-    }
-
-    renderField();
-    closeModal();
-  });
-
-  window.addEventListener('hashchange', routeFromHash);
-  routeFromHash(); // initial render
-
-  /* ══════════════════════════════════════════════════════════
-     CUSTOM TYPOGRAPHIC CURSOR (STEP 1)
-     Desktop-only trailing text cursor with per-character inertia
-     ══════════════════════════════════════════════════════════ */
   function initCustomCursor() {
-    // Desktop only — check for fine pointer and hover capabilities
     const isFinePointer = window.matchMedia('(pointer: fine)').matches && window.matchMedia('(hover: hover)').matches;
     if (!isFinePointer) return;
 
@@ -1278,10 +1426,9 @@
     let mouseX = -1000;
     let mouseY = -1000;
     let hasMovedMouse = false;
-
     let currentText = '';
     let isVisible = false;
-    let charData = []; // [{ el, baseOffsetX, x, y, opacity, targetOpacity }]
+    let charData = [];
 
     window.addEventListener('pointermove', (e) => {
       mouseX = e.clientX;
@@ -1298,7 +1445,6 @@
 
       if (!text) return;
 
-      // Temporary element to measure character width and base offset
       const measurer = document.createElement('div');
       measurer.className = 'custom-cursor-measurer';
 
@@ -1374,13 +1520,10 @@
         charData.forEach((cd, i) => {
           const targetX = startX + cd.baseOffsetX;
           const targetY = targetBaseY;
-
-          // Per-character inertia easing (char 0 fastest, trailing chars decay)
           const easing = Math.max(0.06, 0.22 * Math.pow(0.86, i));
 
           cd.x += (targetX - cd.x) * easing;
           cd.y += (targetY - cd.y) * easing;
-
           cd.opacity += (cd.targetOpacity - cd.opacity) * 0.2;
 
           cd.el.style.transform = `translate3d(${cd.x.toFixed(2)}px, ${cd.y.toFixed(2)}px, 0)`;
@@ -1393,7 +1536,6 @@
 
     requestAnimationFrame(renderCursor);
 
-    // Global Event Delegation for data-cursor attribute
     document.addEventListener('pointerover', (e) => {
       const target = e.target.closest('[data-cursor]');
       if (target) {
@@ -1417,6 +1559,16 @@
     }, { passive: true });
   }
 
-  initCustomCursor();
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    initPersistentChrome();
+    initCustomCursor();
+    setupIntroView();
+    setupSpaceView();
+    setupIndexView();
+    setupAboutView();
+    setupContactView();
+    routeFromHash();
+  });
 
 })();
