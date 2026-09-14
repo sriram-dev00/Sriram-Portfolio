@@ -110,6 +110,34 @@
      ═══════════════════════════════════════════════════════════════════════════ */
 
   let gatePassed = false;
+  let isFlyingIn = false;
+  let entranceStartTime = 0;
+
+  // Editorial luxury ease curve: cubic-bezier(0.16, 1, 0.3, 1)
+  function bezierEase(t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    let u = t;
+    for (let i = 0; i < 6; i++) {
+      const u2 = u * u;
+      const u3 = u2 * u;
+      const oneMinusU = 1 - u;
+      const currentX = 3 * oneMinusU * oneMinusU * u * 0.16 + 3 * oneMinusU * u2 * 0.3 + u3;
+      const dx = 3 * oneMinusU * oneMinusU * 0.16 + 6 * oneMinusU * u * (0.3 - 0.16) + 3 * u2 * (1 - 0.3);
+      if (Math.abs(dx) < 1e-6) break;
+      u -= (currentX - t) / dx;
+      u = Math.max(0, Math.min(1, u));
+    }
+    return Math.max(0, Math.min(1, 1 - Math.pow(1 - u, 3)));
+  }
+
+  function triggerEntranceFlyIn() {
+    isFlyingIn = true;
+    entranceStartTime = performance.now();
+    if (activeView === 'space') {
+      spaceLoop();
+    }
+  }
 
   function initSoundGate() {
     if (document.getElementById('soundGateOverlay')) return;
@@ -159,6 +187,9 @@
 
       document.body.classList.remove('in-gate-state');
       overlay.classList.add('gate-fade-out');
+
+      // Execute 2.2s cinematic dolly fly-in into 3D space
+      triggerEntranceFlyIn();
 
       setTimeout(() => {
         if (overlay && overlay.parentNode) {
@@ -652,6 +683,20 @@
     const isMobile = window.innerWidth < 768;
     const scaleFactor = getSpatialScaleFactor();
 
+    // 1. Cinematic Dolly Fly-In Entrance (2.2s duration with cubic-bezier(0.16, 1, 0.3, 1))
+    let flyInEase = 1.0;
+    if (!gatePassed) {
+      flyInEase = 0.0;
+    } else if (isFlyingIn) {
+      const elapsed = (performance.now() - entranceStartTime) / 2200;
+      if (elapsed >= 1.0) {
+        isFlyingIn = false;
+        flyInEase = 1.0;
+      } else {
+        flyInEase = bezierEase(elapsed);
+      }
+    }
+
     // Camera sway across spatial gallery field
     const targetCamX = isMobile ? 0 : targetMouseX * (scaleFactor * 460);
     const targetCamY = isMobile ? 0 : targetMouseY * (scaleFactor * 280);
@@ -665,7 +710,13 @@
     fieldRotX += (targetRotX - fieldRotX) * 0.045;
 
     if (field) {
-      field.style.transform = `translate3d(${-cameraX.toFixed(1)}px, ${-cameraY.toFixed(1)}px, 0px) rotateX(${fieldRotX.toFixed(2)}deg) rotateY(${fieldRotY.toFixed(2)}deg)`;
+      // Dolly Z and scale: smoothly zooms from translate3d(0, 0, -480px) scale(0.72) to translate3d(0, 0, 0) scale(1.0)
+      const flyInZ = (1.0 - flyInEase) * -480;
+      const flyInScale = 0.72 + (0.28 * flyInEase);
+
+      field.style.transform = `translate3d(${-cameraX.toFixed(1)}px, ${-cameraY.toFixed(1)}px, ${flyInZ.toFixed(1)}px) rotateX(${fieldRotX.toFixed(2)}deg) rotateY(${fieldRotY.toFixed(2)}deg) scale(${flyInScale.toFixed(3)})`;
+
+      const elapsedSec = isFlyingIn ? (performance.now() - entranceStartTime) / 1000 : 999;
 
       field.querySelectorAll('.tile').forEach((t, i) => {
         const rawX = isNaN(parseFloat(t.dataset.x)) ? 0 : parseFloat(t.dataset.x);
@@ -683,6 +734,7 @@
         const normX = posX / (720 * scaleFactor);
         const normY = posY / (390 * scaleFactor);
         const distSq = (normX * normX) + (normY * normY * 0.65);
+        const distFromCenter = Math.sqrt(distSq);
 
         // Concave curvature pushing peripheral tiles deeper into space
         const concaveZ = - distSq * CONFIG.CONCAVE_CURVE_STRENGTH;
@@ -693,12 +745,23 @@
         const cylRotX = baseRx + (-normY * CONFIG.PITCH_COEFF);
         const cylRotZ = baseRz;
 
+        // Radial center-outward stagger bloom (delay = distFromCenter * 0.25s)
+        let tileBloomEase = 1.0;
+        if (!gatePassed) {
+          tileBloomEase = 0.0;
+        } else if (flyInEase < 1.0) {
+          const staggerDelaySec = distFromCenter * 0.25;
+          const tileTimeNorm = Math.max(0, Math.min(1.0, (elapsedSec - staggerDelaySec) / 1.15));
+          tileBloomEase = bezierEase(tileTimeNorm);
+        }
+
         const isHovered = t.classList.contains('is-hovered');
 
         // Depth-based opacity: Far (~0.38), Mid (~0.55), Near (~0.75), Hovered (1.0)
         const normZ = Math.max(0, Math.min(1, (totalZ + 380) / 600));
         const depthOpacity = 0.38 + normZ * 0.40;
-        t.style.opacity = isHovered ? '1.0' : depthOpacity.toFixed(2);
+        const finalOpacity = isHovered ? 1.0 : (depthOpacity * tileBloomEase);
+        t.style.opacity = finalOpacity.toFixed(3);
 
         // Dynamic 3D Z-index: Derived directly from computed 3D depth
         const uniqueStackIndex = Math.round((totalZ + 2000) * 10) + i;
@@ -709,8 +772,14 @@
           ? 'brightness(1.05) saturate(1.0) drop-shadow(0px 14px 36px rgba(0,0,0,0.95))'
           : `brightness(${CONFIG.TILE_REST_BRIGHTNESS}) saturate(${CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 10px 24px rgba(0,0,0,0.5))`;
 
-        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations without hover zoom
-        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
+        // Tiles settle into their precise cylindrical yaw/pitch angles as the camera eases to a complete rest
+        const inwardSettleX = (1.0 - tileBloomEase) * 6.5;
+        const inwardSettleY = (normX >= 0 ? -1 : 1) * (1.0 - tileBloomEase) * 4.5;
+        const finalRotX = cylRotX + inwardSettleX;
+        const finalRotY = cylRotY + inwardSettleY;
+
+        // Pure 3D transform without hover zoom (scale strictly 1)
+        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${finalRotX.toFixed(2)}deg) rotateY(${finalRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
       });
     }
 
