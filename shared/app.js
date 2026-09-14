@@ -553,7 +553,6 @@
         const cylRotZ = baseRz;
 
         const isHovered = t.classList.contains('is-hovered');
-        const hoverScale = isHovered ? 1.05 : 1.0;
 
         // Depth-based opacity: Far (~0.38), Mid (~0.55), Near (~0.75), Hovered (1.0)
         const normZ = Math.max(0, Math.min(1, (totalZ + 380) / 600));
@@ -569,8 +568,8 @@
           ? 'brightness(1.05) saturate(1.0) drop-shadow(0px 14px 36px rgba(0,0,0,0.95))'
           : `brightness(${CONFIG.TILE_REST_BRIGHTNESS}) saturate(${CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 10px 24px rgba(0,0,0,0.5))`;
 
-        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations + hover scale
-        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(${hoverScale})`;
+        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations without hover zoom
+        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
       });
     }
 
@@ -1052,7 +1051,7 @@
           <div class="line-wrapper">
             <div class="o-about-section-indicator-item is-active" data-sec-idx="0" role="button" tabindex="0">
               <span class="item-indicator"></span>
-              <span class="item-title">ALL MEDIA</span>
+              <span class="item-title"></span>
             </div>
             <div class="o-about-section-indicator-item" data-sec-idx="1" role="button" tabindex="0">
               <span class="item-indicator"></span>
@@ -1152,9 +1151,11 @@
               <div class="about-socials-display">MORE UPDATES</div>
               <div class="about-socials-sub">FOLLOW SRIRAM ON</div>
               <div class="about-socials-row">
-                <a href="https://instagram.com/delusional.efx" target="_blank" rel="noopener noreferrer" class="about-social-pill">INSTAGRAM</a>
+                <a href="https://www.instagram.com/delusional.efx?stkn=MW82b2ttZW9vdnNuaw==" target="_blank" rel="noopener noreferrer" class="about-social-pill">INSTAGRAM</a>
                 <span class="about-social-or">OR</span>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="about-social-pill">LINKEDIN</a>
+                <a href="https://www.linkedin.com/in/sriram-m-j-5491a7322/" target="_blank" rel="noopener noreferrer" class="about-social-pill">LINKEDIN</a>
+                <span class="about-social-or">OR</span>
+                <a href="mailto:srirammj221@gmail.com" class="about-social-pill">EMAIL</a>
               </div>
               <div class="about-cta-actions">
                 <button class="about-action-btn about-action-btn--primary" data-nav="contact">GET IN TOUCH / CONTACT ME →</button>

@@ -53,12 +53,16 @@
   let mouseVelTimer = null;
   let cameraX = 0;
   let cameraY = 0;
+  let fieldRotX = 0;
+  let fieldRotY = 0;
+
   let activeHoveredTile = null;
   let hoverIntentTimer = null;
   let hoverExitTimer = null;
 
-  // DOM Containers
-  const appContainer = document.getElementById('app') || document.body;
+  function getAppContainer() {
+    return document.getElementById('app') || document.body;
+  }
   let views = {};
   let field = null;
   let stage = null;
@@ -101,17 +105,104 @@
     requestAnimationFrame(update);
   }
 
-  function initPersistentChrome() {
-    document.title = `${SITE.name || 'Portfolio'} — ${SITE.role || 'Designer'}`;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     0. SOUND GATE ENTRANCE (Continuous Full-Bleed Overlay from Stitch Reference)
+     ═══════════════════════════════════════════════════════════════════════════ */
 
-    // Brand Header
+  let gatePassed = false;
+
+  function initSoundGate() {
+    if (document.getElementById('soundGateOverlay')) return;
+
+    // Direct deep-link check (e.g. if loaded directly to #about or #contact)
+    const initialHash = (location.hash.replace('#', '') || '').split('/')[0];
+    if (initialHash && !['', 'space', 'home', 'work', 'gate'].includes(initialHash)) {
+      gatePassed = true;
+      return;
+    }
+
+    document.body.classList.add('in-gate-state');
+
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const clickOrTap = isTouch ? 'TAP' : 'CLICK';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'soundGateOverlay';
+    overlay.innerHTML = `
+      <div id="soundGateText" class="mg-intro-text">
+        <div class="mg-intro-words">
+          <span style="margin-left: -21em; margin-top: 0em;" class="mg-word"><span>${clickOrTap}</span></span>
+          <span style="margin-left: -12em; margin-top: 0em;" class="mg-word"><span>ANYWHERE</span></span>
+          <span style="margin-left: -6em; margin-top: 0em;" class="mg-word"><span>TO</span></span>
+          <span style="margin-left: 0em; margin-top: -0.7em;" class="mg-word"><span>TURN</span></span>
+          <span style="margin-left: 6em; margin-top: -0.7em;" class="mg-word"><span>ON</span></span>
+          <span style="margin-left: 11em; margin-top: 0em;" class="mg-word"><span>YOUR</span></span>
+          <span style="margin-left: 18em; margin-top: 0em;" class="mg-word"><span>SOUND</span></span>
+        </div>
+      </div>
+      <div id="soundGateSkip" class="intro-enter-link">
+        <button id="btn-enter-without-sound" aria-label="Enter without sound">
+          <span>ENTER WITHOUT SOUND</span>
+        </button>
+      </div>
+    `;
+
+    function passGate(withSound) {
+      if (gatePassed) return;
+      gatePassed = true;
+
+      if (withSound) {
+        enableAudio(true);
+      } else {
+        disableAudio();
+      }
+
+      document.body.classList.remove('in-gate-state');
+      overlay.classList.add('gate-fade-out');
+
+      setTimeout(() => {
+        if (overlay && overlay.parentNode) {
+          overlay.parentNode.removeChild(overlay);
+        }
+      }, 500);
+    }
+
+    const skipBtn = overlay.querySelector('#btn-enter-without-sound');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        passGate(false);
+      });
+    }
+
+    overlay.addEventListener('click', () => {
+      passGate(true);
+    });
+
+    document.body.appendChild(overlay);
+  }
+
+  function initPersistentChrome() {
+    document.title = `${SITE.name || 'Sriram MJ'} | ${SITE.role || 'Multidisciplinary Designer'}`;
+
+    // Brand Header & Top Web Bar (contains centered brand and top sound toggle control)
     const brand = document.createElement('div');
     brand.className = 'brand';
-    brand.innerHTML = `<span class="name"></span><span class="role">${SITE.role || ''}</span>`;
-    brand.addEventListener('click', () => go('space'));
-    brand.style.cursor = 'pointer';
-    brand.style.pointerEvents = 'auto';
+    brand.innerHTML = `
+      <div class="brand-inner">
+        <div class="brand-text" title="Return to Front Page / Home" data-cursor="Home">
+          <span class="name"></span>
+          <span class="role">${SITE.role || ''}</span>
+        </div>
+      </div>
+    `;
     document.body.appendChild(brand);
+
+    const brandText = brand.querySelector('.brand-text');
+    if (brandText) {
+      brandText.addEventListener('click', () => go('space'));
+      brandText.style.cursor = 'pointer';
+    }
 
     const nameEl = brand.querySelector('.name');
     scrambleText(nameEl, SITE.name || 'Sriram MJ');
@@ -157,20 +248,24 @@
     });
     document.body.appendChild(footerNav);
 
-    // Sound Toggle (Bottom-Right)
+    // Sound Toggle (Small concentric circular button matching user reference)
     const soundToggle = document.createElement('button');
     soundToggle.className = 'sound-toggle';
+    soundToggle.id = 'bottomSoundToggle';
     soundToggle.setAttribute('aria-label', 'Toggle Ambient Audio');
+    soundToggle.setAttribute('title', 'Toggle audio');
     soundToggle.innerHTML = `
-      <svg class="icon-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-      </svg>
-      <svg class="icon-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:none;">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <line x1="23" y1="9" x2="17" y2="15"></line>
-        <line x1="17" y1="9" x2="23" y2="15"></line>
-      </svg>
+      <span class="sound-toggle-icon" aria-hidden="true">
+        <svg class="icon-on" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="9 3 4.5 7 1 7 1 13 4.5 13 9 17 9 3"></polygon>
+          <path d="M13.5 6.5a5 5 0 0 1 0 7"></path>
+        </svg>
+        <svg class="icon-off" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+          <polygon points="9 3 4.5 7 1 7 1 13 4.5 13 9 17 9 3"></polygon>
+          <line x1="17" y1="7.5" x2="13" y2="12.5"></line>
+          <line x1="13" y1="7.5" x2="17" y2="12.5"></line>
+        </svg>
+      </span>
     `;
     soundToggle.addEventListener('click', toggleAudio);
     document.body.appendChild(soundToggle);
@@ -179,6 +274,8 @@
     const savedAudio = localStorage.getItem('portfolio_audio');
     if (savedAudio === 'enabled') {
       enableAudio(false);
+    } else {
+      updateAudioUI();
     }
   }
 
@@ -190,28 +287,84 @@
     }
   }
 
+  let audioCtx = null;
+  let synthNodes = null;
+
+  function initSynthDrone() {
+    if (audioCtx) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return;
+    }
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(55, audioCtx.currentTime); // A1 note
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(110, audioCtx.currentTime); // A2 harmonic
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(450, audioCtx.currentTime);
+
+      gainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.06, audioCtx.currentTime + 2.5);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      osc1.start();
+      osc2.start();
+      synthNodes = { osc1, osc2, gainNode };
+    } catch (e) {
+      console.warn('Web Audio synthesis drone unavailable:', e);
+    }
+  }
+
+  function stopSynthDrone() {
+    if (synthNodes && audioCtx) {
+      try {
+        synthNodes.gainNode.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+      } catch (e) {}
+    }
+  }
+
   function enableAudio(userInitiated) {
     if (!audioInstance) {
       const isSubsite = window.location.pathname.includes('/uiux/') || window.location.pathname.includes('/video-editor/');
       const basePath = isSubsite ? '../' : './';
       audioInstance = new Audio(`${basePath}media/ambient.mp3`);
       audioInstance.loop = true;
-      audioInstance.volume = 0.4;
+      audioInstance.volume = 0.5;
     }
     audioInstance.play().then(() => {
+      stopSynthDrone();
       isAudioPlaying = true;
       localStorage.setItem('portfolio_audio', 'enabled');
       updateAudioUI();
     }).catch(err => {
-      isAudioPlaying = false;
+      // Fallback: If browser autoplay policies block media audio, synthesized drone supplies atmospheric ambiance
+      initSynthDrone();
+      isAudioPlaying = true;
+      localStorage.setItem('portfolio_audio', 'enabled');
       updateAudioUI();
       if (userInitiated) {
-        console.warn('Audio playback unavailable or missing media/ambient.mp3 file:', err);
+        console.log('Atmospheric fallback drone active via Web Audio.');
       }
     });
   }
 
   function disableAudio() {
+    stopSynthDrone();
     if (audioInstance) {
       audioInstance.pause();
     }
@@ -221,18 +374,24 @@
   }
 
   function updateAudioUI() {
-    const soundToggle = document.querySelector('.sound-toggle');
-    if (!soundToggle) return;
-    const iconOn = soundToggle.querySelector('.icon-on');
-    const iconOff = soundToggle.querySelector('.icon-off');
-    if (isAudioPlaying) {
-      if (iconOn) iconOn.style.display = 'block';
-      if (iconOff) iconOff.style.display = 'none';
-      soundToggle.classList.add('is-playing');
-    } else {
-      if (iconOn) iconOn.style.display = 'none';
-      if (iconOff) iconOff.style.display = 'block';
-      soundToggle.classList.remove('is-playing');
+    const soundToggle = document.getElementById('bottomSoundToggle') || document.querySelector('.sound-toggle');
+    if (soundToggle) {
+      const iconOn = soundToggle.querySelector('.icon-on');
+      const iconOff = soundToggle.querySelector('.icon-off');
+
+      if (isAudioPlaying) {
+        if (iconOn) iconOn.style.display = 'block';
+        if (iconOff) iconOff.style.display = 'none';
+        soundToggle.classList.add('is-playing');
+        soundToggle.setAttribute('title', 'Mute audio');
+        soundToggle.setAttribute('aria-label', 'Mute audio');
+      } else {
+        if (iconOn) iconOn.style.display = 'none';
+        if (iconOff) iconOff.style.display = 'block';
+        soundToggle.classList.remove('is-playing');
+        soundToggle.setAttribute('title', 'Play audio');
+        soundToggle.setAttribute('aria-label', 'Play audio');
+      }
     }
   }
 
@@ -484,26 +643,22 @@
   });
 
   /* ═══════════════════════════════════════════════════════════════════════════
-     5. 3D CONCAVE SPACE ANIMATION LOOP
+     5. 3D CONCAVE SPACE ANIMATION LOOP & IN-ANIMATION ENGINE
      ═══════════════════════════════════════════════════════════════════════════ */
 
-  let fieldRotX = 0;
-  let fieldRotY = 0;
-
   function spaceLoop() {
-    if (activeView !== 'space') return;
+    if (activeView !== 'space' && activeView !== 'index') return;
 
     const isMobile = window.innerWidth < 768;
     const scaleFactor = getSpatialScaleFactor();
 
-    // Michael Gatt-style camera sway across full 5760x3100 spatial gallery field
-    // Full horizontal and vertical camera travel with generous yaw/pitch and luxurious inertia
+    // Camera sway across spatial gallery field
     const targetCamX = isMobile ? 0 : targetMouseX * (scaleFactor * 460);
     const targetCamY = isMobile ? 0 : targetMouseY * (scaleFactor * 280);
     const targetRotY = isMobile ? 0 : targetMouseX * 10.5;
     const targetRotX = isMobile ? 0 : -targetMouseY * 6.5;
 
-    // Power4.out deceleration easing (lerp factor 0.045 for smooth cinematic movement)
+    // Smooth cinematic camera easing
     cameraX += (targetCamX - cameraX) * 0.045;
     cameraY += (targetCamY - cameraY) * 0.045;
     fieldRotY += (targetRotY - fieldRotY) * 0.045;
@@ -539,7 +694,6 @@
         const cylRotZ = baseRz;
 
         const isHovered = t.classList.contains('is-hovered');
-        const hoverScale = isHovered ? 1.05 : 1.0;
 
         // Depth-based opacity: Far (~0.38), Mid (~0.55), Near (~0.75), Hovered (1.0)
         const normZ = Math.max(0, Math.min(1, (totalZ + 380) / 600));
@@ -555,8 +709,8 @@
           ? 'brightness(1.05) saturate(1.0) drop-shadow(0px 14px 36px rgba(0,0,0,0.95))'
           : `brightness(${CONFIG.TILE_REST_BRIGHTNESS}) saturate(${CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 10px 24px rgba(0,0,0,0.5))`;
 
-        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations + hover scale
-        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(${hoverScale})`;
+        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations without hover zoom
+        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
       });
     }
 
@@ -574,7 +728,7 @@
       v.id = `view-${name}`;
       v.className = 'view';
       v.setAttribute('data-view', name);
-      appContainer.appendChild(v);
+      getAppContainer().appendChild(v);
     } else if (!v.getAttribute('data-view')) {
       v.setAttribute('data-view', name);
     }
@@ -632,6 +786,8 @@
     }, 120);
   });
 
+  let indexPreviewRafId = null;
+
   function setupIndexView() {
     const indexV = makeView('index');
     indexV.innerHTML = `
@@ -643,16 +799,28 @@
         <span class="a-arrow-text_title">BACK</span>
         <span class="a-arrow-text_caption">TO SPACE VIEW</span>
       </button>
-      <div class="index-hover-preview" id="indexHoverPreview">
-        <img class="index-preview-img" id="indexPreviewImg" alt="" />
+      <div class="index-hover-preview" id="indexHoverPreview" aria-hidden="true">
+        <div class="index-preview-card" id="indexPreviewCard">
+          <div class="index-preview-layer active" id="previewLayerA">
+            <img class="index-preview-media img" alt="" />
+            <video class="index-preview-media vid" autoplay loop muted playsinline style="display:none;"></video>
+          </div>
+          <div class="index-preview-layer" id="previewLayerB">
+            <img class="index-preview-media img" alt="" />
+            <video class="index-preview-media vid" autoplay loop muted playsinline style="display:none;"></video>
+          </div>
+          <div class="index-preview-glare" id="previewGlare"></div>
+        </div>
       </div>
       <div class="index-page-inner">
         <div class="index-list">
           ${PROJECTS.map((p, i) => {
       const bgSrc = p.thumb || (p.media ? p.media.src : '');
+      const isVid = (p.media && p.media.type === 'video') || (bgSrc && bgSrc.endsWith('.mp4'));
+      const numSpaced = String(i + 1).padStart(3, '0').split('').join(' ');
       return `
-              <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}">
-                <span class="n">${String(i + 1).padStart(3, '0')}</span>
+              <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-is-vid="${isVid ? 'true' : 'false'}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}" style="animation-delay: ${i * 38}ms;">
+                <span class="n">${numSpaced}</span>
                 <span class="name">${p.title}</span>
               </div>
             `;
@@ -666,21 +834,131 @@
       backBtn.addEventListener('click', () => go('space'));
     }
 
-    const previewImg = indexV.querySelector('#indexPreviewImg');
+    const previewWrap = indexV.querySelector('#indexHoverPreview');
+    const previewCard = indexV.querySelector('#indexPreviewCard');
     const indexList = indexV.querySelector('.index-list');
     const inner = indexV.querySelector('.index-page-inner');
 
+    let mouseX = window.innerWidth * 0.5;
+    let mouseY = window.innerHeight * 0.35;
+    let targetX = mouseX;
+    let targetY = mouseY;
+    let currentX = mouseX;
+    let currentY = mouseY;
+    let activeRow = null;
+    let currentLayerName = 'a';
+    let currentLoadedSlug = null;
+
+    function setCardMedia(bgSrc, isVid, slug) {
+      if (!bgSrc || !previewCard) return;
+      if (slug && slug === currentLoadedSlug) return;
+      currentLoadedSlug = slug;
+
+      const nextLayerName = currentLayerName === 'a' ? 'b' : 'a';
+      const currentLayer = previewCard.querySelector(`#previewLayer${currentLayerName.toUpperCase()}`);
+      const nextLayer = previewCard.querySelector(`#previewLayer${nextLayerName.toUpperCase()}`);
+      const glare = previewCard.querySelector('#previewGlare');
+
+      if (!nextLayer) return;
+
+      const nextImg = nextLayer.querySelector('.img');
+      const nextVid = nextLayer.querySelector('.vid');
+
+      if (isVid && nextVid) {
+        nextVid.src = bgSrc;
+        nextVid.style.display = 'block';
+        if (nextImg) nextImg.style.display = 'none';
+      } else if (nextImg) {
+        nextImg.src = bgSrc;
+        nextImg.style.display = 'block';
+        if (nextVid) nextVid.style.display = 'none';
+      }
+
+      // Simple, smooth crossfade transition between text hover changes
+      nextLayer.classList.remove('outgoing');
+      nextLayer.classList.add('active');
+
+      if (currentLayer) {
+        currentLayer.classList.remove('active');
+        currentLayer.classList.add('outgoing');
+      }
+
+      currentLayerName = nextLayerName;
+    }
+
+    function renderPreviewFrame() {
+      if (activeView !== 'index') {
+        indexPreviewRafId = null;
+        return;
+      }
+
+      // Smooth horizontal and vertical glide with responsive tracking
+      currentX += (targetX - currentX) * 0.088;
+      currentY += (targetY - currentY) * 0.088;
+
+      if (previewCard) {
+        previewCard.style.transform = `translate3d(${currentX.toFixed(1)}px, ${currentY.toFixed(1)}px, 0)`;
+      }
+
+      indexPreviewRafId = requestAnimationFrame(renderPreviewFrame);
+    }
+
+    function updateCardCoordinates(row, clientX, clientY) {
+      if (!row || !previewCard) return;
+      const rect = row.getBoundingClientRect();
+      const cardW = previewCard.offsetWidth || 380;
+      const cardH = previewCard.offsetHeight || 215;
+
+      const rowCenterX = rect.left + (rect.width / 2);
+      const rowCenterY = rect.top + (rect.height / 2);
+
+      // Prefer cursor coordinates if valid (> 0), otherwise center on row
+      const hasRealPointer = typeof clientX === 'number' && clientX > 0;
+      const cursorX = hasRealPointer ? clientX : rowCenterX;
+      const cursorY = typeof clientY === 'number' && clientY > 0 ? clientY : rowCenterY;
+
+      // When hovering over the text: moving left moves the image left, moving right moves the image right
+      const rawTargetX = cursorX - (cardW / 2);
+      targetX = Math.max(20, Math.min(window.innerWidth - cardW - 20, rawTargetX));
+
+      // Vertically align to hovered row with gentle cursor tracking
+      const offY = (cursorY - rowCenterY) * 0.15;
+      const rawTargetY = rowCenterY - (cardH / 2) + offY;
+      targetY = Math.max(20, Math.min(window.innerHeight - cardH - 20, rawTargetY));
+    }
+
     indexV.querySelectorAll('.row[data-slug]').forEach(row => {
-      row.addEventListener('mouseenter', () => {
+      row.addEventListener('mouseenter', (e) => {
+        activeRow = row;
+        indexV.querySelectorAll('.row').forEach(r => r.classList.remove('is-hovered'));
+        row.classList.add('is-hovered');
+        if (indexList) indexList.classList.add('has-hover');
+
         const bgSrc = row.dataset.bg;
-        if (!bgSrc || !previewImg) return;
+        const isVid = row.dataset.isVid === 'true';
+        setCardMedia(bgSrc, isVid, row.dataset.slug);
 
-        const rect = row.getBoundingClientRect();
-        const rowCenterY = rect.top + rect.height / 2;
+        updateCardCoordinates(row, e.clientX, e.clientY);
 
-        previewImg.src = bgSrc;
-        previewImg.style.top = `${rowCenterY.toFixed(1)}px`;
-        previewImg.classList.add('visible');
+        // If not already visible, snap start position so it doesn't fly from far away
+        if (previewWrap && !previewWrap.classList.contains('visible')) {
+          currentX = targetX;
+          currentY = targetY;
+        }
+
+        if (previewWrap) previewWrap.classList.add('visible');
+
+        if (!indexPreviewRafId) {
+          indexPreviewRafId = requestAnimationFrame(renderPreviewFrame);
+        }
+      });
+
+      row.addEventListener('mousemove', (e) => {
+        updateCardCoordinates(row, e.clientX, e.clientY);
+      });
+
+      row.addEventListener('mouseleave', () => {
+        row.classList.remove('is-hovered');
       });
 
       row.addEventListener('click', () => {
@@ -695,21 +973,28 @@
       });
     });
 
-    if (indexList && previewImg) {
+    indexV.addEventListener('mousemove', (e) => {
+      if (activeRow) {
+        updateCardCoordinates(activeRow, e.clientX, e.clientY);
+      }
+    });
+
+    if (indexList && previewWrap) {
       indexList.addEventListener('mouseleave', () => {
-        previewImg.classList.remove('visible');
+        activeRow = null;
+        currentLoadedSlug = null;
+        indexList.classList.remove('has-hover');
+        indexV.querySelectorAll('.row').forEach(r => r.classList.remove('is-hovered'));
+        previewWrap.classList.remove('visible');
       });
     }
 
-    if (inner && previewImg) {
+    if (inner && previewWrap) {
       inner.addEventListener('scroll', () => {
-        const hoveredRow = indexV.querySelector('.row:hover');
-        if (hoveredRow) {
-          const rect = hoveredRow.getBoundingClientRect();
-          const rowCenterY = rect.top + rect.height / 2;
-          previewImg.style.top = `${rowCenterY.toFixed(1)}px`;
+        if (activeRow) {
+          updateCardCoordinates(activeRow);
         } else {
-          previewImg.classList.remove('visible');
+          previewWrap.classList.remove('visible');
         }
       }, { passive: true });
     }
@@ -890,6 +1175,13 @@
       `;
     }).join('');
 
+    const isSubsite = window.location.pathname.includes('/uiux/') || window.location.pathname.includes('/video-editor/');
+    const basePath = isSubsite ? '../' : './';
+    let aboutBgSrc = SITE.aboutBg || 'media/about-hero-bg.jpg';
+    if (!aboutBgSrc.startsWith('http') && !aboutBgSrc.startsWith('/') && !aboutBgSrc.startsWith('.')) {
+      aboutBgSrc = basePath + aboutBgSrc;
+    }
+
     aboutV.innerHTML = `
       <div class="about-page">
         <!-- Vertical Right-Side Section Indicator matching o-about-section-indicator -->
@@ -897,7 +1189,7 @@
           <div class="line-wrapper">
             <div class="o-about-section-indicator-item is-active" data-sec-idx="0" role="button" tabindex="0">
               <span class="item-indicator"></span>
-              <span class="item-title">ALL MEDIA</span>
+              <span class="item-title"></span>
             </div>
             <div class="o-about-section-indicator-item" data-sec-idx="1" role="button" tabindex="0">
               <span class="item-indicator"></span>
@@ -922,7 +1214,7 @@
         <!-- Section 0: Fullscreen Hero -->
         <section class="about-section-wrap about-section-wrap--hero" id="about-sec-0">
           <div class="about-bg-layer revealed">
-            <img class="about-bg-media" src="${SITE.aboutBg || 'media/about-hero-bg.jpg'}" alt="Sriram MJ Multidisciplinary Designer" />
+            <img class="about-bg-media" src="${aboutBgSrc}" alt="${SITE.name || 'Sriram MJ'} Multidisciplinary Designer" />
             <div class="about-bg-vignette"></div>
           </div>
           <div class="about-hero-content">
@@ -997,9 +1289,11 @@
               <div class="about-socials-display">MORE UPDATES</div>
               <div class="about-socials-sub">FOLLOW SRIRAM ON</div>
               <div class="about-socials-row">
-                <a href="https://instagram.com/delusional.efx" target="_blank" rel="noopener noreferrer" class="about-social-pill">INSTAGRAM</a>
+                <a href="https://www.instagram.com/delusional.efx?stkn=MW82b2ttZW9vdnNuaw==" target="_blank" rel="noopener noreferrer" class="about-social-pill">INSTAGRAM</a>
                 <span class="about-social-or">OR</span>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="about-social-pill">LINKEDIN</a>
+                <a href="https://www.linkedin.com/in/sriram-m-j-5491a7322/" target="_blank" rel="noopener noreferrer" class="about-social-pill">LINKEDIN</a>
+                <span class="about-social-or">OR</span>
+                <a href="mailto:srirammj221@gmail.com" class="about-social-pill">EMAIL</a>
               </div>
               <div class="about-cta-actions">
                 <button class="about-action-btn about-action-btn--primary" data-nav="contact">GET IN TOUCH / CONTACT ME →</button>
@@ -1181,21 +1475,32 @@
 
     if (viewName === 'space') {
       if (!views.space) setupSpaceView();
+      if (views.space) views.space.classList.remove('space-receded');
       views.space.classList.add('active');
       spaceLoop();
     } else if (viewName === 'index') {
       if (!views.index) setupIndexView();
+      if (!views.space) setupSpaceView();
+      // Keep 3D space active as a living, receded architectural backdrop
+      if (views.space) {
+        views.space.classList.remove('active');
+        views.space.classList.add('space-receded');
+      }
       views.index.classList.add('active');
+      spaceLoop();
     } else if (viewName === 'project') {
+      if (views.space) views.space.classList.remove('space-receded');
       setupProjectView(arg);
       views.project.classList.add('active');
       window.scrollTo(0, 0);
     } else if (viewName === 'about') {
+      if (views.space) views.space.classList.remove('space-receded');
       setupAboutView();
       views.about.classList.add('active');
       views.about.scrollTop = 0;
       window.scrollTo(0, 0);
     } else if (viewName === 'contact') {
+      if (views.space) views.space.classList.remove('space-receded');
       setupContactView();
       views.contact.classList.add('active');
       window.scrollTo(0, 0);
@@ -1208,7 +1513,7 @@
     let view = parts[0];
     let arg = parts[1];
 
-    if (view === 'home' || view === 'work') view = 'space';
+    if (view === 'home' || view === 'work' || view === 'front' || view === 'main') view = 'space';
     if (!['space', 'index', 'project', 'about', 'contact'].includes(view)) {
       view = 'space';
     }
@@ -1398,8 +1703,9 @@
     }, { passive: true });
   }
 
-  // Initialize on DOM ready
-  document.addEventListener('DOMContentLoaded', () => {
+  // Initialize on DOM ready or immediately if already interactive/complete
+  function bootstrap() {
+    initSoundGate();
     initPersistentChrome();
     initCustomCursor();
     setupSpaceView();
@@ -1407,6 +1713,12 @@
     setupAboutView();
     setupContactView();
     routeFromHash();
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  } else {
+    bootstrap();
+  }
 
 })();
