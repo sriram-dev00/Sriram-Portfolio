@@ -82,9 +82,9 @@ window.SITE = {
       lead: 'FOR MORE UPDATES & SELECT WORKS',
       sublead: 'FOLLOW SRIRAM ON',
       socials: [
-        { label: 'INSTAGRAM', url: 'https://instagram.com/delusional.efx' },
-        { label: 'LINKEDIN', url: 'https://linkedin.com' },
-        { label: 'EMAIL', url: 'mailto:contact@srirammj.design' }
+        { label: 'INSTAGRAM', url: 'https://www.instagram.com/delusional.efx?stkn=MW82b2ttZW9vdnNuaw==' },
+        { label: 'LINKEDIN', url: 'https://www.linkedin.com/in/sriram-m-j-5491a7322/' },
+        { label: 'EMAIL', url: 'mailto:srirammj221@gmail.com' }
       ]
     }
   ],
@@ -92,12 +92,11 @@ window.SITE = {
   aboutIntro: 'Multidisciplinary designer practicing across video editing, UI/UX architecture, and graphic craft. Driven by kinetic pacing, atmospheric lighting, and systemic clarity.',
   aboutBio: 'With deep roots in fast-paced cinematic editing and motorcycle stunt films, Sriram MJ bridges raw visual energy with refined digital product design. Based between creative film suites and design systems Figma files, every piece of work balances high-contrast aesthetics with uncompromising precision.',
 
-  /* TODO: update contactText and links with your real handles */
   contactText: 'For edits, designs, collabs, or the full reel \u2014 reach out.',
   contactLinks: [
-    { label: 'Instagram', href: 'https://instagram.com/delusional.efx' },
-    { label: 'LinkedIn', href: 'https://linkedin.com' },
-    { label: 'Email', href: 'mailto:contact@srirammj.design' }
+    { label: 'Instagram', href: 'https://www.instagram.com/delusional.efx?stkn=MW82b2ttZW9vdnNuaw==' },
+    { label: 'LinkedIn',  href: 'https://www.linkedin.com/in/sriram-m-j-5491a7322/' },
+    { label: 'Email',     href: 'mailto:srirammj221@gmail.com' }
   ]
 };
 

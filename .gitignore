@@ -1,4 +1,7 @@
+node_modules
+dist
 screenshot_*.png
 *.tmp
 .DS_Store
 Thumbs.db
+scratch/
