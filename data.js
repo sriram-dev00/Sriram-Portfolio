@@ -56,7 +56,7 @@ window.SITE = {
     {
       id: 'section-foundations',
       label: 'Foundations & Rhythm',
-      eyebrow: 'EARLY CRAFT & PACING',
+      eyebrow: 'MEANING IN EVERY DETAIL',
       stepped: ['SRIRAM', 'BELIEVES EVERY', 'COLOR HAS', 'A STORY', 'TO TELL'],
       text: 'Sriram has a strong belief that every color carries meaning, and every element has a purpose. He pays attention to even the smallest details, often embedding meaning within the tiniest parts of his work. He creates primarily for self-satisfaction and personal expression, which makes every production a reflection of his personality, perspective, and character.',
       quote: '“My work is not just something I create; it is a reflection of who I am.”'
@@ -66,7 +66,7 @@ window.SITE = {
       label: 'Interface Architecture',
       eyebrow: 'SYSTEMATIC INTERACTION DESIGN',
       stepped: ['STRUCTURING IDEAS', 'INTO UI/UX', 'THROUGH DIGITAL', 'ARCHITECTURE'],
-      text: 'Translating cinematic motion into cohesive digital experiences. From complex enterprise design systems to intuitive mobile applications, Sriram treats interface design as living choreography — where hierarchy, micro-interactions, and visual craftsmanship merge seamlessly.'
+      text: 'I begin by structuring the idea and breaking the work into meaningful components. This allows me to organize content, define how each element connects within the UI, and establish a clear direction before moving into design. I then execute the plan, refine the details, and continuously iterate until the final result feels clear, intentional, and complete.'
     },
     {
       id: 'section-orbit',
@@ -74,7 +74,7 @@ window.SITE = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city']
+      cards: ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city']
     },
     {
       id: 'section-socials',
@@ -103,17 +103,21 @@ window.SITE = {
 
 window.PROJECTS = [
   {
-    slug: 'night-ride',
-    title: 'NIGHT RIDE',
-    category: 'Video',
-    short: 'A night stunt run cut to a driving score.',
-    description: 'A cinematic night stunt motorcycle run color graded with dark moody tones.',
-    moreInfo: 'Shot on Sony FX3 with anamorphic lenses.',
-    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
+    slug: 'team-never-enough',
+    title: 'TEAM NEVER ENOUGH',
+    category: 'Motorcycle Stunt Collective',
+    short: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
+    description: 'Royal Enfield Guerrilla 450 edition. Precision street riding, vertical balance acrobatics, and raw visual velocity.',
+    moreInfo: 'Royal Enfield Guerrilla 450 edition. Shot with high-frame-rate tracking cameras.',
+    thumb: 'media/team-never-enough.jpg?v=5238',
     mediaKind: 'image',
+    media: {
+      type: 'image',
+      src: 'media/team-never-enough.jpg?v=5238'
+    },
     items: [
-      { title: 'Main Cut', type: 'play', meta: '0:00' },
-      { title: 'Slow-Mo Highlight Reel', type: 'play', meta: '0:00' }
+      { title: 'Guerrilla 450 Cut', type: 'play', meta: '0:00' },
+      { title: 'Slow-Mo Vertical Stunt Reel', type: 'play', meta: '0:00' }
     ]
   },
   {
@@ -297,5 +301,145 @@ window.PROJECTS = [
     items: [
       { title: 'Title Reel', type: 'play', meta: '0:00' }
     ]
+  },
+  {
+    slug: 'tne-guerrilla-cut',
+    title: 'TNE — GUERRILLA 450 CUT',
+    category: 'Motorcycle Stunt Collective',
+    short: 'Action still from the vertical balance acrobatic series on the Royal Enfield Guerrilla 450.',
+    description: 'High-speed street precision stunts and balance acrobatics by Team Never Enough.',
+    thumb: 'media/tne-poster.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'night-drift',
+    title: 'NIGHT DRIFT',
+    category: 'Video',
+    short: 'Midnight automotive drift reel with heavy analog sound textures.',
+    description: 'Moody midnight drift film highlighting visceral tire friction and engine growl.',
+    thumb: 'media/night-ride.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'burnout'
+  },
+  {
+    slug: 'stunt-telemetry',
+    title: 'STUNT TELEMETRY',
+    category: 'UI/UX',
+    short: 'Real-time telemetry HUD overlay for high-velocity stunt analytics.',
+    description: 'Telemetry dashboard capturing lean angle, velocity curves, and vertical balance points.',
+    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'urban-velocity',
+    title: 'URBAN VELOCITY',
+    category: 'Video',
+    short: 'FPV drone tracking through narrow alleys and elevated highway lines.',
+    description: 'High-speed FPV tracking cut focusing on spatial rhythm and kinetic motion.',
+    thumb: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'wheelie-city'
+  },
+  {
+    slug: 'sound-design-lab',
+    title: 'SOUND DESIGN LAB',
+    category: 'Sound Design',
+    short: 'Sub-bass harmonics, granular synthesizer patches, and industrial mechanical Foley.',
+    description: 'Experimental audio design laboratory showcasing layered Foley and synthesized drones.',
+    thumb: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'burnout'
+  },
+  {
+    slug: 'aperture-study',
+    title: 'APERTURE STUDY',
+    category: 'Cinematography',
+    short: 'Color density and depth of field experiments on anamorphic glass.',
+    description: 'Technical visual exploration of optical aberrations and anamorphic flare rendering.',
+    thumb: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'chromatic-flow',
+    title: 'CHROMATIC FLOW',
+    category: 'Color Grading',
+    short: 'Film-emulation color palette exploration with rich amber shadows.',
+    description: 'DaVinci Resolve print-film look development featuring custom LUT curves.',
+    thumb: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'reel-2026'
+  },
+  {
+    slug: 'slowmo-mechanics',
+    title: 'SLOW-MO MECHANICS',
+    category: 'Motorcycle Stunt Collective',
+    short: '120fps high-frame-rate breakdown of suspension compression and balance locks.',
+    description: 'Detailed physical examination of balance physics and stunt riding acrobatics.',
+    thumb: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'telemetry-dashboard',
+    title: 'TELEMETRY DASHBOARD',
+    category: 'UI/UX',
+    short: 'Data dense performance dashboard designed for high-refresh telemetry displays.',
+    description: 'Enterprise telemetry design system prioritizing instant cognitive clarity under pressure.',
+    thumb: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'luminal-hr'
+  },
+  {
+    slug: 'atmospheric-foley',
+    title: 'ATMOSPHERIC FOLEY',
+    category: 'Sound Design',
+    short: 'Field recording acoustic captures in brutalist concrete architectures.',
+    description: 'Environmental acoustic sampling exploring natural reverberation in empty spaces.',
+    thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'street-optics',
+    title: 'STREET OPTICS',
+    category: 'Photography',
+    short: 'Raw 35mm monochrome candid captures across urban transit hubs.',
+    description: 'Monochrome documentary photography focusing on natural light, geometry, and human gesture.',
+    thumb: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'cinema-stills'
+  },
+  {
+    slug: 'lighting-architecture',
+    title: 'LIGHTING ARCHITECTURE',
+    category: 'Cinematography',
+    short: 'Volumetric haze and negative fill studies on soundstage sets.',
+    description: 'Studio lighting architecture diagrams and practical fixture placement study.',
+    thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'kinetic-titles',
+    title: 'KINETIC TITLES',
+    category: 'Motion Design',
+    short: 'Typographic title sequences with variable font interpolation and displacement.',
+    description: 'Modern title sequences driven by audio transients and variable font physics.',
+    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'motion-graphics'
+  },
+  {
+    slug: 'raw-velocity',
+    title: 'RAW VELOCITY',
+    category: 'Motorcycle Stunt Collective',
+    short: 'Uncut street riding audio track paired with raw, authentic visual pacing.',
+    description: 'Raw engine notes, tire screech, and unfiltered visual velocity from Team Never Enough.',
+    thumb: 'media/tne-poster.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
   }
 ];
