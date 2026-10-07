@@ -104,6 +104,7 @@ window.SITE = {
 window.PROJECTS = [
   {
     slug: 'team-never-enough',
+    slot: 1,
     title: 'TEAM NEVER ENOUGH',
     category: 'Motorcycle Stunt Collective',
     short: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
@@ -122,6 +123,7 @@ window.PROJECTS = [
   },
   {
     slug: 'wheelie-city',
+    slot: 30,
     title: 'WHEELIE CITY',
     category: 'Video',
     short: 'Urban wheelie compilation, color graded for a moody teal-orange look.',
@@ -135,6 +137,7 @@ window.PROJECTS = [
   },
   {
     slug: 'burnout',
+    slot: 13,
     title: 'BURNOUT',
     category: 'Video',
     short: 'Sound-forward edit built around engine and tire audio.',
@@ -147,6 +150,7 @@ window.PROJECTS = [
   },
   {
     slug: 'behind-the-lens',
+    slot: 25,
     title: 'BEHIND THE LENS',
     category: 'Video',
     short: 'Behind-the-scenes look at a shoot day.',
@@ -159,6 +163,7 @@ window.PROJECTS = [
   },
   {
     slug: 'reel-2026',
+    slot: 12,
     title: 'REEL 2026',
     category: 'Video',
     short: 'The full year showreel \u2014 best cuts in one edit.',
@@ -171,6 +176,7 @@ window.PROJECTS = [
   },
   {
     slug: 'luminal-hr',
+    slot: 27,
     title: 'LUMINAL HR',
     category: 'UI/UX',
     short: 'An HRIS dashboard for a 500-person company \u2014 three personas, one system.',
@@ -184,6 +190,7 @@ window.PROJECTS = [
   },
   {
     slug: 'hr-admin-flow',
+    slot: 7,
     title: 'HR ADMIN FLOW',
     category: 'UI/UX',
     short: 'How an HR admin manages policy, compliance, and headcount.',
@@ -196,6 +203,7 @@ window.PROJECTS = [
   },
   {
     slug: 'manager-flow',
+    slot: 28,
     title: 'MANAGER FLOW',
     category: 'UI/UX',
     short: 'Overseeing team performance, leave, and hiring in one view.',
@@ -208,6 +216,7 @@ window.PROJECTS = [
   },
   {
     slug: 'employee-flow',
+    slot: 20,
     title: 'EMPLOYEE FLOW',
     category: 'UI/UX',
     short: 'Self-service profile, leave requests, and career growth.',
@@ -220,6 +229,7 @@ window.PROJECTS = [
   },
   {
     slug: 'poster-series',
+    slot: 10,
     title: 'POSTER SERIES',
     category: 'Graphic Design',
     short: 'A set of typographic event posters.',
@@ -232,6 +242,7 @@ window.PROJECTS = [
   },
   {
     slug: 'brand-identity',
+    slot: 5,
     title: 'BRAND IDENTITY',
     category: 'Graphic Design',
     short: 'Logo, color system, and type stack for a modern brand.',
@@ -244,6 +255,7 @@ window.PROJECTS = [
   },
   {
     slug: 'illustration-set',
+    slot: 11,
     title: 'ILLUSTRATION SET',
     category: 'Graphic Design',
     short: 'Digital illustrations and vector artwork.',
@@ -256,6 +268,7 @@ window.PROJECTS = [
   },
   {
     slug: 'cinema-stills',
+    slot: 4,
     title: 'CINEMA STILLS',
     category: 'Video',
     short: 'Frame grabs and color study from cinematic projects.',
@@ -268,6 +281,7 @@ window.PROJECTS = [
   },
   {
     slug: 'interface-craft',
+    slot: 23,
     title: 'INTERFACE CRAFT',
     category: 'UI/UX',
     short: 'Design system components and micro-interactions.',
@@ -280,6 +294,7 @@ window.PROJECTS = [
   },
   {
     slug: 'editorial-layout',
+    slot: 26,
     title: 'EDITORIAL LAYOUT',
     category: 'Graphic Design',
     short: 'Print magazine layout and typography exploration.',
@@ -292,6 +307,7 @@ window.PROJECTS = [
   },
   {
     slug: 'motion-graphics',
+    slot: 6,
     title: 'MOTION GRAPHICS',
     category: 'Video',
     short: '3D title sequences and kinetic typography.',
@@ -304,6 +320,7 @@ window.PROJECTS = [
   },
   {
     slug: 'tne-guerrilla-cut',
+    slot: 29,
     title: 'TNE — GUERRILLA 450 CUT',
     category: 'Motorcycle Stunt Collective',
     short: 'Action still from the vertical balance acrobatic series on the Royal Enfield Guerrilla 450.',
@@ -314,6 +331,7 @@ window.PROJECTS = [
   },
   {
     slug: 'night-drift',
+    slot: 22,
     title: 'NIGHT DRIFT',
     category: 'Video',
     short: 'Midnight automotive drift reel with heavy analog sound textures.',
@@ -324,6 +342,7 @@ window.PROJECTS = [
   },
   {
     slug: 'stunt-telemetry',
+    slot: 8,
     title: 'STUNT TELEMETRY',
     category: 'UI/UX',
     short: 'Real-time telemetry HUD overlay for high-velocity stunt analytics.',
@@ -334,6 +353,7 @@ window.PROJECTS = [
   },
   {
     slug: 'urban-velocity',
+    slot: 2,
     title: 'URBAN VELOCITY',
     category: 'Video',
     short: 'FPV drone tracking through narrow alleys and elevated highway lines.',
@@ -344,6 +364,7 @@ window.PROJECTS = [
   },
   {
     slug: 'sound-design-lab',
+    slot: 24,
     title: 'SOUND DESIGN LAB',
     category: 'Sound Design',
     short: 'Sub-bass harmonics, granular synthesizer patches, and industrial mechanical Foley.',
@@ -354,6 +375,7 @@ window.PROJECTS = [
   },
   {
     slug: 'aperture-study',
+    slot: 3,
     title: 'APERTURE STUDY',
     category: 'Cinematography',
     short: 'Color density and depth of field experiments on anamorphic glass.',
@@ -364,6 +386,7 @@ window.PROJECTS = [
   },
   {
     slug: 'chromatic-flow',
+    slot: 21,
     title: 'CHROMATIC FLOW',
     category: 'Color Grading',
     short: 'Film-emulation color palette exploration with rich amber shadows.',
@@ -374,6 +397,7 @@ window.PROJECTS = [
   },
   {
     slug: 'slowmo-mechanics',
+    slot: 15,
     title: 'SLOW-MO MECHANICS',
     category: 'Motorcycle Stunt Collective',
     short: '120fps high-frame-rate breakdown of suspension compression and balance locks.',
@@ -384,6 +408,7 @@ window.PROJECTS = [
   },
   {
     slug: 'telemetry-dashboard',
+    slot: 16,
     title: 'TELEMETRY DASHBOARD',
     category: 'UI/UX',
     short: 'Data dense performance dashboard designed for high-refresh telemetry displays.',
@@ -394,6 +419,7 @@ window.PROJECTS = [
   },
   {
     slug: 'atmospheric-foley',
+    slot: 14,
     title: 'ATMOSPHERIC FOLEY',
     category: 'Sound Design',
     short: 'Field recording acoustic captures in brutalist concrete architectures.',
@@ -404,6 +430,7 @@ window.PROJECTS = [
   },
   {
     slug: 'street-optics',
+    slot: 17,
     title: 'STREET OPTICS',
     category: 'Photography',
     short: 'Raw 35mm monochrome candid captures across urban transit hubs.',
@@ -414,6 +441,7 @@ window.PROJECTS = [
   },
   {
     slug: 'lighting-architecture',
+    slot: 19,
     title: 'LIGHTING ARCHITECTURE',
     category: 'Cinematography',
     short: 'Volumetric haze and negative fill studies on soundstage sets.',
@@ -424,6 +452,7 @@ window.PROJECTS = [
   },
   {
     slug: 'kinetic-titles',
+    slot: 9,
     title: 'KINETIC TITLES',
     category: 'Motion Design',
     short: 'Typographic title sequences with variable font interpolation and displacement.',
@@ -434,6 +463,7 @@ window.PROJECTS = [
   },
   {
     slug: 'raw-velocity',
+    slot: 18,
     title: 'RAW VELOCITY',
     category: 'Motorcycle Stunt Collective',
     short: 'Uncut street riding audio track paired with raw, authentic visual pacing.',
