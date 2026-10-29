@@ -35,16 +35,17 @@ export const SITE_CONFIG: SiteConfig = {
     {
       id: 'section-foundations',
       label: 'Foundations & Rhythm',
-      eyebrow: 'EARLY CRAFT & PACING',
-      stepped: ['SRIRAM', 'BEGAN', 'CRAFTING', 'AND EDITING', 'STORIES', 'FROM DAY ONE'],
-      text: 'Starting in the high-adrenaline world of stunt riding films and kinetic cinematography, Sriram developed an instinctive feel for visual velocity, frame-by-frame rhythm, and atmospheric color grading. Every cut is engineered with sound, tension, and narrative momentum.'
+      eyebrow: 'MEANING IN EVERY DETAIL',
+      stepped: ['SRIRAM', 'BELIEVES EVERY', 'COLOR HAS', 'A STORY', 'TO TELL'],
+      text: 'Sriram has a strong belief that every color carries meaning, and every element has a purpose. He pays attention to even the smallest details, often embedding meaning within the tiniest parts of his work. He creates primarily for self-satisfaction and personal expression, which makes every production a reflection of his personality, perspective, and character.',
+      quote: '“My work is not just something I create; it is a reflection of who I am.”'
     },
     {
       id: 'section-interface',
       label: 'Interface Architecture',
       eyebrow: 'SYSTEMATIC INTERACTION DESIGN',
-      stepped: ['BRIDGING', 'RAW KINETIC CINEMA', 'WITH SYSTEMATIC', 'DIGITAL ARCHITECTURE'],
-      text: 'Translating cinematic motion into cohesive digital experiences. From complex enterprise design systems to intuitive mobile applications, Sriram treats interface design as living choreography — where hierarchy, micro-interactions, and visual craftsmanship merge seamlessly.'
+      stepped: ['STRUCTURING IDEAS', 'INTO UI/UX', 'THROUGH DIGITAL', 'ARCHITECTURE'],
+      text: 'I begin by structuring the idea and breaking the work into meaningful components. This allows me to organize content, define how each element connects within the UI, and establish a clear direction before moving into design. I then execute the plan, refine the details, and continuously iterate until the final result feels clear, intentional, and complete.'
     },
     {
       id: 'section-orbit',
@@ -52,7 +53,7 @@ export const SITE_CONFIG: SiteConfig = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026']
+      cards: ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026']
     },
     {
       id: 'section-socials',
@@ -78,21 +79,27 @@ export const SITE_CONFIG: SiteConfig = {
 
 export const PROJECTS: Project[] = [
   {
-    slug: 'night-ride',
-    title: 'NIGHT RIDE',
-    category: 'Video',
-    short: 'A night stunt run cut to a driving score.',
-    description: 'A cinematic night stunt motorcycle run color graded with dark moody tones.',
-    moreInfo: 'Shot on Sony FX3 with anamorphic lenses.',
-    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=75&w=450&auto=format&fit=crop',
+    slug: 'team-never-enough',
+    slot: 1,
+    title: 'TEAM NEVER ENOUGH',
+    category: 'Motorcycle Stunt Collective',
+    short: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
+    description: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
+    moreInfo: 'Royal Enfield Guerrilla 450 edition. Precision street riding, vertical balance acrobatics, and raw visual velocity.',
+    thumb: 'media/team-never-enough.jpg?v=5238',
     mediaKind: 'image',
+    media: {
+      type: 'image',
+      src: 'media/team-never-enough.jpg?v=5238'
+    },
     items: [
-      { title: 'Main Cut', type: 'play', meta: '0:00' },
-      { title: 'Slow-Mo Highlight Reel', type: 'play', meta: '0:00' }
+      { title: 'Guerrilla 450 Cut', type: 'play', meta: '0:00' },
+      { title: 'Slow-Mo Vertical Stunt Reel', type: 'play', meta: '0:00' }
     ]
   },
   {
     slug: 'wheelie-city',
+    slot: 30,
     title: 'WHEELIE CITY',
     category: 'Video',
     short: 'Urban wheelie compilation, color graded for a moody teal-orange look.',
@@ -106,6 +113,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'burnout',
+    slot: 13,
     title: 'BURNOUT',
     category: 'Video',
     short: 'Sound-forward edit built around engine and tire audio.',
@@ -118,6 +126,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'behind-the-lens',
+    slot: 25,
     title: 'BEHIND THE LENS',
     category: 'Video',
     short: 'Behind-the-scenes look at a shoot day.',
@@ -130,6 +139,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'reel-2026',
+    slot: 12,
     title: 'REEL 2026',
     category: 'Video',
     short: 'The full year showreel — best cuts in one edit.',
@@ -142,6 +152,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'luminal-hr',
+    slot: 27,
     title: 'LUMINAL HR',
     category: 'UI/UX',
     short: 'An HRIS dashboard for a 500-person company — three personas, one system.',
@@ -155,6 +166,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'hr-admin-flow',
+    slot: 7,
     title: 'HR ADMIN FLOW',
     category: 'UI/UX',
     short: 'How an HR admin manages policy, compliance, and headcount.',
@@ -167,6 +179,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'manager-flow',
+    slot: 28,
     title: 'MANAGER FLOW',
     category: 'UI/UX',
     short: 'Overseeing team performance, leave, and hiring in one view.',
@@ -179,6 +192,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'employee-flow',
+    slot: 20,
     title: 'EMPLOYEE FLOW',
     category: 'UI/UX',
     short: 'Self-service profile, leave requests, and career growth.',
@@ -191,6 +205,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'poster-series',
+    slot: 10,
     title: 'POSTER SERIES',
     category: 'Graphic Design',
     short: 'A set of typographic event posters.',
@@ -203,6 +218,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'brand-identity',
+    slot: 5,
     title: 'BRAND IDENTITY',
     category: 'Graphic Design',
     short: 'Logo, color system, and type stack for a modern brand.',
@@ -215,6 +231,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'illustration-set',
+    slot: 11,
     title: 'ILLUSTRATION SET',
     category: 'Graphic Design',
     short: 'Digital illustrations and vector artwork.',
@@ -227,6 +244,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'cinema-stills',
+    slot: 4,
     title: 'CINEMA STILLS',
     category: 'Video',
     short: 'Frame grabs and color study from cinematic projects.',
@@ -239,6 +257,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'interface-craft',
+    slot: 23,
     title: 'INTERFACE CRAFT',
     category: 'UI/UX',
     short: 'Design system components and micro-interactions.',
@@ -251,6 +270,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'editorial-layout',
+    slot: 26,
     title: 'EDITORIAL LAYOUT',
     category: 'Graphic Design',
     short: 'Print magazine layout and typography exploration.',
@@ -263,6 +283,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'motion-graphics',
+    slot: 6,
     title: 'MOTION GRAPHICS',
     category: 'Video',
     short: '3D title sequences and kinetic typography.',
@@ -272,26 +293,224 @@ export const PROJECTS: Project[] = [
     items: [
       { title: 'Title Reel', type: 'play', meta: '0:00' }
     ]
+  },
+  {
+    slug: 'tne-guerrilla-cut',
+    slot: 29,
+    title: 'TNE — GUERRILLA 450 CUT',
+    category: 'Motorcycle Stunt Collective',
+    short: 'Action still from the vertical balance acrobatic series on the Royal Enfield Guerrilla 450.',
+    description: 'High-speed street precision stunts and balance acrobatics by Team Never Enough.',
+    thumb: 'media/tne-poster.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'night-drift',
+    slot: 22,
+    title: 'NIGHT DRIFT',
+    category: 'Video',
+    short: 'Midnight automotive drift reel with heavy analog sound textures.',
+    description: 'Moody midnight drift film highlighting visceral tire friction and engine growl.',
+    thumb: 'media/night-ride.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'burnout'
+  },
+  {
+    slug: 'stunt-telemetry',
+    slot: 8,
+    title: 'STUNT TELEMETRY',
+    category: 'UI/UX',
+    short: 'Real-time telemetry HUD overlay for high-velocity stunt analytics.',
+    description: 'Telemetry dashboard capturing lean angle, velocity curves, and vertical balance points.',
+    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'urban-velocity',
+    slot: 2,
+    title: 'URBAN VELOCITY',
+    category: 'Video',
+    short: 'FPV drone tracking through narrow alleys and elevated highway lines.',
+    description: 'High-speed FPV tracking cut focusing on spatial rhythm and kinetic motion.',
+    thumb: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'wheelie-city'
+  },
+  {
+    slug: 'sound-design-lab',
+    slot: 24,
+    title: 'SOUND DESIGN LAB',
+    category: 'Sound Design',
+    short: 'Sub-bass harmonics, granular synthesizer patches, and industrial mechanical Foley.',
+    description: 'Experimental audio design laboratory showcasing layered Foley and synthesized drones.',
+    thumb: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'burnout'
+  },
+  {
+    slug: 'aperture-study',
+    slot: 3,
+    title: 'APERTURE STUDY',
+    category: 'Cinematography',
+    short: 'Color density and depth of field experiments on anamorphic glass.',
+    description: 'Technical visual exploration of optical aberrations and anamorphic flare rendering.',
+    thumb: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'chromatic-flow',
+    slot: 21,
+    title: 'CHROMATIC FLOW',
+    category: 'Color Grading',
+    short: 'Film-emulation color palette exploration with rich amber shadows.',
+    description: 'DaVinci Resolve print-film look development featuring custom LUT curves.',
+    thumb: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'reel-2026'
+  },
+  {
+    slug: 'slowmo-mechanics',
+    slot: 15,
+    title: 'SLOW-MO MECHANICS',
+    category: 'Motorcycle Stunt Collective',
+    short: '120fps high-frame-rate breakdown of suspension compression and balance locks.',
+    description: 'Detailed physical examination of balance physics and stunt riding acrobatics.',
+    thumb: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'telemetry-dashboard',
+    slot: 16,
+    title: 'TELEMETRY DASHBOARD',
+    category: 'UI/UX',
+    short: 'Data dense performance dashboard designed for high-refresh telemetry displays.',
+    description: 'Enterprise telemetry design system prioritizing instant cognitive clarity under pressure.',
+    thumb: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'luminal-hr'
+  },
+  {
+    slug: 'atmospheric-foley',
+    slot: 14,
+    title: 'ATMOSPHERIC FOLEY',
+    category: 'Sound Design',
+    short: 'Field recording acoustic captures in brutalist concrete architectures.',
+    description: 'Environmental acoustic sampling exploring natural reverberation in empty spaces.',
+    thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'street-optics',
+    slot: 17,
+    title: 'STREET OPTICS',
+    category: 'Photography',
+    short: 'Raw 35mm monochrome candid captures across urban transit hubs.',
+    description: 'Monochrome documentary photography focusing on natural light, geometry, and human gesture.',
+    thumb: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'cinema-stills'
+  },
+  {
+    slug: 'lighting-architecture',
+    slot: 19,
+    title: 'LIGHTING ARCHITECTURE',
+    category: 'Cinematography',
+    short: 'Volumetric haze and negative fill studies on soundstage sets.',
+    description: 'Studio lighting architecture diagrams and practical fixture placement study.',
+    thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'kinetic-titles',
+    slot: 9,
+    title: 'KINETIC TITLES',
+    category: 'Motion Design',
+    short: 'Typographic title sequences with variable font interpolation and displacement.',
+    description: 'Modern title sequences driven by audio transients and variable font physics.',
+    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=75&w=450&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'motion-graphics'
+  },
+  {
+    slug: 'raw-velocity',
+    slot: 18,
+    title: 'RAW VELOCITY',
+    category: 'Motorcycle Stunt Collective',
+    short: 'Uncut street riding audio track paired with raw, authentic visual pacing.',
+    description: 'Raw engine notes, tire screech, and unfiltered visual velocity from Team Never Enough.',
+    thumb: 'media/tne-poster.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
   }
 ];
 
 export const TILE_LAYOUTS: TileLayout[] = [
-  { x: -920, y: -20,  w: 240, h: 360, zPx: 180,  rx: 1.5,  ry: -5.5, rz: -1.5, sizeClass: 'large' },
-  { x: -320, y: -220, w: 280, h: 180, zPx: 120,  rx: -2.0, ry: 2.5,  rz: 1.2,  sizeClass: 'medium' },
-  { x: 380,  y: -230, w: 290, h: 190, zPx: 140,  rx: -2.5, ry: -3.5, rz: -1.8, sizeClass: 'medium' },
-  { x: -360, y: 220,  w: 280, h: 185, zPx: 150,  rx: 2.0,  ry: 2.2,  rz: 1.0,  sizeClass: 'medium' },
-  { x: 40,   y: 250,  w: 250, h: 190, zPx: 110,  rx: 2.0,  ry: -1.0, rz: -0.5, sizeClass: 'medium' },
-  { x: 490,  y: -80,  w: 160, h: 115, zPx: -60,  rx: 2.5,  ry: -3.0, rz: -1.5, sizeClass: 'small' },
-  { x: 740,  y: 110,  w: 180, h: 130, zPx: 60,   rx: -1.8, ry: -4.5, rz: 1.2,  sizeClass: 'small' },
-  { x: -550, y: 290,  w: 140, h: 170, zPx: 30,   rx: 2.8,  ry: 4.5,  rz: -1.8, sizeClass: 'small' },
-  { x: -620, y: -230, w: 130, h: 95,  zPx: -220, rx: 1.8,  ry: 3.5,  rz: -1.0, sizeClass: 'small' },
-  { x: 360,  y: 350,  w: 150, h: 180, zPx: 50,   rx: 2.0,  ry: -2.8, rz: -1.0, sizeClass: 'small' },
-  { x: 70,   y: -320, w: 120, h: 90,  zPx: -250, rx: -1.2, ry: 1.2,  rz: 0.8,  sizeClass: 'small' },
-  { x: -160, y: 340,  w: 140, h: 100, zPx: -120, rx: 2.2,  ry: -2.8, rz: -1.5, sizeClass: 'small' },
-  { x: -330, y: -380, w: 140, h: 95,  zPx: -200, rx: -2.5, ry: 3.0,  rz: 1.2,  sizeClass: 'small' },
-  { x: -880, y: -340, w: 150, h: 105, zPx: -180, rx: -2.2, ry: 4.8,  rz: 1.5,  sizeClass: 'small' },
-  { x: 860,  y: -330, w: 150, h: 105, zPx: -190, rx: 2.6,  ry: -4.8, rz: -1.5, sizeClass: 'small' },
-  { x: 780,  y: 280,  w: 140, h: 100, zPx: -80,  rx: 2.5,  ry: -4.2, rz: -1.5, sizeClass: 'small' }
+  // Slot 1 (TNE Hero Portrait — Right Flank, like Pig in Michael Gatt reference)
+  { x: 310,   y: 60,   w: 265, h: 410, zPx: 80,   rx: 0.6,  ry: 0,   rz: -0.8, sizeClass: 'large' },
+  // Slot 2 (Wheelie City — Far Upper-Left edge still, like Shark in reference)
+  { x: -880,  y: -260, w: 290, h: 190, zPx: 20,   rx: -1.6, ry: 0,   rz: 0.8,  sizeClass: 'medium' },
+  // Slot 3 (Burnout — Far Upper-Right edge still, like Car in reference right view)
+  { x: 880,   y: -210, w: 290, h: 190, zPx: 30,   rx: -1.8, ry: 0,   rz: -0.8, sizeClass: 'medium' },
+  // Slot 4 (Behind The Lens — Lower-Left feature still, like Batman in reference)
+  { x: -460,  y: 260,  w: 310, h: 205, zPx: 60,   rx: 1.5,  ry: 0,   rz: 0.8,  sizeClass: 'medium' },
+  // Slot 5 (Reel 2026 — Mid-Right lower flank)
+  { x: 1120,  y: 220,  w: 280, h: 185, zPx: 40,   rx: 1.5,  ry: 0,   rz: -0.8, sizeClass: 'medium' },
+  // Slot 6 (Luminal HR — Upper-Right peeking accent, tucked behind Pig like Joker in reference)
+  { x: 450,   y: -150, w: 185, h: 135, zPx: -50,  rx: 0.8,  ry: 0,   rz: -0.8, sizeClass: 'small' },
+  // Slot 7 (HR Admin Flow — Mid-Right upper flank)
+  { x: 1360,  y: -300, w: 240, h: 160, zPx: -70,  rx: -1.8, ry: 0,   rz: 0.8,  sizeClass: 'small' },
+  // Slot 8 (Manager Flow — Mid-Left flank)
+  { x: -1220, y: 170,  w: 240, h: 160, zPx: -50,  rx: 1.2,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+  // Slot 9 (Employee Flow — Mid-Left upper flank)
+  { x: -1350, y: -240, w: 230, h: 155, zPx: -80,  rx: -1.5, ry: 0,   rz: -0.8, sizeClass: 'small' },
+  // Slot 10 (Hero Portrait Left / Poster Series)
+  { x: -1620, y: -20,  w: 260, h: 420, zPx: 70,   rx: 0.8,  ry: 0,   rz: -1.0, sizeClass: 'large' },
+  // Slot 11 (Brand Identity — Top-Center distant accent, like Building in reference)
+  { x: -140,  y: -390, w: 220, h: 150, zPx: -190, rx: -1.5, ry: 0,   rz: 0.5,  sizeClass: 'small' },
+  // Slot 12 (Illustration Set — Mid-Left outer upper)
+  { x: -1880, y: -320, w: 230, h: 155, zPx: -120, rx: -1.5, ry: 0,   rz: 1.0,  sizeClass: 'small' },
+  // Slot 13 (Cinema Stills — Far-Left lower wing)
+  { x: -2100, y: 280,  w: 230, h: 155, zPx: -140, rx: 1.8,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+  // Slot 14 (Interface Craft — Far-Left mid wing)
+  { x: -2340, y: -50,  w: 220, h: 150, zPx: -180, rx: 0.0,  ry: 0,   rz: 1.0,  sizeClass: 'small' },
+  // Slot 15 (Editorial Layout — Far-Left upper wing)
+  { x: -2560, y: -320, w: 220, h: 150, zPx: -210, rx: -1.8, ry: 0,   rz: 0.8,  sizeClass: 'small' },
+  // Slot 16 (Motion Graphics — Under-Center dark still, like Dragon in reference)
+  { x: -30,   y: 360,  w: 310, h: 200, zPx: 10,   rx: 1.6,  ry: 0,   rz: -0.5, sizeClass: 'medium' },
+  // Slot 17 (Hero Right Still / TNE Precision Cut)
+  { x: 1520,  y: -10,  w: 270, h: 180, zPx: 40,   rx: 0.6,  ry: 0,   rz: -0.8, sizeClass: 'medium' },
+  // Slot 18 (Night Drift — Upper-Right mid flank)
+  { x: 1640,  y: -280, w: 260, h: 175, zPx: -40,  rx: -1.6, ry: 0,   rz: -1.0, sizeClass: 'medium' },
+  // Slot 19 (Stunt Telemetry HUD — Mid-Left peeking still, like Darkseid in reference)
+  { x: -620,  y: -70,  w: 260, h: 175, zPx: 30,   rx: 0.5,  ry: 0,   rz: 0.8,  sizeClass: 'small' },
+  // Slot 20 (Urban Velocity — Far-Left deep ceiling)
+  { x: -1500, y: -440, w: 210, h: 140, zPx: -150, rx: -2.0, ry: 0,   rz: -0.8, sizeClass: 'small' },
+  // Slot 21 (Sound Design Lab — Mid-Right mid flank)
+  { x: 1860,  y: 110,  w: 240, h: 160, zPx: -60,  rx: -0.5, ry: 0,   rz: -0.8, sizeClass: 'small' },
+  // Slot 22 (Aperture Study — Far-Right upper wing)
+  { x: 2080,  y: -300, w: 230, h: 155, zPx: -130, rx: -1.8, ry: 0,   rz: 1.0,  sizeClass: 'small' },
+  // Slot 23 (Chromatic Flow — Far-Right lower wing)
+  { x: 2180,  y: 320,  w: 230, h: 155, zPx: -140, rx: 1.8,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+  // Slot 24 (Slow-Mo Mechanics — Under-Center delicate accent, like Minion in reference)
+  { x: -45,   y: 165,  w: 90,   h: 125, zPx: -90,  rx: 0.5,  ry: 0,   rz: 0.5,  sizeClass: 'small' },
+  // Slot 25 (Telemetry Dashboard — Mid-Right outer lower)
+  { x: 2420,  y: 170,  w: 220, h: 150, zPx: -170, rx: 1.2,  ry: 0,   rz: -0.8, sizeClass: 'small' },
+  // Slot 26 (Atmospheric Foley — Far-Right mid wing)
+  { x: 2640,  y: -60,  w: 210, h: 140, zPx: -200, rx: 0.0,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+  // Slot 27 (Street Optics — Far-Left deep horizon)
+  { x: -2780, y: 140,  w: 200, h: 135, zPx: -240, rx: 1.0,  ry: 0,   rz: 0.5,  sizeClass: 'small' },
+  // Slot 28 (Lighting Architecture — Far-Right deep ceiling)
+  { x: 2850,  y: -240, w: 200, h: 135, zPx: -230, rx: -1.5, ry: 0,   rz: 0.8,  sizeClass: 'small' },
+  // Slot 29 (Kinetic Titles — Far-Right deep floor)
+  { x: 3050,  y: 210,  w: 190, h: 130, zPx: -250, rx: 1.5,  ry: 0,   rz: -0.8, sizeClass: 'small' },
+  // Slot 30 (Raw Velocity — Mid-Right foreground accent)
+  { x: 1680,  y: 250,  w: 260, h: 175, zPx: 50,   rx: 1.0,  ry: 0,   rz: -0.8, sizeClass: 'medium' }
 ];
 
 export const SPACE_CONFIG = {
@@ -301,12 +520,12 @@ export const SPACE_CONFIG = {
   REF_MOBILE_WIDTH: 2137,
   REF_MOBILE_HEIGHT: 1644,
   REF_MOBILE_ASPECT: 2137 / 1644,
-  CONCAVE_CURVE_STRENGTH: 180,
+  CONCAVE_CURVE_STRENGTH: 160,
   PITCH_COEFF: 5.5,
-  YAW_COEFF: -9.5,
+  YAW_COEFF: -14.0,
   HOVER_INTENT_DELAY: 25,
   HOVER_EXIT_DELAY: 60,
-  TILE_REST_BRIGHTNESS: 0.55,
-  TILE_REST_SATURATE: 0.75,
-  CAMERA_LERP: 0.045
+  TILE_REST_BRIGHTNESS: 0.92,
+  TILE_REST_SATURATE: 1.00,
+  CAMERA_LERP: 0.048
 };

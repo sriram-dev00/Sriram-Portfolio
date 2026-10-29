@@ -4,8 +4,10 @@ import { useScrambleText } from '../../hooks/useScrambleText';
 import { SITE_CONFIG } from '../../data/portfolioData';
 
 export const BrandHeader: React.FC = () => {
-  const { navigate } = usePortfolio();
+  const { activeView, navigate } = usePortfolio();
   const scrambledName = useScrambleText(SITE_CONFIG.name);
+
+  if (activeView === 'project') return null;
 
   return (
     <header

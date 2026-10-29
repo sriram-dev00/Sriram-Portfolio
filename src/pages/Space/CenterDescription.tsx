@@ -21,8 +21,11 @@ export const CenterDescription: React.FC<CenterDescriptionProps> = ({ project, o
         {project?.title || ''}
       </h2>
       <p className="sc-desc" id="spaceCenterDescText">
-        {project ? (project.short || project.description || '') : ''}
+        {project?.description || project?.short || ''}
       </p>
+      <div className="sc-cat" id="spaceCenterCat">
+        {project?.category || ''}
+      </div>
     </div>
   );
 };

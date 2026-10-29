@@ -12,7 +12,7 @@ export function getSpatialScaleFactor(width: number, height: number): number {
   const baseH = refH * 0.25;
 
   const baseScale = vpAspect > refAspect ? height / baseH : width / baseW;
-  return isMobile ? 0.72 : Math.max(0.78, Math.min(1.28, baseScale));
+  return isMobile ? 0.72 : Math.max(0.78, Math.min(1.15, baseScale));
 }
 
 export function getStagePerspective(height: number): number {

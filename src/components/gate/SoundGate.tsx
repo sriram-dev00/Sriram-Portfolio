@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 
 export const SoundGate: React.FC = () => {
-  const { isGatePassed, setGatePassed, sound } = usePortfolio();
+  const { isGatePassed, setGatePassed, setIsGateExiting, sound } = usePortfolio();
   const [isExiting, setIsExiting] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
 
@@ -19,6 +19,7 @@ export const SoundGate: React.FC = () => {
   const handlePassGate = useCallback((withSound: boolean) => {
     if (isExiting || isGatePassed) return;
     setIsExiting(true);
+    setIsGateExiting(true);
 
     if (withSound) {
       sound.enableAudio(true);
@@ -28,12 +29,12 @@ export const SoundGate: React.FC = () => {
 
     setTimeout(() => {
       document.body.classList.remove('in-gate-state');
-    }, 250);
+    }, 150);
 
     setTimeout(() => {
       setGatePassed(true);
-    }, 1300);
-  }, [isExiting, isGatePassed, sound, setGatePassed]);
+    }, 1100);
+  }, [isExiting, isGatePassed, sound, setGatePassed, setIsGateExiting]);
 
   if (isGatePassed) return null;
 

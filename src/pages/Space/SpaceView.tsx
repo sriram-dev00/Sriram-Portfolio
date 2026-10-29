@@ -7,7 +7,7 @@ import { Tile } from './Tile';
 import { CenterDescription } from './CenterDescription';
 
 export const SpaceView: React.FC = () => {
-  const { activeView, activeHoveredProject, setActiveHoveredProject, navigate } = usePortfolio();
+  const { activeView, activeHoveredProject, setActiveHoveredProject, navigate, isGatePassed, isGateExiting } = usePortfolio();
   const { isMobile, scaleFactor, perspective } = useWindowSize();
 
   const fieldRef = useRef<HTMLDivElement | null>(null);
@@ -25,17 +25,74 @@ export const SpaceView: React.FC = () => {
   const fieldRotXRef = useRef(0);
   const fieldRotYRef = useRef(0);
 
+  // Panoramic canvas pan & drag navigation engine
+  const panXRef = useRef(0);
+  const panYRef = useRef(0);
+  const targetPanXRef = useRef(0);
+  const targetPanYRef = useRef(0);
+  const panVelocityXRef = useRef(0);
+  const panVelocityYRef = useRef(0);
+  const isPointerDownRef = useRef(false);
+  const isPointerDraggingRef = useRef(false);
+  const lastDragXRef = useRef(0);
+  const lastDragYRef = useRef(0);
+  const dragDistanceRef = useRef(0);
+
   const targetMouseXRef = useRef(0);
   const targetMouseYRef = useRef(0);
 
+  const isFlyingInRef = useRef(false);
+  const entranceStartTimeRef = useRef(isGatePassed ? 1 : 0);
+  const prevActiveViewRef = useRef(activeView);
+  const isViewTransitioningRef = useRef(false);
+  const viewTransitionStartTimeRef = useRef(0);
+
+  // Trigger fly-in immediately when gate begins exiting or if gate passed
+  useEffect(() => {
+    if ((isGateExiting || isGatePassed) && entranceStartTimeRef.current === 0) {
+      isFlyingInRef.current = true;
+      entranceStartTimeRef.current = performance.now();
+    }
+  }, [isGateExiting, isGatePassed]);
+
+  // Smooth cinematic glide whenever navigating back to 3D space from other pages
+  useEffect(() => {
+    if (prevActiveViewRef.current !== 'space' && activeView === 'space') {
+      isViewTransitioningRef.current = true;
+      viewTransitionStartTimeRef.current = performance.now();
+    }
+    prevActiveViewRef.current = activeView;
+  }, [activeView]);
+
+  // High-precision luxury quintic ease-out curve (continuous derivative, zero jerk)
+  const luxuryEase = (t: number) => {
+    const clamped = Math.max(0, Math.min(1, t));
+    return 1 - Math.pow(1 - clamped, 4);
+  };
+
   // Precalculate static 3D geometry once per window resize / scaleFactor change
   const computedTiles: ComputedTile[] = useMemo(() => {
-    const totalSlots = Math.min(TILE_LAYOUTS.length, PROJECTS.length);
+    const totalSlots = PROJECTS.length;
     const list: ComputedTile[] = [];
 
+    // Match 3D layout slots (1..30)
+    const slottedProjects = PROJECTS.some(p => typeof p.slot === 'number')
+      ? [...PROJECTS].sort((a, b) => (a.slot || 0) - (b.slot || 0))
+      : PROJECTS;
+
     for (let i = 0; i < totalSlots; i++) {
-      const pos = TILE_LAYOUTS[i];
-      const project = PROJECTS[i];
+      const pos = TILE_LAYOUTS[i] || {
+        x: Math.round(Math.sin((((i - 32) * 37) % 240 - 120) * (Math.PI / 180)) * (1800 + ((i * 120) % 600))),
+        y: ((i * 190) % 1400) - 700,
+        w: 260,
+        h: 180,
+        zPx: -80 - ((i * 35) % 200),
+        rx: 0,
+        ry: 0,
+        rz: 0,
+        sizeClass: 'small' as const
+      };
+      const project = slottedProjects[i] || PROJECTS[i];
 
       const rawX = pos.x;
       const rawY = pos.y;
@@ -47,25 +104,29 @@ export const SpaceView: React.FC = () => {
       const posX = rawX * scaleFactor;
       const posY = rawY * scaleFactor;
 
-      // Normalized distance from center for fisheye concave curve relative to reference canvas
+      // Normalized distance across reference canvas
       const normX = posX / (720 * scaleFactor);
-      const normY = posY / (390 * scaleFactor);
-      const distSq = normX * normX + normY * normY * 0.65;
+      const normY = posY / (420 * scaleFactor);
 
-      const concaveZ = -distSq * SPACE_CONFIG.CONCAVE_CURVE_STRENGTH;
-      const totalZ = baseZ + concaveZ;
+      // Inverted circular arc depth (outer edges flare forward)
+      const radius = 3400 * scaleFactor;
+      const clampedX = Math.min(Math.abs(posX), radius * 0.94);
+      const cylZ = (radius - Math.sqrt(radius * radius - clampedX * clampedX)) * 0.18;
+      const vertZ = Math.min(60, (posY * posY) / (3600 * scaleFactor));
+      const totalZ = baseZ + cylZ + vertZ;
 
-      // Subtle inward facing tilts along concave arc
+      // Inverted tilts along arc
       const cylRotY = baseRy + normX * SPACE_CONFIG.YAW_COEFF;
-      const cylRotX = baseRx + -normY * SPACE_CONFIG.PITCH_COEFF;
+      const cylRotX = baseRx + normY * SPACE_CONFIG.PITCH_COEFF;
       const cylRotZ = baseRz;
 
-      const normZ = Math.max(0, Math.min(1, (totalZ + 380) / 600));
-      const depthOpacity = Number((0.38 + normZ * 0.4).toFixed(2));
+      const normZ = Math.max(0, Math.min(1, (totalZ + 400) / 600));
+      const depthOpacity = Number((0.78 + normZ * 0.20).toFixed(2));
       const uniqueStackIndex = Math.round((totalZ + 2000) * 10) + i;
 
-      const width = Math.round((pos.w || 220) * scaleFactor);
-      const height = pos.h ? Math.round(pos.h * scaleFactor) : Math.round(width * 0.65);
+      const TILE_SCALE = 1.25 * 1.10; // 1.375 (+10% expansion)
+      const width = Math.round((pos.w || 220) * scaleFactor * TILE_SCALE);
+      const height = pos.h ? Math.round(pos.h * scaleFactor * TILE_SCALE) : Math.round(width * 0.65);
 
       list.push({
         project,
@@ -88,25 +149,103 @@ export const SpaceView: React.FC = () => {
   }, [scaleFactor]);
 
   // Continuous 60fps RAF space loop matching shared/app_engine.js:
-  // Decelerates camera sway with 0.045 lerp factor and applies pure 3D transforms
+  // Panoramic canvas pan, momentum, and camera sway engine
   useEffect(() => {
-    if (activeView !== 'space') return;
-
     let rafId: number;
 
     const spaceLoop = () => {
-      const targetCamX = isMobile ? 0 : targetMouseXRef.current * (scaleFactor * 460);
-      const targetCamY = isMobile ? 0 : targetMouseYRef.current * (scaleFactor * 280);
-      const targetRotY = isMobile ? 0 : targetMouseXRef.current * 10.5;
-      const targetRotX = isMobile ? 0 : -targetMouseYRef.current * 6.5;
+      // 1. Continuous edge acceleration (only while active on 3D space view)
+      if (activeView === 'space' && !isPointerDownRef.current) {
+        const edgeThresholdX = 0.74;
+        const edgeThresholdY = 0.78;
+        if (targetMouseXRef.current > edgeThresholdX) {
+          const factor = (targetMouseXRef.current - edgeThresholdX) / (1 - edgeThresholdX);
+          targetPanXRef.current += factor * 26 * scaleFactor;
+        } else if (targetMouseXRef.current < -edgeThresholdX) {
+          const factor = (-edgeThresholdX - targetMouseXRef.current) / (1 - edgeThresholdX);
+          targetPanXRef.current -= factor * 26 * scaleFactor;
+        }
 
-      cameraXRef.current += (targetCamX - cameraXRef.current) * SPACE_CONFIG.CAMERA_LERP;
-      cameraYRef.current += (targetCamY - cameraYRef.current) * SPACE_CONFIG.CAMERA_LERP;
-      fieldRotYRef.current += (targetRotY - fieldRotYRef.current) * SPACE_CONFIG.CAMERA_LERP;
-      fieldRotXRef.current += (targetRotX - fieldRotXRef.current) * SPACE_CONFIG.CAMERA_LERP;
+        if (targetMouseYRef.current > edgeThresholdY) {
+          const factor = (targetMouseYRef.current - edgeThresholdY) / (1 - edgeThresholdY);
+          targetPanYRef.current += factor * 18 * scaleFactor;
+        } else if (targetMouseYRef.current < -edgeThresholdY) {
+          const factor = (-edgeThresholdY - targetMouseYRef.current) / (1 - edgeThresholdY);
+          targetPanYRef.current -= factor * 18 * scaleFactor;
+        }
+      }
+
+      // 2. Momentum coasting
+      if (activeView === 'space' && !isPointerDownRef.current && (Math.abs(panVelocityXRef.current) > 0.05 || Math.abs(panVelocityYRef.current) > 0.05)) {
+        targetPanXRef.current += panVelocityXRef.current;
+        targetPanYRef.current += panVelocityYRef.current;
+        panVelocityXRef.current *= 0.90;
+        panVelocityYRef.current *= 0.90;
+      }
+
+      // 3. Expanded canvas boundaries reaching all 30 slots (Slot 27 at -3100 to Slot 29 at +3350)
+      const minPanX = -3600 * scaleFactor;
+      const maxPanX = 3800 * scaleFactor;
+      const minPanY = -650 * scaleFactor;
+      const maxPanY = 650 * scaleFactor;
+
+      targetPanXRef.current = Math.max(minPanX, Math.min(maxPanX, targetPanXRef.current));
+      targetPanYRef.current = Math.max(minPanY, Math.min(maxPanY, targetPanYRef.current));
+
+      // Smooth pan easing
+      panXRef.current += (targetPanXRef.current - panXRef.current) * 0.085;
+      panYRef.current += (targetPanYRef.current - panYRef.current) * 0.085;
+
+      // 4. Dynamic mouse sway around the current pan position (quiescent when on other views)
+      const swayCamX = (isMobile || activeView !== 'space') ? 0 : targetMouseXRef.current * (scaleFactor * 160);
+      const swayCamY = (isMobile || activeView !== 'space') ? 0 : targetMouseYRef.current * (scaleFactor * 120);
+      const swayRotY = (isMobile || activeView !== 'space') ? 0 : targetMouseXRef.current * 18.0;
+
+      // 5. Tangent cylinder arc yaw as camera pans along the curve
+      const arcYaw = (-panXRef.current / (3400 * scaleFactor)) * (180 / Math.PI) * 0.50;
+
+      const totalTargetCamX = panXRef.current + swayCamX;
+      const totalTargetCamY = panYRef.current + swayCamY;
+      const totalTargetRotY = arcYaw + swayRotY;
+
+      cameraXRef.current += (totalTargetCamX - cameraXRef.current) * 0.065;
+      cameraYRef.current += (totalTargetCamY - cameraYRef.current) * 0.065;
+      fieldRotYRef.current += (totalTargetRotY - fieldRotYRef.current) * 0.065;
+      fieldRotXRef.current = 0;
+
+      // 6. Dolly Fly-In Entrance & Inter-view Transitions
+      let initialFlyInEase = 1.0;
+      if (!isGatePassed && !isGateExiting) {
+        initialFlyInEase = 0.0;
+      } else if (isFlyingInRef.current) {
+        const elapsed = (performance.now() - entranceStartTimeRef.current) / 2400;
+        if (elapsed >= 1.0) {
+          isFlyingInRef.current = false;
+          initialFlyInEase = 1.0;
+        } else {
+          initialFlyInEase = luxuryEase(elapsed);
+        }
+      }
+
+      let viewTransitionEase = 1.0;
+      if (activeView !== 'space') {
+        viewTransitionEase = 0.0;
+      } else if (isViewTransitioningRef.current) {
+        const elapsed = (performance.now() - viewTransitionStartTimeRef.current) / 1400;
+        if (elapsed >= 1.0) {
+          isViewTransitioningRef.current = false;
+          viewTransitionEase = 1.0;
+        } else {
+          viewTransitionEase = luxuryEase(elapsed);
+        }
+      }
+
+      const combinedTransitionEase = Math.min(initialFlyInEase, viewTransitionEase);
 
       if (fieldRef.current) {
-        fieldRef.current.style.transform = `translate3d(${-cameraXRef.current.toFixed(1)}px, ${-cameraYRef.current.toFixed(1)}px, 0px) rotateX(${fieldRotXRef.current.toFixed(2)}deg) rotateY(${fieldRotYRef.current.toFixed(2)}deg)`;
+        const flyInZ = (1.0 - combinedTransitionEase) * -440;
+        const flyInScale = 0.78 + (0.22 * combinedTransitionEase);
+        fieldRef.current.style.transform = `translate3d(${-cameraXRef.current.toFixed(1)}px, ${-cameraYRef.current.toFixed(1)}px, ${flyInZ.toFixed(1)}px) rotateY(${fieldRotYRef.current.toFixed(2)}deg) scale(${flyInScale.toFixed(3)})`;
       }
 
       rafId = requestAnimationFrame(spaceLoop);
@@ -114,24 +253,27 @@ export const SpaceView: React.FC = () => {
 
     rafId = requestAnimationFrame(spaceLoop);
     return () => cancelAnimationFrame(rafId);
-  }, [activeView, isMobile, scaleFactor]);
+  }, [activeView, isMobile, scaleFactor, isGatePassed, isGateExiting]);
 
   const showCenterDesc = useCallback((proj: Project) => {
     const descEl = document.getElementById('spaceCenterDesc');
     const indexToggleEl = document.querySelector('.index-toggle');
     if (!descEl || !proj) return;
 
+    const targetSlug = proj.targetSlug || proj.slug;
+    const targetProj = PROJECTS.find(p => p.slug === targetSlug) || proj;
+
     const titleEl = document.getElementById('spaceCenterTitle');
     const descTextEl = document.getElementById('spaceCenterDescText');
 
-    if (titleEl) titleEl.textContent = proj.title || '';
-    if (descTextEl) descTextEl.textContent = proj.short || proj.description || '';
+    if (titleEl) titleEl.textContent = targetProj.title || '';
+    if (descTextEl) descTextEl.textContent = targetProj.short || targetProj.description || '';
 
-    descEl.dataset.slug = proj.slug || '';
+    descEl.dataset.slug = targetProj.slug || '';
     descEl.classList.add('is-active');
     if (indexToggleEl) indexToggleEl.classList.add('hide-for-desc');
-    setHoveredSlug(proj.slug);
-    setActiveHoveredProject(proj);
+    setHoveredSlug(targetProj.slug);
+    setActiveHoveredProject(targetProj);
   }, [setActiveHoveredProject]);
 
   const hideCenterDesc = useCallback(() => {
@@ -143,14 +285,58 @@ export const SpaceView: React.FC = () => {
     setActiveHoveredProject(null);
   }, [setActiveHoveredProject]);
 
-  // Precise 3D Spatial Hit-Testing Engine for Overlapping Back Tiles & Camera Sway
+  // Precise 3D Spatial Hit-Testing, Drag-to-Pan, Wheel, and Recenter Engine
   useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (activeView !== 'space') return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('button, a, .fixed-footer, .brand-header, .index-toggle, .audio-toggle, .space-center-desc')) {
+        return;
+      }
+      isPointerDownRef.current = true;
+      lastDragXRef.current = e.clientX;
+      lastDragYRef.current = e.clientY;
+      dragDistanceRef.current = 0;
+      panVelocityXRef.current = 0;
+      panVelocityYRef.current = 0;
+    };
+
     const handlePointerMove = (e: PointerEvent) => {
-      // Track normalized mouse coordinates across reference space (-1.0 to +1.0)
       targetMouseXRef.current = (e.clientX / window.innerWidth) * 2 - 1;
       targetMouseYRef.current = (e.clientY / window.innerHeight) * 2 - 1;
 
       if (activeView !== 'space' || !fieldRef.current) return;
+
+      if (isPointerDownRef.current) {
+        const dx = e.clientX - lastDragXRef.current;
+        const dy = e.clientY - lastDragYRef.current;
+        dragDistanceRef.current += Math.hypot(dx, dy);
+
+        if (dragDistanceRef.current > 6) {
+          isPointerDraggingRef.current = true;
+          if (stageRef.current) stageRef.current.classList.add('is-dragging');
+        }
+
+        targetPanXRef.current -= dx * 1.5;
+        targetPanYRef.current -= dy * 1.5;
+        panVelocityXRef.current = -dx * 1.5;
+        panVelocityYRef.current = -dy * 1.5;
+
+        lastDragXRef.current = e.clientX;
+        lastDragYRef.current = e.clientY;
+      }
+
+      if (isPointerDraggingRef.current) {
+        if (activeHoveredTileRef.current) {
+          activeHoveredTileRef.current = null;
+          fieldRef.current?.classList.remove('has-hover');
+          fieldRef.current?.querySelectorAll('.tile').forEach((t) => {
+            t.classList.remove('is-hovered');
+          });
+          hideCenterDesc();
+        }
+        return;
+      }
 
       const hitElement = document.elementFromPoint(e.clientX, e.clientY);
       const hitTile = hitElement ? (hitElement.closest('.tile') as HTMLElement | null) : null;
@@ -195,9 +381,65 @@ export const SpaceView: React.FC = () => {
       }
     };
 
+    const handlePointerUp = () => {
+      if (!isPointerDownRef.current) return;
+      isPointerDownRef.current = false;
+      if (stageRef.current) stageRef.current.classList.remove('is-dragging');
+      window.setTimeout(() => {
+        isPointerDraggingRef.current = false;
+      }, 60);
+    };
+
+    const handlePointerCancel = () => {
+      isPointerDownRef.current = false;
+      if (stageRef.current) stageRef.current.classList.remove('is-dragging');
+      isPointerDraggingRef.current = false;
+    };
+
+    const handleDblClick = (e: MouseEvent) => {
+      if (activeView !== 'space') return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('button, a, .fixed-footer, .brand-header, .index-toggle, .audio-toggle, .tile')) return;
+      targetPanXRef.current = 0;
+      targetPanYRef.current = 0;
+      panVelocityXRef.current = 0;
+      panVelocityYRef.current = 0;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (activeView !== 'space') return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('.project-page, .about-page, .contact-view, .index-page-inner')) return;
+
+      e.preventDefault();
+      const mult = 1.0;
+      if (Math.abs(e.deltaX) > 0.5) {
+        targetPanXRef.current += e.deltaX * mult;
+      }
+      if (Math.abs(e.deltaY) > 0.5) {
+        if (e.shiftKey || Math.abs(e.deltaX) === 0) {
+          targetPanXRef.current += e.deltaY * 1.1;
+          targetPanYRef.current += (e.deltaY * 0.25);
+        } else {
+          targetPanYRef.current += e.deltaY * mult;
+        }
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerCancel);
+    window.addEventListener('dblclick', handleDblClick);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
     return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerCancel);
+      window.removeEventListener('dblclick', handleDblClick);
+      window.removeEventListener('wheel', handleWheel);
       if (hoverIntentTimer.current) window.clearTimeout(hoverIntentTimer.current);
       if (hoverExitTimer.current) window.clearTimeout(hoverExitTimer.current);
     };
@@ -217,32 +459,41 @@ export const SpaceView: React.FC = () => {
 
   const handleTileClick = useCallback(
     (project: Project) => {
-      navigate('project', project.slug);
+      if (isPointerDraggingRef.current || dragDistanceRef.current > 6) return;
+      navigate('project', project.targetSlug || project.slug);
     },
     [navigate]
   );
 
   const handleFieldClick = useCallback(
     (e: React.MouseEvent) => {
+      if (isPointerDraggingRef.current || dragDistanceRef.current > 6) return;
       const target = (e.target as HTMLElement).closest('.tile') as HTMLElement | null;
-      if (target && target.dataset.slug) {
-        navigate('project', target.dataset.slug);
+      if (target) {
+        const dest = target.dataset.targetSlug || target.dataset.slug;
+        if (dest) {
+          navigate('project', dest);
+        }
       }
     },
     [navigate]
   );
 
   const handleCenterDescClick = useCallback(() => {
+    if (activeHoveredProject) {
+      navigate('project', activeHoveredProject.targetSlug || activeHoveredProject.slug);
+      return;
+    }
     const descEl = document.getElementById('spaceCenterDesc');
     const slug = descEl?.dataset.slug;
     if (slug) {
       navigate('project', slug);
     }
-  }, [navigate]);
+  }, [activeHoveredProject, navigate]);
 
   return (
     <div
-      className={`view ${activeView === 'space' ? 'active' : ''}`}
+      className={`view ${activeView === 'space' ? 'active' : 'space-receded'}`}
       data-view="space"
     >
       <div

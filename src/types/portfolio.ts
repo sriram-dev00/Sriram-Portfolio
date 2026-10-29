@@ -22,6 +22,9 @@ export interface Project {
   media?: ProjectMedia | null;
   mediaKind?: 'video' | 'image';
   items?: ProjectItem[];
+  targetSlug?: string;
+  externalUrl?: string;
+  slot?: number;
 }
 
 export interface ContactLink {
@@ -43,6 +46,7 @@ export interface AboutSection {
   sub?: string;
   sublead?: string;
   text?: string;
+  quote?: string;
   cards?: string[];
   socials?: SocialLink[];
 }

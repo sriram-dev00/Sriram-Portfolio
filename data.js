@@ -44,7 +44,7 @@ window.SITE = {
     ]
   },
 
-  aboutBg: 'media/about-hero-bg.jpg',
+  aboutBg: 'media/about-hero-bg.jpg?v=5230',
   aboutBgType: 'image',
 
   aboutSections: [
@@ -56,16 +56,17 @@ window.SITE = {
     {
       id: 'section-foundations',
       label: 'Foundations & Rhythm',
-      eyebrow: 'EARLY CRAFT & PACING',
-      stepped: ['SRIRAM', 'BEGAN', 'CRAFTING', 'AND EDITING', 'STORIES', 'FROM DAY ONE'],
-      text: 'Starting in the high-adrenaline world of stunt riding films and kinetic cinematography, Sriram developed an instinctive feel for visual velocity, frame-by-frame rhythm, and atmospheric color grading. Every cut is engineered with sound, tension, and narrative momentum.'
+      eyebrow: 'MEANING IN EVERY DETAIL',
+      stepped: ['SRIRAM', 'BELIEVES EVERY', 'COLOR HAS', 'A STORY', 'TO TELL'],
+      text: 'Sriram has a strong belief that every color carries meaning, and every element has a purpose. He pays attention to even the smallest details, often embedding meaning within the tiniest parts of his work. He creates primarily for self-satisfaction and personal expression, which makes every production a reflection of his personality, perspective, and character.',
+      quote: '“My work is not just something I create; it is a reflection of who I am.”'
     },
     {
       id: 'section-interface',
       label: 'Interface Architecture',
       eyebrow: 'SYSTEMATIC INTERACTION DESIGN',
-      stepped: ['BRIDGING', 'RAW KINETIC CINEMA', 'WITH SYSTEMATIC', 'DIGITAL ARCHITECTURE'],
-      text: 'Translating cinematic motion into cohesive digital experiences. From complex enterprise design systems to intuitive mobile applications, Sriram treats interface design as living choreography — where hierarchy, micro-interactions, and visual craftsmanship merge seamlessly.'
+      stepped: ['STRUCTURING IDEAS', 'INTO UI/UX', 'THROUGH DIGITAL', 'ARCHITECTURE'],
+      text: 'I begin by structuring the idea and breaking the work into meaningful components. This allows me to organize content, define how each element connects within the UI, and establish a clear direction before moving into design. I then execute the plan, refine the details, and continuously iterate until the final result feels clear, intentional, and complete.'
     },
     {
       id: 'section-orbit',
@@ -73,7 +74,7 @@ window.SITE = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city']
+      cards: ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city']
     },
     {
       id: 'section-socials',
@@ -102,21 +103,27 @@ window.SITE = {
 
 window.PROJECTS = [
   {
-    slug: 'night-ride',
-    title: 'NIGHT RIDE',
-    category: 'Video',
-    short: 'A night stunt run cut to a driving score.',
-    description: 'A cinematic night stunt motorcycle run color graded with dark moody tones.',
-    moreInfo: 'Shot on Sony FX3 with anamorphic lenses.',
-    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
+    slug: 'team-never-enough',
+    slot: 1,
+    title: 'TEAM NEVER ENOUGH',
+    category: 'Motorcycle Stunt Collective',
+    short: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
+    description: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
+    moreInfo: 'Royal Enfield Guerrilla 450 edition. Precision street riding, vertical balance acrobatics, and raw visual velocity.',
+    thumb: 'media/team-never-enough.jpg?v=5238',
     mediaKind: 'image',
+    media: {
+      type: 'image',
+      src: 'media/team-never-enough.jpg?v=5238'
+    },
     items: [
-      { title: 'Main Cut', type: 'play', meta: '0:00' },
-      { title: 'Slow-Mo Highlight Reel', type: 'play', meta: '0:00' }
+      { title: 'Guerrilla 450 Cut', type: 'play', meta: '0:00' },
+      { title: 'Slow-Mo Vertical Stunt Reel', type: 'play', meta: '0:00' }
     ]
   },
   {
     slug: 'wheelie-city',
+    slot: 30,
     title: 'WHEELIE CITY',
     category: 'Video',
     short: 'Urban wheelie compilation, color graded for a moody teal-orange look.',
@@ -130,6 +137,7 @@ window.PROJECTS = [
   },
   {
     slug: 'burnout',
+    slot: 13,
     title: 'BURNOUT',
     category: 'Video',
     short: 'Sound-forward edit built around engine and tire audio.',
@@ -142,6 +150,7 @@ window.PROJECTS = [
   },
   {
     slug: 'behind-the-lens',
+    slot: 25,
     title: 'BEHIND THE LENS',
     category: 'Video',
     short: 'Behind-the-scenes look at a shoot day.',
@@ -154,6 +163,7 @@ window.PROJECTS = [
   },
   {
     slug: 'reel-2026',
+    slot: 12,
     title: 'REEL 2026',
     category: 'Video',
     short: 'The full year showreel \u2014 best cuts in one edit.',
@@ -166,6 +176,7 @@ window.PROJECTS = [
   },
   {
     slug: 'luminal-hr',
+    slot: 27,
     title: 'LUMINAL HR',
     category: 'UI/UX',
     short: 'An HRIS dashboard for a 500-person company \u2014 three personas, one system.',
@@ -179,6 +190,7 @@ window.PROJECTS = [
   },
   {
     slug: 'hr-admin-flow',
+    slot: 7,
     title: 'HR ADMIN FLOW',
     category: 'UI/UX',
     short: 'How an HR admin manages policy, compliance, and headcount.',
@@ -191,6 +203,7 @@ window.PROJECTS = [
   },
   {
     slug: 'manager-flow',
+    slot: 28,
     title: 'MANAGER FLOW',
     category: 'UI/UX',
     short: 'Overseeing team performance, leave, and hiring in one view.',
@@ -203,6 +216,7 @@ window.PROJECTS = [
   },
   {
     slug: 'employee-flow',
+    slot: 20,
     title: 'EMPLOYEE FLOW',
     category: 'UI/UX',
     short: 'Self-service profile, leave requests, and career growth.',
@@ -215,6 +229,7 @@ window.PROJECTS = [
   },
   {
     slug: 'poster-series',
+    slot: 10,
     title: 'POSTER SERIES',
     category: 'Graphic Design',
     short: 'A set of typographic event posters.',
@@ -227,6 +242,7 @@ window.PROJECTS = [
   },
   {
     slug: 'brand-identity',
+    slot: 5,
     title: 'BRAND IDENTITY',
     category: 'Graphic Design',
     short: 'Logo, color system, and type stack for a modern brand.',
@@ -239,6 +255,7 @@ window.PROJECTS = [
   },
   {
     slug: 'illustration-set',
+    slot: 11,
     title: 'ILLUSTRATION SET',
     category: 'Graphic Design',
     short: 'Digital illustrations and vector artwork.',
@@ -251,6 +268,7 @@ window.PROJECTS = [
   },
   {
     slug: 'cinema-stills',
+    slot: 4,
     title: 'CINEMA STILLS',
     category: 'Video',
     short: 'Frame grabs and color study from cinematic projects.',
@@ -263,6 +281,7 @@ window.PROJECTS = [
   },
   {
     slug: 'interface-craft',
+    slot: 23,
     title: 'INTERFACE CRAFT',
     category: 'UI/UX',
     short: 'Design system components and micro-interactions.',
@@ -275,6 +294,7 @@ window.PROJECTS = [
   },
   {
     slug: 'editorial-layout',
+    slot: 26,
     title: 'EDITORIAL LAYOUT',
     category: 'Graphic Design',
     short: 'Print magazine layout and typography exploration.',
@@ -287,6 +307,7 @@ window.PROJECTS = [
   },
   {
     slug: 'motion-graphics',
+    slot: 6,
     title: 'MOTION GRAPHICS',
     category: 'Video',
     short: '3D title sequences and kinetic typography.',
@@ -296,5 +317,159 @@ window.PROJECTS = [
     items: [
       { title: 'Title Reel', type: 'play', meta: '0:00' }
     ]
+  },
+  {
+    slug: 'tne-guerrilla-cut',
+    slot: 29,
+    title: 'TNE — GUERRILLA 450 CUT',
+    category: 'Motorcycle Stunt Collective',
+    short: 'Action still from the vertical balance acrobatic series on the Royal Enfield Guerrilla 450.',
+    description: 'High-speed street precision stunts and balance acrobatics by Team Never Enough.',
+    thumb: 'media/tne-poster.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'night-drift',
+    slot: 22,
+    title: 'NIGHT DRIFT',
+    category: 'Video',
+    short: 'Midnight automotive drift reel with heavy analog sound textures.',
+    description: 'Moody midnight drift film highlighting visceral tire friction and engine growl.',
+    thumb: 'media/night-ride.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'burnout'
+  },
+  {
+    slug: 'stunt-telemetry',
+    slot: 8,
+    title: 'STUNT TELEMETRY',
+    category: 'UI/UX',
+    short: 'Real-time telemetry HUD overlay for high-velocity stunt analytics.',
+    description: 'Telemetry dashboard capturing lean angle, velocity curves, and vertical balance points.',
+    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'urban-velocity',
+    slot: 2,
+    title: 'URBAN VELOCITY',
+    category: 'Video',
+    short: 'FPV drone tracking through narrow alleys and elevated highway lines.',
+    description: 'High-speed FPV tracking cut focusing on spatial rhythm and kinetic motion.',
+    thumb: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'wheelie-city'
+  },
+  {
+    slug: 'sound-design-lab',
+    slot: 24,
+    title: 'SOUND DESIGN LAB',
+    category: 'Sound Design',
+    short: 'Sub-bass harmonics, granular synthesizer patches, and industrial mechanical Foley.',
+    description: 'Experimental audio design laboratory showcasing layered Foley and synthesized drones.',
+    thumb: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'burnout'
+  },
+  {
+    slug: 'aperture-study',
+    slot: 3,
+    title: 'APERTURE STUDY',
+    category: 'Cinematography',
+    short: 'Color density and depth of field experiments on anamorphic glass.',
+    description: 'Technical visual exploration of optical aberrations and anamorphic flare rendering.',
+    thumb: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'chromatic-flow',
+    slot: 21,
+    title: 'CHROMATIC FLOW',
+    category: 'Color Grading',
+    short: 'Film-emulation color palette exploration with rich amber shadows.',
+    description: 'DaVinci Resolve print-film look development featuring custom LUT curves.',
+    thumb: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'reel-2026'
+  },
+  {
+    slug: 'slowmo-mechanics',
+    slot: 15,
+    title: 'SLOW-MO MECHANICS',
+    category: 'Motorcycle Stunt Collective',
+    short: '120fps high-frame-rate breakdown of suspension compression and balance locks.',
+    description: 'Detailed physical examination of balance physics and stunt riding acrobatics.',
+    thumb: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
+  },
+  {
+    slug: 'telemetry-dashboard',
+    slot: 16,
+    title: 'TELEMETRY DASHBOARD',
+    category: 'UI/UX',
+    short: 'Data dense performance dashboard designed for high-refresh telemetry displays.',
+    description: 'Enterprise telemetry design system prioritizing instant cognitive clarity under pressure.',
+    thumb: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'luminal-hr'
+  },
+  {
+    slug: 'atmospheric-foley',
+    slot: 14,
+    title: 'ATMOSPHERIC FOLEY',
+    category: 'Sound Design',
+    short: 'Field recording acoustic captures in brutalist concrete architectures.',
+    description: 'Environmental acoustic sampling exploring natural reverberation in empty spaces.',
+    thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'street-optics',
+    slot: 17,
+    title: 'STREET OPTICS',
+    category: 'Photography',
+    short: 'Raw 35mm monochrome candid captures across urban transit hubs.',
+    description: 'Monochrome documentary photography focusing on natural light, geometry, and human gesture.',
+    thumb: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'cinema-stills'
+  },
+  {
+    slug: 'lighting-architecture',
+    slot: 19,
+    title: 'LIGHTING ARCHITECTURE',
+    category: 'Cinematography',
+    short: 'Volumetric haze and negative fill studies on soundstage sets.',
+    description: 'Studio lighting architecture diagrams and practical fixture placement study.',
+    thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'behind-the-lens'
+  },
+  {
+    slug: 'kinetic-titles',
+    slot: 9,
+    title: 'KINETIC TITLES',
+    category: 'Motion Design',
+    short: 'Typographic title sequences with variable font interpolation and displacement.',
+    description: 'Modern title sequences driven by audio transients and variable font physics.',
+    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    targetSlug: 'motion-graphics'
+  },
+  {
+    slug: 'raw-velocity',
+    slot: 18,
+    title: 'RAW VELOCITY',
+    category: 'Motorcycle Stunt Collective',
+    short: 'Uncut street riding audio track paired with raw, authentic visual pacing.',
+    description: 'Raw engine notes, tire screech, and unfiltered visual velocity from Team Never Enough.',
+    thumb: 'media/tne-poster.jpg?v=5241',
+    mediaKind: 'image',
+    targetSlug: 'team-never-enough'
   }
 ];

@@ -24,18 +24,18 @@
     CYLINDER_MAX_RADIUS: 5500,
     POPULATED_ANGLE: 270,          // deg
 
-    STAGE_PERSPECTIVE: 1100,       // px, expansive 3D camera perspective field
-    CONCAVE_CURVE_STRENGTH: 180,   // px, subtle concave fisheye depth
+    STAGE_PERSPECTIVE: 1150,       // px, expansive 3D camera perspective field
+    CONCAVE_CURVE_STRENGTH: 160,   // px, subtle concave fisheye depth
     PITCH_COEFF: 5.5,              // deg, gentle pitch tilt along concave curve
-    YAW_COEFF: -9.5,               // deg, subtle inward horizontal yaw rotation
+    YAW_COEFF: -14.0,              // deg, inverted yaw rotation matching reference
     
     // Hover Interaction Timing
     HOVER_INTENT_DELAY: 25,        // ms
     HOVER_TOUCH_DELAY: 25,         // ms
     HOVER_EXIT_DELAY: 60,          // ms
 
-    TILE_REST_BRIGHTNESS: 0.55,
-    TILE_REST_SATURATE: 0.75,
+    TILE_REST_BRIGHTNESS: 0.92,
+    TILE_REST_SATURATE: 1.00,
   };
 
   // State Management
@@ -53,6 +53,22 @@
   let mouseVelTimer = null;
   let cameraX = 0;
   let cameraY = 0;
+
+  // Panoramic canvas pan & drag navigation engine
+  let panX = 0;
+  let panY = 0;
+  let targetPanX = 0;
+  let targetPanY = 0;
+  let panVelocityX = 0;
+  let panVelocityY = 0;
+  let isPointerDown = false;
+  let isPointerDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let lastDragX = 0;
+  let lastDragY = 0;
+  let dragDistance = 0;
+
   let activeHoveredTile = null;
   let hoverIntentTimer = null;
   let hoverExitTimer = null;
@@ -255,39 +271,130 @@
      ═══════════════════════════════════════════════════════════════════════════ */
 
   const LAYOUT = [
-    // 0. NIGHT RIDE — Tall vertical portrait anchor on far left edge
-    { refX: 1200, refY: 1510, refW: 460, refH: 690, x: -920, y: -20,  w: 240, h: 360, zPx: 180, rx: 1.5,  ry: -5.5, rz: -1.5, sizeClass: 'large' },
-    // 1. WHEELIE CITY — Motorcycle upper-center-left
-    { refX: 2390, refY: 1170, refW: 510, refH: 330, x: -320, y: -220, w: 280, h: 180, zPx: 120, rx: -2.0, ry: 2.5,  rz: 1.2,  sizeClass: 'medium' },
-    // 2. BURNOUT — White car on highway upper-mid-right
-    { refX: 3500, refY: 1150, refW: 530, refH: 350, x: 380,  y: -230, w: 290, h: 190, zPx: 140, rx: -2.5, ry: -3.5, rz: -1.8, sizeClass: 'medium' },
-    // 3. BEHIND THE LENS — Clapperboard in desert lower-mid-left
-    { refX: 2280, refY: 1930, refW: 510, refH: 340, x: -360, y: 220,  w: 280, h: 185, zPx: 150, rx: 2.0,  ry: 2.2,  rz: 1.0,  sizeClass: 'medium' },
-    // 4. REEL 2026 — Neon cinema facade lower-center below index toggle
-    { refX: 2935, refY: 2020, refW: 450, refH: 350, x: 40,   y: 250,  w: 250, h: 190, zPx: 110, rx: 2.0,  ry: -1.0, rz: -0.5, sizeClass: 'medium' },
-    // 5. LUMINAL HR — Dark analytics screen under car
-    { refX: 3780, refY: 1410, refW: 290, refH: 210, x: 490,  y: -80,  w: 160, h: 115, zPx: -60, rx: 2.5,  ry: -3.0, rz: -1.5, sizeClass: 'small' },
-    // 6. HR ADMIN FLOW — Desk laptop mid-far-right
-    { refX: 4320, refY: 1730, refW: 330, refH: 240, x: 740,  y: 110,  w: 180, h: 130, zPx: 60,  rx: -1.8, ry: -4.5, rz: 1.2,  sizeClass: 'small' },
-    // 7. MANAGER FLOW — Cafe laptop lower-left under clapperboard
-    { refX: 1980, refY: 2150, refW: 255, refH: 310, x: -550, y: 290,  w: 140, h: 170, zPx: 30,  rx: 2.8,  ry: 4.5,  rz: -1.8, sizeClass: 'small' },
-    // 8. EMPLOYEE FLOW — Sketches hands top-left distant
-    { refX: 1860, refY: 1080, refW: 240, refH: 170, x: -620, y: -230, w: 130, h: 95,  zPx: -220,rx: 1.8,  ry: 3.5,  rz: -1.0, sizeClass: 'small' },
-    // 9. POSTER SERIES — Poster series bottom-mid-right
-    { refX: 3520, refY: 2280, refW: 270, refH: 330, x: 360,  y: 350,  w: 150, h: 180, zPx: 50,  rx: 2.0,  ry: -2.8, rz: -1.0, sizeClass: 'small' },
-    // 10. BRAND IDENTITY — Wireframes & sketches top-center distant
-    { refX: 2990, refY: 880,  refW: 220, refH: 165, x: 70,   y: -320, w: 120, h: 90,  zPx: -250,rx: -1.2, ry: 1.2,  rz: 0.8,  sizeClass: 'small' },
-    // 11. ILLUSTRATION SET — Art peaking from lower-left under cinema
-    { refX: 2580, refY: 2250, refW: 255, refH: 180, x: -160, y: 340,  w: 140, h: 100, zPx: -120,rx: 2.2,  ry: -2.8, rz: -1.5, sizeClass: 'small' },
-    // 12. CINEMA STILLS — Open book & glasses above motorcycle
-    { refX: 2320, refY: 780,  refW: 255, refH: 170, x: -330, y: -380, w: 140, h: 95,  zPx: -200,rx: -2.5, ry: 3.0,  rz: 1.2,  sizeClass: 'small' },
-    // 13. INTERFACE CRAFT — Far upper-left wing
-    { refX: 1320, refY: 860,  refW: 270, refH: 190, x: -880, y: -340, w: 150, h: 105, zPx: -180,rx: -2.2, ry: 4.8,  rz: 1.5,  sizeClass: 'small' },
-    // 14. EDITORIAL LAYOUT — Far upper-right wing
-    { refX: 4420, refY: 880,  refW: 270, refH: 190, x: 860,  y: -330, w: 150, h: 105, zPx: -190,rx: 2.6,  ry: -4.8, rz: -1.5, sizeClass: 'small' },
-    // 15. MOTION GRAPHICS — Synth console far-lower-right
-    { refX: 4220, refY: 2180, refW: 255, refH: 180, x: 780,  y: 280,  w: 140, h: 100, zPx: -80, rx: 2.5,  ry: -4.2, rz: -1.5, sizeClass: 'small' }
+    // Slot 1 (TNE Hero Portrait — Right Flank, like Pig in Michael Gatt reference)
+    { slot: 1,  x: 380,   y: 70,   w: 265, h: 410, zPx: 80,   rx: 0.6,  ry: 0,   rz: -0.8, sizeClass: 'large' },
+    // Slot 2 (Wheelie City — Far Upper-Left edge still, like Shark in reference)
+    { slot: 2,  x: -1080, y: -300, w: 290, h: 190, zPx: 20,   rx: -1.6, ry: 0,   rz: 0.8,  sizeClass: 'medium' },
+    // Slot 3 (Burnout — Far Upper-Right edge still, like Car in reference right view)
+    { slot: 3,  x: 1080,  y: -230, w: 290, h: 190, zPx: 30,   rx: -1.8, ry: 0,   rz: -0.8, sizeClass: 'medium' },
+    // Slot 4 (Behind The Lens — Lower-Left feature still, like Batman in reference)
+    { slot: 4,  x: -560,  y: 270,  w: 310, h: 205, zPx: 60,   rx: 1.5,  ry: 0,   rz: 0.8,  sizeClass: 'medium' },
+    // Slot 5 (Reel 2026 — Mid-Right lower flank)
+    { slot: 5,  x: 1320,  y: 240,  w: 280, h: 185, zPx: 40,   rx: 1.5,  ry: 0,   rz: -0.8, sizeClass: 'medium' },
+    // Slot 6 (Luminal HR — Upper-Right peeking accent, tucked behind Pig like Joker in reference)
+    { slot: 6,  x: 540,   y: -160, w: 185, h: 135, zPx: -50,  rx: 0.8,  ry: 0,   rz: -0.8, sizeClass: 'small' },
+    // Slot 7 (HR Admin Flow — Mid-Right upper flank)
+    { slot: 7,  x: 1560,  y: -320, w: 240, h: 160, zPx: -70,  rx: -1.8, ry: 0,   rz: 0.8,  sizeClass: 'small' },
+    // Slot 8 (Manager Flow — Mid-Left flank)
+    { slot: 8,  x: -1420, y: 180,  w: 240, h: 160, zPx: -50,  rx: 1.2,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+    // Slot 9 (Employee Flow — Mid-Left upper flank)
+    { slot: 9,  x: -1550, y: -260, w: 230, h: 155, zPx: -80,  rx: -1.5, ry: 0,   rz: -0.8, sizeClass: 'small' },
+    // Slot 10 (Hero Portrait Left / Poster Series)
+    { slot: 10, x: -1850, y: -20,  w: 260, h: 420, zPx: 70,   rx: 0.8,  ry: 0,   rz: -1.0, sizeClass: 'large' },
+    // Slot 11 (Brand Identity — Top-Center distant accent, like Building in reference)
+    { slot: 11, x: -140,  y: -390, w: 220, h: 150, zPx: -190, rx: -1.5, ry: 0,   rz: 0.5,  sizeClass: 'small' },
+    // Slot 12 (Illustration Set — Mid-Left outer upper)
+    { slot: 12, x: -2120, y: -340, w: 230, h: 155, zPx: -120, rx: -1.5, ry: 0,   rz: 1.0,  sizeClass: 'small' },
+    // Slot 13 (Cinema Stills — Far-Left lower wing)
+    { slot: 13, x: -2350, y: 300,  w: 230, h: 155, zPx: -140, rx: 1.8,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+    // Slot 14 (Interface Craft — Far-Left mid wing)
+    { slot: 14, x: -2600, y: -60,  w: 220, h: 150, zPx: -180, rx: 0.0,  ry: 0,   rz: 1.0,  sizeClass: 'small' },
+    // Slot 15 (Editorial Layout — Far-Left upper wing)
+    { slot: 15, x: -2850, y: -340, w: 220, h: 150, zPx: -210, rx: -1.8, ry: 0,   rz: 0.8,  sizeClass: 'small' },
+    // Slot 16 (Motion Graphics — Under-Center dark still, like Dragon in reference)
+    { slot: 16, x: -30,   y: 380,  w: 310, h: 200, zPx: 10,   rx: 1.6,  ry: 0,   rz: -0.5, sizeClass: 'medium' },
+    // Slot 17 (Hero Right Still / TNE Precision Cut)
+    { slot: 17, x: 1750,  y: -10,  w: 270, h: 180, zPx: 40,   rx: 0.6,  ry: 0,   rz: -0.8, sizeClass: 'medium' },
+    // Slot 18 (Night Drift — Upper-Right mid flank)
+    { slot: 18, x: 1860,  y: -300, w: 260, h: 175, zPx: -40,  rx: -1.6, ry: 0,   rz: -1.0, sizeClass: 'medium' },
+    // Slot 19 (Stunt Telemetry HUD — Mid-Left peeking still, like Darkseid in reference)
+    { slot: 19, x: -680,  y: -80,  w: 260, h: 175, zPx: 30,   rx: 0.5,  ry: 0,   rz: 0.8,  sizeClass: 'small' },
+    // Slot 20 (Urban Velocity — Far-Left deep ceiling)
+    { slot: 20, x: -1720, y: -480, w: 210, h: 140, zPx: -150, rx: -2.0, ry: 0,   rz: -0.8, sizeClass: 'small' },
+    // Slot 21 (Sound Design Lab — Mid-Right mid flank)
+    { slot: 21, x: 2050,  y: 120,  w: 240, h: 160, zPx: -60,  rx: -0.5, ry: 0,   rz: -0.8, sizeClass: 'small' },
+    // Slot 22 (Aperture Study — Far-Right upper wing)
+    { slot: 22, x: 2320,  y: -320, w: 230, h: 155, zPx: -130, rx: -1.8, ry: 0,   rz: 1.0,  sizeClass: 'small' },
+    // Slot 23 (Chromatic Flow — Far-Right lower wing)
+    { slot: 23, x: 2420,  y: 340,  w: 230, h: 155, zPx: -140, rx: 1.8,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+    // Slot 24 (Slow-Mo Mechanics — Under-Center delicate accent, like Minion in reference)
+    { slot: 24, x: -45,   y: 165,  w: 90,   h: 125, zPx: -90,  rx: 0.5,  ry: 0,   rz: 0.5,  sizeClass: 'small' },
+    // Slot 25 (Telemetry Dashboard — Mid-Right outer lower)
+    { slot: 25, x: 2680,  y: 180,  w: 220, h: 150, zPx: -170, rx: 1.2,  ry: 0,   rz: -0.8, sizeClass: 'small' },
+    // Slot 26 (Atmospheric Foley — Far-Right mid wing)
+    { slot: 26, x: 2920,  y: -70,  w: 210, h: 140, zPx: -200, rx: 0.0,  ry: 0,   rz: -1.0, sizeClass: 'small' },
+    // Slot 27 (Street Optics — Far-Left deep horizon)
+    { slot: 27, x: -3100, y: 150,  w: 200, h: 135, zPx: -240, rx: 1.0,  ry: 0,   rz: 0.5,  sizeClass: 'small' },
+    // Slot 28 (Lighting Architecture — Far-Right deep ceiling)
+    { slot: 28, x: 3150,  y: -260, w: 200, h: 135, zPx: -230, rx: -1.5, ry: 0,   rz: 0.8,  sizeClass: 'small' },
+    // Slot 29 (Kinetic Titles — Far-Right deep floor)
+    { slot: 29, x: 3350,  y: 220,  w: 190, h: 130, zPx: -250, rx: 1.5,  ry: 0,   rz: -0.8, sizeClass: 'small' },
+    // Slot 30 (Raw Velocity — Mid-Right foreground accent)
+    { slot: 30, x: 1880,  y: 260,  w: 260, h: 175, zPx: 50,   rx: 1.0,  ry: 0,   rz: -0.8, sizeClass: 'medium' }
   ];
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     3. TILE MEDIA GENERATOR
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* Helper to retrieve 3D space tiles:
+     Renders individual images from the project groups in window.PROJECTS (each project containing title, description, category, images[]).
+     Supports slot assignment (1 to 30) or sequential layout, and falls back to window.SPACE_TILES or PROJECTS if images[] is omitted. */
+  function getSpaceTiles() {
+    const collectedFromProjects = [];
+    PROJECTS.forEach(proj => {
+      if (Array.isArray(proj.images) && proj.images.length > 0) {
+        proj.images.forEach(img => {
+          const imgSrc = typeof img === 'string' ? img : (img.src || img.thumb || img.image || '');
+          const imgObj = typeof img === 'object' && img !== null ? img : {};
+          collectedFromProjects.push({
+            ...imgObj,
+            id: imgObj.id || (collectedFromProjects.length + 1),
+            thumb: imgSrc,
+            src: imgSrc,
+            targetSlug: proj.slug,
+            projectSlug: proj.slug,
+            projectTitle: proj.title,
+            projectDesc: proj.description || proj.short,
+            projectCategory: proj.category
+          });
+        });
+      }
+    });
+
+    if (collectedFromProjects.length > 0) {
+      const maxSlots = Math.max(collectedFromProjects.length, 30);
+      const slotted = new Array(maxSlots);
+      const unslotted = [];
+
+      collectedFromProjects.forEach(tile => {
+        if (typeof tile.slot === 'number' && tile.slot >= 1 && tile.slot <= maxSlots && !slotted[tile.slot - 1]) {
+          slotted[tile.slot - 1] = tile;
+        } else {
+          unslotted.push(tile);
+        }
+      });
+
+      let unslottedIdx = 0;
+      for (let i = 0; i < maxSlots; i++) {
+        if (!slotted[i] && unslottedIdx < unslotted.length) {
+          slotted[i] = unslotted[unslottedIdx++];
+        }
+      }
+      return slotted.filter(Boolean);
+    }
+
+    if (window.SPACE_TILES && Array.isArray(window.SPACE_TILES) && window.SPACE_TILES.length > 0) {
+      return window.SPACE_TILES;
+    }
+
+    return PROJECTS;
+  }
+
+  /* Helper to retrieve Index View projects: only primary description titles (not tile-only / targetSlug items) */
+  function getIndexProjects() {
+    return PROJECTS.filter(p => !p.isTileOnly && !p.targetSlug);
+  }
 
   /* ═══════════════════════════════════════════════════════════════════════════
      3. TILE MEDIA GENERATOR
@@ -295,8 +402,8 @@
 
   function getTileMedia(proj, index) {
     if (!proj) return '';
-    const src = proj.thumb || (proj.media && proj.media.src) || '';
-    const isVideo = proj.thumbType === 'video' || (proj.media && proj.media.type === 'video');
+    const src = proj.thumb || proj.image || proj.src || (proj.media && proj.media.src) || '';
+    const isVideo = proj.thumbType === 'video' || proj.type === 'video' || (proj.media && proj.media.type === 'video') || (typeof src === 'string' && src.endsWith('.mp4'));
 
     if (isVideo) {
       return `<video src="${src}" autoplay loop muted playsinline poster="${proj.media ? proj.media.poster || '' : ''}"></video>`;
@@ -328,13 +435,19 @@
     const indexToggleEl = document.querySelector('.index-toggle');
     if (!descEl || !proj) return;
 
+    // Resolve connected primary description title project
+    const targetSlug = proj.targetSlug || proj.targetProject || proj.project || proj.slug || '';
+    const targetProj = PROJECTS.find(p => p.slug === targetSlug) || proj;
+
     const titleEl = document.getElementById('spaceCenterTitle');
-    const descTextEl = document.getElementById('spaceCenterDescText');
+    const descTextEl = document.getElementById('spaceCenterDescText') || descEl.querySelector('.sc-desc');
+    const catEl = document.getElementById('spaceCenterCat') || descEl.querySelector('.sc-cat');
 
-    if (titleEl) titleEl.textContent = proj.title || '';
-    if (descTextEl) descTextEl.textContent = proj.short || proj.description || '';
+    if (titleEl) titleEl.textContent = targetProj.title || proj.title || '';
+    if (descTextEl) descTextEl.textContent = targetProj.description || targetProj.short || proj.description || proj.short || '';
+    if (catEl) catEl.textContent = targetProj.category || proj.category || '';
 
-    descEl.dataset.slug = proj.slug || '';
+    descEl.dataset.slug = targetProj.slug || targetSlug || proj.slug || '';
     descEl.classList.add('is-active');
     if (indexToggleEl) indexToggleEl.classList.add('hide-for-desc');
   }
@@ -348,7 +461,7 @@
 
   /* ═══════════════════════════════════════════════════════════════════════════
      ASPECT-RATIO & REFERENCE SPACE GEOMETRY ENGINE
-     Calibrated against Michael Gatt's 5760x3100 space view canvas
+     Calibrated for extended ultra-wide 8640x4800 spatial canvas
      ═══════════════════════════════════════════════════════════════════════════ */
   function getSpatialScaleFactor() {
     const isMobile = window.innerWidth < 768;
@@ -364,12 +477,11 @@
     const baseW = refW * 0.25; // 1440px desktop, 534.25px mobile
     const baseH = refH * 0.25; // 775px desktop, 411px mobile
 
-    // Aspect-ratio-aware scaling relative to reference dimensions
     const baseScale = vpAspect > refAspect
       ? (vh / baseH)
       : (vw / baseW);
 
-    return isMobile ? 0.72 : Math.max(0.78, Math.min(1.28, baseScale));
+    return isMobile ? 0.72 : Math.max(0.78, Math.min(1.15, baseScale));
   }
 
   function renderField() {
@@ -379,15 +491,21 @@
 
     const isMobile = window.innerWidth < 768;
     const scaleFactor = getSpatialScaleFactor();
-    const totalSlots = Math.min(LAYOUT.length, PROJECTS.length);
+    const tiles = getSpaceTiles();
+    const totalSlots = tiles.length;
 
     for (let i = 0; i < totalSlots; i++) {
-      const pos = LAYOUT[i];
-      const proj = PROJECTS[i] || {};
+      const rawPos = LAYOUT[i];
+      const pos = rawPos || { x: 0, y: 0, w: 300, h: 200, zPx: -100 };
+      const tileData = tiles[i] || {};
+      const targetSlug = tileData.targetSlug || tileData.targetProject || tileData.project || tileData.slug || '';
+      const targetProj = PROJECTS.find(p => p.slug === targetSlug) || tileData;
       
+      const sizeClass = tileData.sizeClass || pos.sizeClass || 'medium';
       const tile = document.createElement('div');
-      tile.className = `tile ${pos.sizeClass || 'medium'}`;
-      tile.dataset.slug = proj.slug || '';
+      tile.className = `tile ${sizeClass}${tileData.orientation ? ' ' + tileData.orientation : ''}`;
+      tile.dataset.slug = tileData.slug || targetSlug;
+      tile.dataset.targetSlug = targetSlug;
       tile.dataset.x = pos.x;
       tile.dataset.y = pos.y;
       tile.dataset.zpx = pos.zPx;
@@ -396,17 +514,21 @@
       tile.dataset.rz = pos.rz || 0;
       tile.dataset.index = i;
       tile.setAttribute('data-cursor', 'Learn More');
-      if (pos.x > 35) {
+      if (pos.x > 60) {
         tile.setAttribute('data-x-pos', 'right');
       }
 
-      // Responsive tile dimensions
-      const finalW = Math.round((pos.w || 220) * scaleFactor);
-      const finalH = pos.h ? Math.round(pos.h * scaleFactor) : Math.round(finalW * 0.65);
+      // Responsive tile dimensions (+10% expansion)
+      const TILE_SCALE = 1.375;
+      const finalW = Math.round((tileData.w || pos.w || 220) * scaleFactor * TILE_SCALE);
+      let finalH = (tileData.h || pos.h) ? Math.round((tileData.h || pos.h) * scaleFactor * TILE_SCALE) : Math.round(finalW * 0.65);
+      if (tileData.orientation === 'portrait' && pos.sizeClass !== 'large' && !tileData.h) {
+        finalH = Math.round(finalW * 1.35);
+      }
       tile.style.setProperty('--tile-w', `${finalW}px`);
       tile.style.setProperty('--tile-h', `${finalH}px`);
 
-      const mediaHTML = getTileMedia(proj, i);
+      const mediaHTML = getTileMedia(tileData, i);
 
       tile.innerHTML = `
         <div class="frame">
@@ -427,7 +549,7 @@
               t.classList.remove('is-hovered');
             }
           });
-          showCenterDesc(proj);
+          showCenterDesc(targetProj);
         }, CONFIG.HOVER_INTENT_DELAY);
       });
 
@@ -443,10 +565,16 @@
         }, CONFIG.HOVER_EXIT_DELAY);
       });
 
-      // Navigation click
-      tile.addEventListener('click', () => {
-        if (proj.slug) {
-          go('project', proj.slug);
+      // Navigation click: routes to connected description title project page
+      tile.addEventListener('click', (e) => {
+        if (isPointerDragging || dragDistance > 6) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        const dest = targetSlug || tileData.slug;
+        if (dest) {
+          go('project', dest);
         }
       });
 
@@ -454,16 +582,67 @@
     }
   }
 
-  /* Precise 3D Spatial Hit-Testing Engine for Overlapping Back Tiles & Camera Sway */
-  document.addEventListener('pointermove', (e) => {
+  /* ═══════════════════════════════════════════════════════════════════════════
+     EXPANDED PANORAMIC CANVAS & HIT-TESTING ENGINE
+     Supports click & drag, wheel/trackpad scrolling, edge-panning, and double-click recenter
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  window.addEventListener('pointerdown', (e) => {
+    if (activeView !== 'space') return;
+    const targetEl = (e.target && typeof e.target.closest === 'function') ? e.target : null;
+    if (targetEl && targetEl.closest('button, a, .fixed-footer, .brand-header, .index-toggle, .audio-toggle, .space-center-desc')) {
+      return;
+    }
+    isPointerDown = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    lastDragX = e.clientX;
+    lastDragY = e.clientY;
+    dragDistance = 0;
+    panVelocityX = 0;
+    panVelocityY = 0;
+  });
+
+  window.addEventListener('pointermove', (e) => {
     // Track normalized mouse coordinates across reference space (-1.0 to +1.0)
     targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
     targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
 
     if (activeView !== 'space' || !field) return;
 
+    if (isPointerDown) {
+      const dx = e.clientX - lastDragX;
+      const dy = e.clientY - lastDragY;
+      dragDistance += Math.hypot(dx, dy);
+
+      if (dragDistance > 6) {
+        isPointerDragging = true;
+        if (stage) stage.classList.add('is-dragging');
+      }
+
+      // Moving cursor right moves camera right (reveals left tiles, panX decreases)
+      // Moving cursor left moves camera left (reveals right tiles, panX increases)
+      targetPanX -= dx * 1.5;
+      targetPanY -= dy * 1.5;
+      panVelocityX = -dx * 1.5;
+      panVelocityY = -dy * 1.5;
+
+      lastDragX = e.clientX;
+      lastDragY = e.clientY;
+    }
+
+    if (isPointerDragging) {
+      if (activeHoveredTile) {
+        activeHoveredTile = null;
+        field.classList.remove('has-hover');
+        field.querySelectorAll('.tile').forEach(t => t.classList.remove('is-hovered'));
+        hideCenterDesc();
+      }
+      return;
+    }
+
     const hitElement = document.elementFromPoint(e.clientX, e.clientY);
-    const hitTile = hitElement ? hitElement.closest('.tile') : null;
+    const hitTile = (hitElement && typeof hitElement.closest === 'function') ? hitElement.closest('.tile') : null;
 
     if (hitTile) {
       if (activeHoveredTile !== hitTile) {
@@ -480,9 +659,12 @@
               t.classList.remove('is-hovered');
             }
           });
-          const targetSlug = hitTile.dataset.slug;
-          const hitProj = PROJECTS.find(p => p.slug === targetSlug);
-          if (hitProj) showCenterDesc(hitProj);
+          const targetSlug = hitTile.dataset.targetSlug || hitTile.dataset.slug;
+          const hitProj = PROJECTS.find(p => p.slug === targetSlug) || getSpaceTiles().find(t => (t.slug === targetSlug || t.targetSlug === targetSlug));
+          if (hitProj) {
+            const resolved = PROJECTS.find(p => p.slug === (hitProj.targetSlug || hitProj.slug)) || hitProj;
+            showCenterDesc(resolved);
+          }
         }, 20);
       }
     } else if (activeHoveredTile) {
@@ -497,6 +679,54 @@
     }
   });
 
+  window.addEventListener('pointerup', () => {
+    if (!isPointerDown) return;
+    isPointerDown = false;
+    if (stage) stage.classList.remove('is-dragging');
+    setTimeout(() => {
+      isPointerDragging = false;
+    }, 60);
+  });
+
+  window.addEventListener('pointercancel', () => {
+    isPointerDown = false;
+    if (stage) stage.classList.remove('is-dragging');
+    isPointerDragging = false;
+  });
+
+  // Double-click anywhere on empty stage to smoothly recenter canvas
+  window.addEventListener('dblclick', (e) => {
+    if (activeView !== 'space') return;
+    const targetEl = (e.target && typeof e.target.closest === 'function') ? e.target : null;
+    if (targetEl && targetEl.closest('button, a, .fixed-footer, .brand-header, .index-toggle, .audio-toggle, .tile')) return;
+    targetPanX = 0;
+    targetPanY = 0;
+    panVelocityX = 0;
+    panVelocityY = 0;
+  });
+
+  // Wheel and trackpad gesture support for panning across wide canvas
+  window.addEventListener('wheel', (e) => {
+    if (activeView !== 'space') return;
+    const targetEl = (e.target && typeof e.target.closest === 'function') ? e.target : null;
+    if (targetEl && targetEl.closest('.project-page, .about-page, .contact-view, .index-page-inner')) return;
+
+    e.preventDefault();
+    const mult = 1.0;
+    if (Math.abs(e.deltaX) > 0.5) {
+      targetPanX += e.deltaX * mult;
+    }
+    if (Math.abs(e.deltaY) > 0.5) {
+      if (e.shiftKey || Math.abs(e.deltaX) === 0) {
+        // Normal mouse wheel: horizontal canvas navigation with slight vertical tracking
+        targetPanX += e.deltaY * 1.1;
+        targetPanY += (e.deltaY * 0.25);
+      } else {
+        targetPanY += e.deltaY * mult;
+      }
+    }
+  }, { passive: false });
+
   /* ═══════════════════════════════════════════════════════════════════════════
      5. 3D CONCAVE SPACE ANIMATION LOOP
      ═══════════════════════════════════════════════════════════════════════════ */
@@ -510,21 +740,68 @@
     const isMobile = window.innerWidth < 768;
     const scaleFactor = getSpatialScaleFactor();
 
-    // Michael Gatt-style camera sway across full 5760x3100 spatial gallery field
-    // Full horizontal and vertical camera travel with generous yaw/pitch and luxurious inertia
-    const targetCamX = isMobile ? 0 : targetMouseX * (scaleFactor * 460);
-    const targetCamY = isMobile ? 0 : targetMouseY * (scaleFactor * 280);
-    const targetRotY = isMobile ? 0 : targetMouseX * 10.5;
-    const targetRotX = isMobile ? 0 : -targetMouseY * 6.5;
+    // 1. Continuous edge acceleration: holding cursor near screen margins smoothly glides toward the ends
+    if (!isPointerDown) {
+      const edgeThresholdX = 0.74;
+      const edgeThresholdY = 0.78;
+      if (targetMouseX > edgeThresholdX) {
+        const factor = (targetMouseX - edgeThresholdX) / (1 - edgeThresholdX);
+        targetPanX += factor * 26 * scaleFactor;
+      } else if (targetMouseX < -edgeThresholdX) {
+        const factor = (-edgeThresholdX - targetMouseX) / (1 - edgeThresholdX);
+        targetPanX -= factor * 26 * scaleFactor;
+      }
 
-    // Power4.out deceleration easing (lerp factor 0.045 for smooth cinematic movement)
-    cameraX += (targetCamX - cameraX) * 0.045;
-    cameraY += (targetCamY - cameraY) * 0.045;
-    fieldRotY += (targetRotY - fieldRotY) * 0.045;
-    fieldRotX += (targetRotX - fieldRotX) * 0.045;
+      if (targetMouseY > edgeThresholdY) {
+        const factor = (targetMouseY - edgeThresholdY) / (1 - edgeThresholdY);
+        targetPanY += factor * 18 * scaleFactor;
+      } else if (targetMouseY < -edgeThresholdY) {
+        const factor = (-edgeThresholdY - targetMouseY) / (1 - edgeThresholdY);
+        targetPanY -= factor * 18 * scaleFactor;
+      }
+    }
+
+    // 2. Momentum coasting
+    if (!isPointerDown && (Math.abs(panVelocityX) > 0.05 || Math.abs(panVelocityY) > 0.05)) {
+      targetPanX += panVelocityX;
+      targetPanY += panVelocityY;
+      panVelocityX *= 0.90;
+      panVelocityY *= 0.90;
+    }
+
+    // 3. Expanded canvas boundaries reaching all 30 slots (Slot 27 at -3100 to Slot 29 at +3350)
+    const minPanX = -3600 * scaleFactor;
+    const maxPanX = 3800 * scaleFactor;
+    const minPanY = -650 * scaleFactor;
+    const maxPanY = 650 * scaleFactor;
+
+    targetPanX = Math.max(minPanX, Math.min(maxPanX, targetPanX));
+    targetPanY = Math.max(minPanY, Math.min(maxPanY, targetPanY));
+
+    // Smooth pan easing
+    panX += (targetPanX - panX) * 0.085;
+    panY += (targetPanY - panY) * 0.085;
+
+    // 4. Dynamic mouse sway around the current pan position
+    const swayCamX = isMobile ? 0 : targetMouseX * (scaleFactor * 160);
+    const swayCamY = isMobile ? 0 : targetMouseY * (scaleFactor * 120);
+    const swayRotY = isMobile ? 0 : targetMouseX * 4.2;
+
+    const totalTargetCamX = panX + swayCamX;
+    const totalTargetCamY = panY + swayCamY;
+    const totalTargetRotY = swayRotY;
+
+    // Smooth cinematic camera easing with high initial responsiveness & smooth settling inertia
+    cameraX += (totalTargetCamX - cameraX) * 0.065;
+    cameraY += (totalTargetCamY - cameraY) * 0.065;
+    fieldRotY += (totalTargetRotY - fieldRotY) * 0.065;
+    fieldRotX = 0;
 
     if (field) {
-      field.style.transform = `translate3d(${-cameraX.toFixed(1)}px, ${-cameraY.toFixed(1)}px, 0px) rotateX(${fieldRotX.toFixed(2)}deg) rotateY(${fieldRotY.toFixed(2)}deg)`;
+      field.style.transform = `translate3d(${-cameraX.toFixed(1)}px, ${-cameraY.toFixed(1)}px, 0px) rotateY(${fieldRotY.toFixed(2)}deg)`;
+
+      const halfW = (window.innerWidth * 0.5) || 720;
+      const halfH = (window.innerHeight * 0.5) || 450;
 
       field.querySelectorAll('.tile').forEach((t, i) => {
         const rawX = isNaN(parseFloat(t.dataset.x)) ? 0 : parseFloat(t.dataset.x);
@@ -538,26 +815,37 @@
         const posX = rawX * scaleFactor;
         const posY = rawY * scaleFactor;
 
-        // Normalized distance from center for fisheye concave curve relative to reference canvas
-        const normX = posX / (720 * scaleFactor);
-        const normY = posY / (390 * scaleFactor);
-        const distSq = (normX * normX) + (normY * normY * 0.65);
+        // Multi-tier depth parallax
+        const parallaxOffset = -cameraX * (baseZ / 850);
+        const tilePosX = posX + parallaxOffset;
 
-        // Concave curvature pushing peripheral tiles deeper into space
-        const concaveZ = - distSq * CONFIG.CONCAVE_CURVE_STRENGTH;
-        const totalZ = baseZ + concaveZ;
+        // Instantaneous screen-relative coordinates
+        const screenX = posX - cameraX * (1.0 + baseZ / 850);
+        const screenY = posY - cameraY;
 
-        // Subtle inward facing tilts along concave arc
-        const cylRotY = baseRy + (normX * CONFIG.YAW_COEFF);
-        const cylRotX = baseRx + (-normY * CONFIG.PITCH_COEFF);
+        const normScreenX = screenX / (halfW * 0.92);
+        const normScreenY = screenY / (halfH * 0.92);
+
+        // Inverted cylindrical curvature & depth progression (outer edges flare forward)
+        const radius = 3400 * scaleFactor;
+        const clampedX = Math.min(Math.abs(screenX), radius * 0.94);
+        const cylZ = (radius - Math.sqrt(radius * radius - clampedX * clampedX)) * 0.18;
+        const vertZ = Math.min(60, (screenY * screenY) / (3600 * scaleFactor));
+        const totalZ = Math.min(360, baseZ + cylZ + vertZ);
+
+        // Inverted tilts along arc
+        const cylRotY = baseRy + (normScreenX * CONFIG.YAW_COEFF);
+        const cylRotX = baseRx + (normScreenY * CONFIG.PITCH_COEFF);
         const cylRotZ = baseRz;
 
         const isHovered = t.classList.contains('is-hovered');
 
-        // Depth-based opacity: Far (~0.38), Mid (~0.55), Near (~0.75), Hovered (1.0)
-        const normZ = Math.max(0, Math.min(1, (totalZ + 380) / 600));
-        const depthOpacity = 0.38 + normZ * 0.40;
-        t.style.opacity = isHovered ? '1.0' : depthOpacity.toFixed(2);
+        // Depth-based opacity: Far (~0.78), Mid (~0.88), Near (~0.98), Hovered (1.0)
+        const normZ = Math.max(0, Math.min(1, (totalZ + 400) / 600));
+        const depthOpacity = 0.78 + normZ * 0.20;
+        const hasActiveHover = field.classList.contains('has-hover');
+        const finalOpacity = isHovered ? 1.0 : (hasActiveHover ? depthOpacity * 0.22 : depthOpacity);
+        t.style.opacity = finalOpacity.toFixed(3);
 
         // Dynamic 3D Z-index: Derived directly from computed 3D depth
         const uniqueStackIndex = Math.round((totalZ + 2000) * 10) + i;
@@ -565,11 +853,11 @@
 
         // Visual depth filter
         t.style.filter = isHovered
-          ? 'brightness(1.05) saturate(1.0) drop-shadow(0px 14px 36px rgba(0,0,0,0.95))'
-          : `brightness(${CONFIG.TILE_REST_BRIGHTNESS}) saturate(${CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 10px 24px rgba(0,0,0,0.5))`;
+          ? 'brightness(1.08) saturate(1.05) drop-shadow(0px 18px 48px rgba(0,0,0,0.98))'
+          : `brightness(${CONFIG.TILE_REST_BRIGHTNESS}) saturate(${CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 16px 42px rgba(0,0,0,0.88))`;
 
-        // Pure 3D transform: center-anchored translate(-50%, -50%) + translate3d(X, Y, Z) + 3D rotations without hover zoom
-        t.style.transform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
+        // Pure 3D transform without hover zoom (scale strictly 1)
+        t.style.transform = `translate(-50%, -50%) translate3d(${tilePosX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
       });
     }
 
@@ -744,7 +1032,8 @@
       </div>
       <div class="space-center-desc" id="spaceCenterDesc" aria-live="polite">
         <h2 class="sc-title" id="spaceCenterTitle">TITLE</h2>
-        <p class="sc-desc" id="spaceCenterDescText">Description</p>
+        <p class="sc-desc" id="spaceCenterDescText"></p>
+        <div class="sc-cat" id="spaceCenterCat">CATEGORY</div>
       </div>
     `;
     stage = spaceV.querySelector('.home-stage');
@@ -802,8 +1091,11 @@
       </div>
       <div class="index-page-inner">
         <div class="index-list">
-          ${PROJECTS.map((p, i) => {
-            const bgSrc = p.thumb || (p.media ? p.media.src : '');
+          ${getIndexProjects().map((p, i) => {
+            const firstImg = (Array.isArray(p.images) && p.images.length > 0)
+              ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0].src || p.images[0].thumb || ''))
+              : '';
+            const bgSrc = p.thumb || firstImg || (p.media ? p.media.src : '');
             return `
               <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}">
                 <span class="n">${String(i + 1).padStart(3, '0')}</span>
@@ -871,7 +1163,8 @@
 
   function setupProjectView(slug) {
     const projV = makeView('project');
-    const p = PROJECTS.find(item => item.slug === slug) || PROJECTS[0];
+    const normalizedSlug = slug ? decodeURIComponent(slug).trim().toLowerCase().replace(/\s+/g, '-') : '';
+    const p = PROJECTS.find(item => item.slug === slug || item.slug === normalizedSlug) || PROJECTS[0];
     if (!p) return;
 
     const projIndex = PROJECTS.findIndex(item => item.slug === p.slug);
@@ -886,42 +1179,59 @@
 
     const itemsHTML = (p.items || []).map((it, i) => `
       <div class="track-row ${it.type === 'view' ? 'view' : ''}" data-idx="${i}">
-        <span class="num">${String(i + 1).padStart(2, '0')}</span>
+        <div class="track-left">
+          <span class="num">${String(i + 1).padStart(3, '0')}</span>
+          <span class="tname">${it.title}</span>
+        </div>
         <button class="playmini" aria-label="${it.type === 'view' ? 'View' : 'Play'}">
           ${it.type === 'view' 
             ? `<span>${it.meta || 'VIEW'}</span>`
             : `
-              <svg class="icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              <svg class="icon-play" viewBox="0 0 24 24"><polygon points="7 5 19 12 7 19 7 5"></polygon></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
             `
           }
         </button>
-        <span class="tname">${it.title}</span>
-        <span class="time">${it.meta || ''}</span>
+        <span class="time">${it.meta || '0:00'}</span>
       </div>
     `).join('');
 
     projV.innerHTML = `
       <div class="project-page">
-        <button class="back-link">← BACK</button>
+        <button class="back-link">
+          <span class="back-arrow">← BACK</span>
+          <span class="back-sub">TO ALL PROJECTS</span>
+        </button>
+        <div class="corner-badge" aria-hidden="true">
+          <svg viewBox="0 0 100 100" class="badge-svg">
+            <path id="projBadgeCircle" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="transparent" />
+            <text class="badge-text">
+              <textPath href="#projBadgeCircle" startOffset="0%">
+                ${SITE.soundBadgeText || 'THE SOUND BEHIND CO • THE SOUND BEHIND CO • '}
+              </textPath>
+            </text>
+          </svg>
+          <span class="badge-dot"></span>
+        </div>
         <header class="proj-head">
-          <div class="proj-category">${p.category || 'PROJECT'}</div>
           <h1 class="title">${p.title}</h1>
           ${p.short ? `<p class="proj-short">${p.short}</p>` : ''}
-          ${p.description ? `<p class="desc">${p.description}</p>` : ''}
-          ${p.moreInfo ? `
-            <button class="more-info-toggle"><span class="plus">+</span>MORE INFO</button>
-            <div class="more-info-panel"><p>${p.moreInfo}</p></div>
+          ${(p.description || p.moreInfo) ? `
+            <button class="more-info-toggle">
+              <span class="plus">+</span>
+              <span class="lbl">MORE INFO</span>
+            </button>
+            <div class="more-info-panel">
+              ${p.description ? `<p class="desc">${p.description}</p>` : ''}
+              ${p.moreInfo ? `<p>${p.moreInfo}</p>` : ''}
+            </div>
           ` : ''}
         </header>
         <div class="proj-media">
           ${mediaHTML}
+          <span class="play-label">${isVideo ? 'PLAY VIDEO' : 'VIEW MEDIA'}</span>
         </div>
         ${itemsHTML ? `<div class="track-list">${itemsHTML}</div>` : ''}
-        <div class="next-project" data-slug="${nextProj.slug}">
-          <span class="lbl">NEXT PROJECT</span>
-          <span class="np-title">${nextProj.title} →</span>
-        </div>
       </div>
     `;
 
@@ -933,13 +1243,20 @@
     if (moreToggle) {
       moreToggle.addEventListener('click', () => {
         const panel = projV.querySelector('.more-info-panel');
-        if (panel) panel.classList.toggle('open');
+        const plus = moreToggle.querySelector('.plus');
+        if (panel) {
+          panel.classList.toggle('open');
+          if (plus) plus.textContent = panel.classList.contains('open') ? '−' : '+';
+        }
       });
     }
 
-    projV.querySelector('.next-project').addEventListener('click', () => {
-      go('project', nextProj.slug);
-    });
+    const nextProjBtn = projV.querySelector('.next-project');
+    if (nextProjBtn) {
+      nextProjBtn.addEventListener('click', () => {
+        go('project', nextProj.slug);
+      });
+    }
 
     projV.querySelectorAll('.track-row').forEach(row => {
       row.addEventListener('click', () => {
@@ -1024,7 +1341,7 @@
     }
 
     // Top projects for orbit cards in Section 3
-    const orbitSlugs = ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
+    const orbitSlugs = ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
     const orbitProjects = orbitSlugs.map(slug => PROJECTS.find(p => p.slug === slug)).filter(Boolean);
     const orbitCardsHTML = orbitProjects.map((p, i) => {
       const thumb = p.thumb || (p.media && p.media.src) || '';
@@ -1093,18 +1410,20 @@
         <!-- Section 1: Stepped Typography (Foundations & Rhythm) -->
         <section class="about-section-wrap about-section-wrap--stepped" id="about-sec-1">
           <div class="about-section-inner">
-            <div class="about-sec-eyebrow">EARLY CRAFT & PACING</div>
-            <div class="stepped-typography" aria-label="SRIRAM BEGAN CRAFTING AND EDITING STORIES FROM DAY ONE">
+            <div class="about-sec-eyebrow">MEANING IN EVERY DETAIL</div>
+            <div class="stepped-typography" aria-label="SRIRAM BELIEVES EVERY COLOR HAS A STORY TO TELL">
               <div class="stepped-row step-0"><span class="zapf-step">SRIRAM</span></div>
-              <div class="stepped-row step-1"><span class="zapf-step">BEGAN</span></div>
-              <div class="stepped-row step-2"><span class="zapf-step">CRAFTING</span></div>
-              <div class="stepped-row step-3"><span class="zapf-step">AND EDITING</span></div>
-              <div class="stepped-row step-4"><span class="zapf-step">STORIES</span></div>
-              <div class="stepped-row step-5"><span class="zapf-step">FROM DAY ONE</span></div>
+              <div class="stepped-row step-1"><span class="zapf-step">BELIEVES EVERY</span></div>
+              <div class="stepped-row step-2"><span class="zapf-step">COLOR HAS</span></div>
+              <div class="stepped-row step-3"><span class="zapf-step">A STORY</span></div>
+              <div class="stepped-row step-4"><span class="zapf-step">TO TELL</span></div>
             </div>
             <div class="about-editorial-text-wrap">
               <p class="about-editorial-p">
-                Starting in the high-velocity domain of motorcycle stunt riding and action cinematography, Sriram developed an instinctive intuition for kinetic rhythm, precise cut timing, and atmospheric color grading. Every transition is engineered with sound, momentum, and visceral emotional resonance.
+                Sriram has a strong belief that every color carries meaning, and every element has a purpose. He pays attention to even the smallest details, often embedding meaning within the tiniest parts of his work. He creates primarily for self-satisfaction and personal expression, which makes every production a reflection of his personality, perspective, and character.
+              </p>
+              <p class="about-editorial-quote">
+                “My work is not just something I create; it is a reflection of who I am.”
               </p>
             </div>
           </div>
@@ -1113,16 +1432,16 @@
         <!-- Section 2: Stepped Typography (Interface Architecture) -->
         <section class="about-section-wrap about-section-wrap--stepped about-section-wrap--interface" id="about-sec-2">
           <div class="about-section-inner">
-            <div class="about-sec-eyebrow">SYSTEMATIC INTERACTION DESIGN</div>
-            <div class="stepped-typography stepped-typography--alt" aria-label="BRIDGING RAW KINETIC CINEMA WITH SYSTEMATIC DIGITAL ARCHITECTURE">
-              <div class="stepped-row step-alt-0"><span class="zapf-step">BRIDGING</span></div>
-              <div class="stepped-row step-alt-1"><span class="zapf-step">RAW KINETIC CINEMA</span></div>
-              <div class="stepped-row step-alt-2"><span class="zapf-step">WITH SYSTEMATIC</span></div>
-              <div class="stepped-row step-alt-3"><span class="zapf-step">DIGITAL ARCHITECTURE</span></div>
+            <div class="about-sec-eyebrow text-center">SYSTEMATIC INTERACTION DESIGN</div>
+            <div class="stepped-typography stepped-typography--alt" aria-label="STRUCTURING IDEAS INTO UI/UX THROUGH DIGITAL ARCHITECTURE">
+              <div class="stepped-row step-alt-0"><span class="zapf-step">STRUCTURING IDEAS</span></div>
+              <div class="stepped-row step-alt-1"><span class="zapf-step">INTO UI/UX</span></div>
+              <div class="stepped-row step-alt-2"><span class="zapf-step">THROUGH DIGITAL</span></div>
+              <div class="stepped-row step-alt-3"><span class="zapf-step">ARCHITECTURE</span></div>
             </div>
             <div class="about-editorial-text-wrap">
               <p class="about-editorial-p">
-                Translating cinematic motion into cohesive digital experiences. From multi-persona enterprise dashboards like Luminal HR to high-velocity mobile interactions, Sriram approaches product design with systematic rigor — pairing scalable component architectures with fluid, intentional micro-interactions.
+                I begin by structuring the idea and breaking the work into meaningful components. This allows me to organize content, define how each element connects within the UI, and establish a clear direction before moving into design. I then execute the plan, refine the details, and continuously iterate until the final result feels clear, intentional, and complete.
               </p>
             </div>
           </div>
@@ -1299,7 +1618,8 @@
       history.pushState(null, '', hashTarget);
     }
 
-    // Toggle scroll permissions
+    // Toggle scroll permissions & project view body state
+    document.body.classList.toggle('project-active', viewName === 'project');
     if (viewName === 'space' || viewName === 'index') {
       document.body.classList.remove('scroll-ok');
     } else {

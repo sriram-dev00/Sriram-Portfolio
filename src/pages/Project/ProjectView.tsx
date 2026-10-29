@@ -12,9 +12,11 @@ export const ProjectView: React.FC = () => {
   }
 
   const currentIdx = PROJECTS.findIndex((p) => p.slug === activeProjectSlug);
-  const project = PROJECTS[currentIdx] || PROJECTS[0];
-  const nextIdx = (currentIdx + 1) % PROJECTS.length;
-  const nextProj = PROJECTS[nextIdx];
+  let project = PROJECTS[currentIdx] || PROJECTS[0];
+  if (project.targetSlug) {
+    const referred = PROJECTS.find((p) => p.slug === project.targetSlug);
+    if (referred) project = referred;
+  }
 
   const mediaSrc = project.thumb || project.media?.src || '';
   const isVideo = project.mediaKind === 'video' || project.media?.type === 'video';
@@ -29,25 +31,38 @@ export const ProjectView: React.FC = () => {
     >
       <div className="project-page">
         <button className="back-link" onClick={() => navigate('space')}>
-          ← BACK
+          <span className="back-arrow">← BACK</span>
+          <span className="back-sub">TO ALL PROJECTS</span>
         </button>
 
+        <div className="corner-badge" aria-hidden="true">
+          <svg viewBox="0 0 100 100" className="badge-svg">
+            <path id="projBadgeCircleReact" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="transparent" />
+            <text className="badge-text">
+              <textPath href="#projBadgeCircleReact" startOffset="0%">
+                THE SOUND BEHIND CO • THE SOUND BEHIND CO •
+              </textPath>
+            </text>
+          </svg>
+          <span className="badge-dot"></span>
+        </div>
+
         <header className="proj-head">
-          <div className="proj-category">{project.category || 'PROJECT'}</div>
           <h1 className="title">{project.title}</h1>
           {project.short && <p className="proj-short">{project.short}</p>}
-          {project.description && <p className="desc">{project.description}</p>}
 
-          {project.moreInfo && (
+          {(project.description || project.moreInfo) && (
             <>
               <button
                 className="more-info-toggle"
                 onClick={() => setIsMoreInfoOpen((prev) => !prev)}
               >
-                <span className="plus">{isMoreInfoOpen ? '−' : '+'}</span>MORE INFO
+                <span className="plus">{isMoreInfoOpen ? '−' : '+'}</span>
+                <span className="lbl">MORE INFO</span>
               </button>
               <div className={`more-info-panel ${isMoreInfoOpen ? 'open' : ''}`}>
-                <p>{project.moreInfo}</p>
+                {project.description && <p className="desc">{project.description}</p>}
+                {project.moreInfo && <p>{project.moreInfo}</p>}
               </div>
             </>
           )}
@@ -71,6 +86,7 @@ export const ProjectView: React.FC = () => {
               <span>{project.title}</span>
             </div>
           )}
+          <span className="play-label">{isVideo ? 'PLAY VIDEO' : 'VIEW MEDIA'}</span>
         </div>
 
         {project.items && project.items.length > 0 && (
@@ -87,7 +103,10 @@ export const ProjectView: React.FC = () => {
                     }
                   }}
                 >
-                  <span className="num">{String(i + 1).padStart(2, '0')}</span>
+                  <div className="track-left">
+                    <span className="num">{String(i + 1).padStart(3, '0')}</span>
+                    <span className="tname">{it.title}</span>
+                  </div>
                   <button
                     className="playmini"
                     aria-label={it.type === 'view' ? 'View' : 'Play'}
@@ -96,26 +115,16 @@ export const ProjectView: React.FC = () => {
                       <span>{it.meta || 'VIEW'}</span>
                     ) : (
                       <svg className="icon-play" viewBox="0 0 24 24">
-                        <polygon points="5 3 19 12 5 21 5 3" />
+                        <polygon points="7 5 19 12 7 19 7 5" />
                       </svg>
                     )}
                   </button>
-                  <span className="tname">{it.title}</span>
-                  <span className="time">{it.meta || ''}</span>
+                  <span className="time">{it.meta || '0:00'}</span>
                 </div>
               );
             })}
           </div>
         )}
-
-        <div
-          className="next-project"
-          data-slug={nextProj.slug}
-          onClick={() => navigate('project', nextProj.slug)}
-        >
-          <span className="lbl">NEXT PROJECT</span>
-          <span className="np-title">{nextProj.title} →</span>
-        </div>
       </div>
     </div>
   );

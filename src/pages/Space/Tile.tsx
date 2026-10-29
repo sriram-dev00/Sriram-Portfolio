@@ -22,11 +22,11 @@ export const Tile: React.FC<TileProps> = ({
   const { project, posX, posY, totalZ, cylRotX, cylRotY, cylRotZ, depthOpacity, uniqueStackIndex, width, height } = computed;
 
   const restTransform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${totalZ.toFixed(1)}px) rotateX(${cylRotX.toFixed(2)}deg) rotateY(${cylRotY.toFixed(2)}deg) rotateZ(${cylRotZ.toFixed(2)}deg) scale(1)`;
-  const hoverTransform = restTransform;
+  const hoverTransform = `translate(-50%, -50%) translate3d(${posX.toFixed(1)}px, ${posY.toFixed(1)}px, ${(totalZ + 30).toFixed(1)}px) rotateX(${(cylRotX * 0.25).toFixed(2)}deg) rotateY(${(cylRotY * 0.25).toFixed(2)}deg) rotateZ(0deg) scale(1.02)`;
 
   const filter = isHovered
-    ? 'brightness(1.05) saturate(1.0) drop-shadow(0px 14px 36px rgba(0,0,0,0.95))'
-    : `brightness(${SPACE_CONFIG.TILE_REST_BRIGHTNESS}) saturate(${SPACE_CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 10px 24px rgba(0,0,0,0.5))`;
+    ? 'brightness(1.08) saturate(1.05) drop-shadow(0px 18px 48px rgba(0,0,0,0.98))'
+    : `brightness(${SPACE_CONFIG.TILE_REST_BRIGHTNESS}) saturate(${SPACE_CONFIG.TILE_REST_SATURATE}) drop-shadow(0px 16px 42px rgba(0,0,0,0.88))`;
 
   const src = project.thumb || project.media?.src || '';
   const isVideo = project.thumbType === 'video' || project.mediaKind === 'video' || project.media?.type === 'video';
@@ -36,6 +36,7 @@ export const Tile: React.FC<TileProps> = ({
     <div
       className={`tile ${computed.sizeClass || 'medium'} ${isHovered ? 'is-hovered' : ''}`}
       data-slug={project.slug}
+      data-target-slug={project.targetSlug || undefined}
       data-x={computed.posX}
       data-y={computed.posY}
       data-zpx={computed.totalZ}

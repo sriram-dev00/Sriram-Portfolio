@@ -3,7 +3,7 @@ import { usePortfolio } from '../../context/PortfolioContext';
 import { PROJECTS, SITE_CONFIG } from '../../data/portfolioData';
 import { SectionIndicator } from './SectionIndicator';
 
-const ORBIT_SLUGS = ['night-ride', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
+const ORBIT_SLUGS = ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
 
 export const AboutView: React.FC = () => {
   const { activeView, navigate } = usePortfolio();
@@ -133,18 +133,20 @@ export const AboutView: React.FC = () => {
         {/* Section 1: Stepped Typography (Foundations & Rhythm) */}
         <section className="about-section-wrap about-section-wrap--stepped" id="about-sec-1">
           <div className="about-section-inner">
-            <div className="about-sec-eyebrow">EARLY CRAFT & PACING</div>
-            <div className="stepped-typography" aria-label="SRIRAM BEGAN CRAFTING AND EDITING STORIES FROM DAY ONE">
+            <div className="about-sec-eyebrow">MEANING IN EVERY DETAIL</div>
+            <div className="stepped-typography" aria-label="SRIRAM BELIEVES EVERY COLOR HAS A STORY TO TELL">
               <div className="stepped-row step-0"><span className="zapf-step">SRIRAM</span></div>
-              <div className="stepped-row step-1"><span className="zapf-step">BEGAN</span></div>
-              <div className="stepped-row step-2"><span className="zapf-step">CRAFTING</span></div>
-              <div className="stepped-row step-3"><span className="zapf-step">AND EDITING</span></div>
-              <div className="stepped-row step-4"><span className="zapf-step">STORIES</span></div>
-              <div className="stepped-row step-5"><span className="zapf-step">FROM DAY ONE</span></div>
+              <div className="stepped-row step-1"><span className="zapf-step">BELIEVES EVERY</span></div>
+              <div className="stepped-row step-2"><span className="zapf-step">COLOR HAS</span></div>
+              <div className="stepped-row step-3"><span className="zapf-step">A STORY</span></div>
+              <div className="stepped-row step-4"><span className="zapf-step">TO TELL</span></div>
             </div>
             <div className="about-editorial-text-wrap">
               <p className="about-editorial-p">
-                Starting in the high-velocity domain of motorcycle stunt riding and action cinematography, Sriram developed an instinctive intuition for kinetic rhythm, precise cut timing, and atmospheric color grading. Every transition is engineered with sound, momentum, and visceral emotional resonance.
+                Sriram has a strong belief that every color carries meaning, and every element has a purpose. He pays attention to even the smallest details, often embedding meaning within the tiniest parts of his work. He creates primarily for self-satisfaction and personal expression, which makes every production a reflection of his personality, perspective, and character.
+              </p>
+              <p className="about-editorial-quote">
+                “My work is not just something I create; it is a reflection of who I am.”
               </p>
             </div>
           </div>
@@ -153,16 +155,16 @@ export const AboutView: React.FC = () => {
         {/* Section 2: Stepped Typography (Interface Architecture) */}
         <section className="about-section-wrap about-section-wrap--stepped about-section-wrap--interface" id="about-sec-2">
           <div className="about-section-inner">
-            <div className="about-sec-eyebrow">SYSTEMATIC INTERACTION DESIGN</div>
-            <div className="stepped-typography stepped-typography--alt" aria-label="BRIDGING RAW KINETIC CINEMA WITH SYSTEMATIC DIGITAL ARCHITECTURE">
-              <div className="stepped-row step-alt-0"><span className="zapf-step">BRIDGING</span></div>
-              <div className="stepped-row step-alt-1"><span className="zapf-step">RAW KINETIC CINEMA</span></div>
-              <div className="stepped-row step-alt-2"><span className="zapf-step">WITH SYSTEMATIC</span></div>
-              <div className="stepped-row step-alt-3"><span className="zapf-step">DIGITAL ARCHITECTURE</span></div>
+            <div className="about-sec-eyebrow text-center">SYSTEMATIC INTERACTION DESIGN</div>
+            <div className="stepped-typography stepped-typography--alt" aria-label="STRUCTURING IDEAS INTO UI/UX THROUGH DIGITAL ARCHITECTURE">
+              <div className="stepped-row step-alt-0"><span className="zapf-step">STRUCTURING IDEAS</span></div>
+              <div className="stepped-row step-alt-1"><span className="zapf-step">INTO UI/UX</span></div>
+              <div className="stepped-row step-alt-2"><span className="zapf-step">THROUGH DIGITAL</span></div>
+              <div className="stepped-row step-alt-3"><span className="zapf-step">ARCHITECTURE</span></div>
             </div>
             <div className="about-editorial-text-wrap">
               <p className="about-editorial-p">
-                Translating cinematic motion into cohesive digital experiences. From multi-persona enterprise dashboards like Luminal HR to high-velocity mobile interactions, Sriram approaches product design with systematic rigor — pairing scalable component architectures with fluid, intentional micro-interactions.
+                I begin by structuring the idea and breaking the work into meaningful components. This allows me to organize content, define how each element connects within the UI, and establish a clear direction before moving into design. I then execute the plan, refine the details, and continuously iterate until the final result feels clear, intentional, and complete.
               </p>
             </div>
           </div>
