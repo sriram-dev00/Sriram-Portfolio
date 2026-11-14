@@ -168,7 +168,7 @@
       this.scene.background = new THREE.Color(0x000000);
 
       // Distance fog matching Michael Gatt (fades peripheral and background tiles into black void)
-      this.fog = new THREE.Fog(0x000000, 2200, 5800);
+      this.fog = new THREE.Fog(0x000000, 3000, 7000);
       this.scene.fog = this.fog;
 
       // 2. Perspective Camera (50.0° vertical FOV matching reference)
@@ -344,7 +344,7 @@
           fragmentShader: fragmentShader,
           uniforms: {
             uTexture: { value: texture },
-            uOpacity: { value: 0.92 },
+            uOpacity: { value: 0.95 },
             uWarpProgress: { value: 0.0 },
             uCurveAmountX: { value: 0.0 },
             uCurveAmountY: { value: 0.0 },
@@ -395,10 +395,10 @@
 
         if (!this.gatePassed) {
           mesh.quaternion.copy(mesh.foldedQuaternion);
-          mesh.material.uniforms.uOpacity.value = 0.50;
+          mesh.material.uniforms.uOpacity.value = 0.58;
         } else {
           mesh.quaternion.copy(mesh.originalQuaternion);
-          mesh.material.uniforms.uOpacity.value = 0.92;
+          mesh.material.uniforms.uOpacity.value = 0.95;
         }
 
         mesh.userData = {
@@ -407,7 +407,7 @@
           project: project,
           slug: project.slug || project.targetSlug || '',
           baseScale: 1.0,
-          baseOpacity: 0.92,
+          baseOpacity: 0.95,
           originalRadius: radius
         };
 
@@ -560,10 +560,10 @@
           clearTimeout(this.hoverExitTimer);
           this.activeHoveredMesh = hitMesh;
 
-          // Apply Michael Gatt's hover spotlight: active category/tile stays 1.0, non-active dim to 0.20
+          // Apply Michael Gatt's hover spotlight: active category/tile stays 1.0, non-active dim subtly to 0.32
           this.meshes.forEach((mesh) => {
             const isHovered = mesh === hitMesh;
-            mesh.material.uniforms.uOpacity.value = isHovered ? 1.0 : 0.20;
+            mesh.material.uniforms.uOpacity.value = isHovered ? 1.0 : 0.32;
             mesh.scale.set(isHovered ? 1.03 : 1.0, isHovered ? 1.03 : 1.0, 1.0);
           });
 
@@ -698,7 +698,7 @@
           this.isUnfolding = false;
           this.meshes.forEach((m) => {
             if (m.originalQuaternion) m.quaternion.copy(m.originalQuaternion);
-            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = m.userData.baseOpacity || 0.92;
+            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = m.userData.baseOpacity || 0.95;
           });
         } else {
           const ease = 1 - Math.pow(1 - elapsed, 4); // Power4.easeOut
@@ -707,8 +707,8 @@
               m.quaternion.slerpQuaternions(m.foldedQuaternion, m.originalQuaternion, ease);
             }
             if (m.material.uniforms.uOpacity) {
-              const baseOp = m.userData.baseOpacity || 0.92;
-              m.material.uniforms.uOpacity.value = 0.50 + (baseOp - 0.50) * ease;
+              const baseOp = m.userData.baseOpacity || 0.95;
+              m.material.uniforms.uOpacity.value = 0.58 + (baseOp - 0.58) * ease;
             }
           });
         }

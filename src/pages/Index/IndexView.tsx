@@ -60,7 +60,7 @@ export const IndexView: React.FC = () => {
           className="index-list"
           onMouseLeave={() => setIsPreviewVisible(false)}
         >
-          {PROJECTS.map((p, i) => {
+          {PROJECTS.filter((p) => !p.isTileOnly && !p.targetSlug).map((p, i) => {
             const bgSrc = p.thumb || p.media?.src || '';
             return (
               <div

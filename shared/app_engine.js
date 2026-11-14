@@ -1134,11 +1134,11 @@
 
         const isHovered = t.classList.contains('is-hovered');
 
-        // Depth-based opacity: Far (~0.78), Mid (~0.88), Near (~0.98), Hovered (1.0)
+        // Depth-based opacity: Far (~0.88), Mid (~0.93), Near (0.98), Hovered (1.0)
         const normZ = Math.max(0, Math.min(1, (totalZ + 400) / 600));
-        const depthOpacity = 0.78 + normZ * 0.20;
+        const depthOpacity = 0.88 + normZ * 0.10;
         const hasActiveHover = field.classList.contains('has-hover');
-        const finalOpacity = isHovered ? 1.0 : ((hasActiveHover ? depthOpacity * 0.22 : depthOpacity) * tileBloomEase);
+        const finalOpacity = isHovered ? 1.0 : ((hasActiveHover ? depthOpacity * 0.35 : depthOpacity) * tileBloomEase);
         t.style.opacity = finalOpacity.toFixed(3);
 
         // Dynamic 3D Z-index: Derived directly from computed 3D depth
@@ -1497,9 +1497,74 @@
     const mediaSrc = (p.media && p.media.src) ? p.media.src : (p.thumb || '');
     const isVideo = (p.media && p.media.type === 'video') || p.thumbType === 'video' || (mediaSrc && mediaSrc.endsWith('.mp4'));
 
+    const imageItems = (p.items || []).filter(it => it.src || it.url || it.type === 'view');
+    const isCarousel = imageItems.length > 1;
+
     const mediaHTML = isVideo
       ? `<video src="${mediaSrc}" controls autoplay loop muted playsinline poster="${p.media ? p.media.poster || '' : ''}"></video>`
       : (mediaSrc ? `<img src="${mediaSrc}" alt="${p.title}" />` : `<div class="ph"><span>${p.title}</span></div>`);
+
+    let mediaSectionHTML = '';
+    if (isCarousel) {
+      const prevIdx = (imageItems.length - 1) % imageItems.length;
+      const nextIdx = 1 % imageItems.length;
+      const prevItem = imageItems[prevIdx];
+      const curItem = imageItems[0];
+      const nextItem = imageItems[nextIdx];
+
+      mediaSectionHTML = `
+        <div class="proj-stage-container">
+          <button class="proj-carousel-arrow prev-arrow" aria-label="Previous image" data-cursor="Prev">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+
+          <div class="proj-stage-track">
+            <div class="proj-stage-card stage-card-prev" title="Previous: ${prevItem.title}">
+              <img src="${prevItem.thumb || prevItem.src || prevItem.url}" alt="${prevItem.title}" />
+              <span class="stage-card-label">${prevItem.title}</span>
+            </div>
+
+            <div class="proj-stage-card stage-card-center">
+              <div class="proj-media" title="Click to view full image in new tab">
+                <img src="${curItem.src || curItem.url || mediaSrc}" alt="${curItem.title || p.title}" />
+                <span class="play-label">VIEW MEDIA</span>
+              </div>
+              <div class="proj-media-caption">
+                <span class="proj-media-counter">01 / ${String(imageItems.length).padStart(2, '0')}</span>
+                <span class="proj-media-title">${curItem.title || p.title}</span>
+              </div>
+            </div>
+
+            <div class="proj-stage-card stage-card-next" title="Next: ${nextItem.title}">
+              <img src="${nextItem.thumb || nextItem.src || nextItem.url}" alt="${nextItem.title}" />
+              <span class="stage-card-label">${nextItem.title}</span>
+            </div>
+          </div>
+
+          <button class="proj-carousel-arrow next-arrow" aria-label="Next image" data-cursor="Next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="proj-thumb-strip">
+          ${imageItems.map((it, idx) => `
+            <div class="proj-thumb-card ${idx === 0 ? 'active' : ''}" data-idx="${idx}" title="${it.title}">
+              <img src="${it.thumb || it.src || it.url}" alt="${it.title}" loading="lazy" />
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      mediaSectionHTML = `
+        <div class="proj-media">
+          ${mediaHTML}
+          <span class="play-label">${isVideo ? 'PLAY VIDEO' : 'VIEW MEDIA'}</span>
+        </div>
+      `;
+    }
 
     const itemsHTML = (p.items || []).map((it, i) => `
       <div class="track-row ${it.type === 'view' ? 'view' : ''}" data-idx="${i}">
@@ -1551,10 +1616,7 @@
             </div>
           ` : ''}
         </header>
-        <div class="proj-media">
-          ${mediaHTML}
-          <span class="play-label">${isVideo ? 'PLAY VIDEO' : 'VIEW MEDIA'}</span>
-        </div>
+        ${mediaSectionHTML}
         ${itemsHTML ? `<div class="track-list">${itemsHTML}</div>` : ''}
       </div>
     `;
@@ -1582,14 +1644,163 @@
       });
     }
 
+    let currentGalleryIdx = 0;
+    function preloadNearby(idx) {
+      if (!imageItems.length) return;
+      const nextIdx = (idx + 1) % imageItems.length;
+      const prevIdx = (idx - 1 + imageItems.length) % imageItems.length;
+      const nextItem = imageItems[nextIdx];
+      const prevItem = imageItems[prevIdx];
+      if (nextItem && (nextItem.src || nextItem.url)) {
+        const imgA = new Image();
+        imgA.src = nextItem.src || nextItem.url;
+      }
+      if (prevItem && (prevItem.src || prevItem.url)) {
+        const imgB = new Image();
+        imgB.src = prevItem.src || prevItem.url;
+      }
+    }
+
+    function updateGallery(newIdx) {
+      if (!imageItems.length) return;
+      currentGalleryIdx = (newIdx + imageItems.length) % imageItems.length;
+      const cur = imageItems[currentGalleryIdx];
+      const prev = imageItems[(currentGalleryIdx - 1 + imageItems.length) % imageItems.length];
+      const next = imageItems[(currentGalleryIdx + 1) % imageItems.length];
+      const targetSrc = cur.src || cur.url || mediaSrc;
+
+      // Update Center Spotlight Image with instant, fluid transition
+      const centerImg = projV.querySelector('.stage-card-center .proj-media img') || projV.querySelector('.proj-media img');
+      if (centerImg) {
+        if (centerImg.src !== targetSrc) {
+          centerImg.style.opacity = '0.50';
+          centerImg.src = targetSrc;
+          centerImg.alt = cur.title || p.title;
+          requestAnimationFrame(() => {
+            centerImg.style.opacity = '1';
+          });
+        }
+      }
+
+      // Update Prev Side Card
+      const prevCardImg = projV.querySelector('.stage-card-prev img');
+      const prevCardLabel = projV.querySelector('.stage-card-prev .stage-card-label');
+      if (prevCardImg && prev) {
+        prevCardImg.src = prev.thumb || prev.src || prev.url;
+        prevCardImg.alt = prev.title || '';
+      }
+      if (prevCardLabel && prev) {
+        prevCardLabel.textContent = prev.title || '';
+      }
+
+      // Update Next Side Card
+      const nextCardImg = projV.querySelector('.stage-card-next img');
+      const nextCardLabel = projV.querySelector('.stage-card-next .stage-card-label');
+      if (nextCardImg && next) {
+        nextCardImg.src = next.thumb || next.src || next.url;
+        nextCardImg.alt = next.title || '';
+      }
+      if (nextCardLabel && next) {
+        nextCardLabel.textContent = next.title || '';
+      }
+
+      // Preload next/prev images in background for instant responsiveness
+      preloadNearby(currentGalleryIdx);
+
+      const counterEl = projV.querySelector('.proj-media-counter');
+      if (counterEl) {
+        counterEl.textContent = `${String(currentGalleryIdx + 1).padStart(2, '0')} / ${String(imageItems.length).padStart(2, '0')}`;
+      }
+      const titleEl = projV.querySelector('.proj-media-title');
+      if (titleEl) {
+        titleEl.textContent = cur.title || p.title;
+      }
+      projV.querySelectorAll('.proj-thumb-card').forEach((card, ci) => {
+        card.classList.toggle('active', ci === currentGalleryIdx);
+        if (ci === currentGalleryIdx) {
+          card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      });
+      projV.querySelectorAll('.track-row').forEach((r, ri) => {
+        r.classList.toggle('is-playing', ri === currentGalleryIdx);
+      });
+    }
+
+    if (isCarousel) {
+      const prevBtn = projV.querySelector('.proj-carousel-arrow.prev-arrow');
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateGallery(currentGalleryIdx - 1);
+        });
+      }
+
+      const nextBtn = projV.querySelector('.proj-carousel-arrow.next-arrow');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateGallery(currentGalleryIdx + 1);
+        });
+      }
+
+      const prevSideCard = projV.querySelector('.stage-card-prev');
+      if (prevSideCard) {
+        prevSideCard.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateGallery(currentGalleryIdx - 1);
+        });
+      }
+
+      const nextSideCard = projV.querySelector('.stage-card-next');
+      if (nextSideCard) {
+        nextSideCard.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateGallery(currentGalleryIdx + 1);
+        });
+      }
+
+      projV.querySelectorAll('.proj-thumb-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(card.dataset.idx, 10);
+          updateGallery(idx);
+        });
+      });
+
+      const mediaBox = projV.querySelector('.proj-media');
+      if (mediaBox && !isVideo) {
+        mediaBox.addEventListener('click', () => {
+          const cur = imageItems[currentGalleryIdx] || {};
+          const fullSrc = cur.src || cur.url || mediaSrc;
+          if (fullSrc) window.open(fullSrc, '_blank', 'noopener,noreferrer');
+        });
+      }
+
+      const handleKeyNav = (e) => {
+        if (activeView !== 'project') return;
+        if (e.key === 'ArrowLeft') updateGallery(currentGalleryIdx - 1);
+        if (e.key === 'ArrowRight') updateGallery(currentGalleryIdx + 1);
+      };
+      window.addEventListener('keydown', handleKeyNav);
+    }
+
     projV.querySelectorAll('.track-row').forEach(row => {
       row.addEventListener('click', () => {
         const idx = parseInt(row.dataset.idx, 10);
+        if (isCarousel) {
+          updateGallery(idx);
+          return;
+        }
         const itemData = (p.items || [])[idx];
         if (row.classList.contains('view')) {
-          if (itemData && itemData.url) {
-            window.open(itemData.url, '_blank', 'noopener,noreferrer');
+          if (itemData && (itemData.src || itemData.url)) {
+            const mediaImg = projV.querySelector('.proj-media img');
+            if (mediaImg) {
+              mediaImg.src = itemData.src || itemData.url;
+            }
           }
+          projV.querySelectorAll('.track-row').forEach(r => r.classList.remove('is-playing'));
+          row.classList.add('is-playing');
           return;
         }
         const btn = row.querySelector('.playmini');
@@ -1665,7 +1876,7 @@
     }
 
     // Top projects for orbit cards in Section 3
-    const orbitSlugs = ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
+    const orbitSlugs = ['team-never-enough', 'luminal-hr', 'burnout', 'graphical-design', 'behind-the-lens', 'reel-2026'];
     const orbitProjects = orbitSlugs.map(slug => PROJECTS.find(p => p.slug === slug)).filter(Boolean);
     const orbitCardsHTML = orbitProjects.map((p, i) => {
       const thumb = p.thumb || (p.media && p.media.src) || '';

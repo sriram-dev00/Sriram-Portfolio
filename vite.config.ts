@@ -6,6 +6,9 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    watch: {
+      ignored: ['**/Graphical designs/**', '**/media/**', '**/scratch/**'],
+    },
   },
   build: {
     target: 'esnext',

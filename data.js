@@ -74,7 +74,7 @@ window.SITE = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city']
+      cards: ['team-never-enough', 'luminal-hr', 'burnout', 'graphical-design']
     },
     {
       id: 'section-socials',
@@ -117,22 +117,377 @@ window.PROJECTS = [
       src: 'media/team-never-enough.jpg?v=5238'
     },
     items: [
-      { title: 'Guerrilla 450 Cut', type: 'play', meta: '0:00' },
-      { title: 'Slow-Mo Vertical Stunt Reel', type: 'play', meta: '0:00' }
+      {
+        title: 'Guerrilla 450 Cut',
+        type: 'play',
+        meta: '0:00'
+      },
+      {
+        title: 'Slow-Mo Vertical Stunt Reel',
+        type: 'play',
+        meta: '0:00'
+      }
     ]
   },
   {
-    slug: 'wheelie-city',
+    slug: 'graphical-design',
     slot: 30,
-    title: 'WHEELIE CITY',
-    category: 'Video',
-    short: 'Urban wheelie compilation, color graded for a moody teal-orange look.',
-    description: 'High energy urban stunt compilation featuring precision street riding.',
-    moreInfo: 'Color graded in DaVinci Resolve.',
-    thumb: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop',
+    title: 'GRAPHICAL DESIGN',
+    category: 'Graphic Design',
+    short: 'Extensive portfolio of commercial print banners, typography posters, event creatives, and branding signage.',
+    description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
+    moreInfo: 'Designed across Adobe Illustrator, Photoshop, and InDesign. Featuring 43 production-ready posters, vinyl signage, banners, and editorial compositions.',
+    thumb: 'Graphical designs/thumbs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
     mediaKind: 'image',
+    media: {
+      type: 'image',
+      src: 'Graphical designs/web/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg'
+    },
     items: [
-      { title: 'Final Edit', type: 'play', meta: '0:00' }
+      {
+        title: '4x1 Dermal Fillers Consultation Room 4',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/4x1 Dermal Fillers Consultation Room 4.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x1 Dermal Fillers Consultation Room 4.jpg.jpg',
+        url: 'Graphical designs/4x1 Dermal Fillers Consultation Room 4.jpg.jpeg'
+      },
+      {
+        title: '4x1 Microneedling Consultation Room (2)',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/4x1 Microneedling Consultation Room (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x1 Microneedling Consultation Room (2).jpg.jpg',
+        url: 'Graphical designs/4x1 Microneedling Consultation Room (2).jpg.jpeg'
+      },
+      {
+        title: '4x1 Vinayl Consultation Room 2.1',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/4x1 Vinayl Consultation Room 2.1.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x1 Vinayl Consultation Room 2.1.jpg.jpg',
+        url: 'Graphical designs/4x1 Vinayl Consultation Room 2.1.jpg.jpeg'
+      },
+      {
+        title: '4x1.5 Vinyl Consultation Room (2)',
+        type: 'view',
+        meta: 'SIGNAGE',
+        src: 'Graphical designs/web/4x1.5 Vinyl Consultation Room (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x1.5 Vinyl Consultation Room (2).jpg.jpg',
+        url: 'Graphical designs/4x1.5 Vinyl Consultation Room (2).jpg.jpeg'
+      },
+      {
+        title: '4x1.5 Vinyl Consultation Room 02',
+        type: 'view',
+        meta: 'SIGNAGE',
+        src: 'Graphical designs/web/4x1.5 Vinyl Consultation Room 02.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x1.5 Vinyl Consultation Room 02.jpg.jpg',
+        url: 'Graphical designs/4x1.5 Vinyl Consultation Room 02.jpg.jpeg'
+      },
+      {
+        title: '4x1.5 Vinyl Consultation Room 2.1',
+        type: 'view',
+        meta: 'SIGNAGE',
+        src: 'Graphical designs/web/4x1.5 Vinyl Consultation Room 2.1.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x1.5 Vinyl Consultation Room 2.1.jpg.jpg',
+        url: 'Graphical designs/4x1.5 Vinyl Consultation Room 2.1.jpg.jpeg'
+      },
+      {
+        title: '4x3 Vinyl Glass',
+        type: 'view',
+        meta: 'SIGNAGE',
+        src: 'Graphical designs/web/4x3 Vinyl Glass.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x3 Vinyl Glass.jpg.jpg',
+        url: 'Graphical designs/4x3 Vinyl Glass.jpg.jpeg'
+      },
+      {
+        title: '4x6 IIACT Aesthetic Medicine Course 2',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/4x6 IIACT Aesthetic Medicine Course 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/4x6 IIACT Aesthetic Medicine Course 2.jpg.jpg',
+        url: 'Graphical designs/4x6 IIACT Aesthetic Medicine Course 2.jpg.jpeg'
+      },
+      {
+        title: '8X4 Vinyl Foam',
+        type: 'view',
+        meta: 'SIGNAGE',
+        src: 'Graphical designs/web/8X4 Vinyl Foam.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/8X4 Vinyl Foam.jpg.jpg',
+        url: 'Graphical designs/8X4 Vinyl Foam.jpg.jpeg'
+      },
+      {
+        title: 'Aazhira Diwali Special Offer',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Aazhira Diwali Special Offer.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Aazhira Diwali Special Offer.jpg.jpg',
+        url: 'Graphical designs/Aazhira Diwali Special Offer.jpg.jpeg'
+      },
+      {
+        title: 'Annam Trust & Pollachi Sandhippu Grand Occation Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Annam Trust & Pollachi Sandhippu Grand Occation Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Annam Trust & Pollachi Sandhippu Grand Occation Poster.jpg.jpg',
+        url: 'Graphical designs/Annam Trust & Pollachi Sandhippu Grand Occation Poster.jpg.jpeg'
+      },
+      {
+        title: 'Annam Trust & Pollachi Sandhippu Poster (2)',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Annam Trust & Pollachi Sandhippu Poster (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Annam Trust & Pollachi Sandhippu Poster (2).jpg.jpg',
+        url: 'Graphical designs/Annam Trust & Pollachi Sandhippu Poster (2).jpg.jpeg'
+      },
+      {
+        title: 'BB Glow and Microneedling Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/BB Glow and Microneedling Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/BB Glow and Microneedling Poster.jpg.jpg',
+        url: 'Graphical designs/BB Glow and Microneedling Poster.jpg.jpeg'
+      },
+      {
+        title: 'Chemical Peel Workshop Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Chemical Peel Workshop Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Chemical Peel Workshop Poster.jpg.jpg',
+        url: 'Graphical designs/Chemical Peel Workshop Poster.jpg.jpeg'
+      },
+      {
+        title: 'Clinical Cosmetology Poster 01.1',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Clinical Cosmetology Poster 01.1.jpg',
+        thumb: 'Graphical designs/thumbs/Clinical Cosmetology Poster 01.1.jpg',
+        url: 'Graphical designs/Clinical Cosmetology Poster 01.1.png'
+      },
+      {
+        title: 'Facial Aesthetics & Cosmetology 01',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Facial Aesthetics & Cosmetology 01.jpg',
+        thumb: 'Graphical designs/thumbs/Facial Aesthetics & Cosmetology 01.jpg',
+        url: 'Graphical designs/Facial Aesthetics & Cosmetology 01.png'
+      },
+      {
+        title: 'Fair & Face PRP Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Fair & Face PRP Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Fair & Face PRP Poster.jpg.jpg',
+        url: 'Graphical designs/Fair & Face PRP Poster.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Ayudha Puja Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Freshh Ayudha Puja Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Ayudha Puja Poster.jpg.jpg',
+        url: 'Graphical designs/Freshh Ayudha Puja Poster.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Diwali Poster 02',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Freshh Diwali Poster 02.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Diwali Poster 02.jpg.jpg',
+        url: 'Graphical designs/Freshh Diwali Poster 02.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Ganesh Chaturthi Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Freshh Ganesh Chaturthi Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Ganesh Chaturthi Poster.jpg.jpg',
+        url: 'Graphical designs/Freshh Ganesh Chaturthi Poster.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Krishna Jeyanti Poster 03',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Freshh Krishna Jeyanti Poster 03.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Krishna Jeyanti Poster 03.jpg.jpg',
+        url: 'Graphical designs/Freshh Krishna Jeyanti Poster 03.jpg.jpeg'
+      },
+      {
+        title: 'Hair & Face Meso Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Hair & Face Meso Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Hair & Face Meso Poster.jpg.jpg',
+        url: 'Graphical designs/Hair & Face Meso Poster.jpg.jpeg'
+      },
+      {
+        title: 'Hair Transplant 1.1',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Hair Transplant 1.1.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Hair Transplant 1.1.jpg.jpg',
+        url: 'Graphical designs/Hair Transplant 1.1.jpg.jpeg'
+      },
+      {
+        title: 'Hydra Facial & Dermabrasion',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Hydra Facial & Dermabrasion.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Hydra Facial & Dermabrasion.jpg.jpg',
+        url: 'Graphical designs/Hydra Facial & Dermabrasion.jpg.jpeg'
+      },
+      {
+        title: 'Hydra Facial Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Hydra Facial Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Hydra Facial Poster.jpg.jpg',
+        url: 'Graphical designs/Hydra Facial Poster.jpg.jpeg'
+      },
+      {
+        title: 'IIACT 35x48inch Sticker (2)',
+        type: 'view',
+        meta: 'STICKER',
+        src: 'Graphical designs/web/IIACT 35x48inch Sticker (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 35x48inch Sticker (2).jpg.jpg',
+        url: 'Graphical designs/IIACT 35x48inch Sticker (2).jpg.jpeg'
+      },
+      {
+        title: 'IIACT 35x48inch Sticker 2.1',
+        type: 'view',
+        meta: 'STICKER',
+        src: 'Graphical designs/web/IIACT 35x48inch Sticker 2.1.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 35x48inch Sticker 2.1.jpg.jpg',
+        url: 'Graphical designs/IIACT 35x48inch Sticker 2.1.jpg.jpeg'
+      },
+      {
+        title: 'IIACT 6x4 ft Banner',
+        type: 'view',
+        meta: 'BANNER',
+        src: 'Graphical designs/web/IIACT 6x4 ft Banner.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 6x4 ft Banner.jpg.jpg',
+        url: 'Graphical designs/IIACT 6x4 ft Banner.jpg.jpeg'
+      },
+      {
+        title: 'IIACT 72X44 In Aesthetic Medicine Course 2',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/IIACT 72X44 In Aesthetic Medicine Course 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 72X44 In Aesthetic Medicine Course 2.jpg.jpg',
+        url: 'Graphical designs/IIACT 72X44 In Aesthetic Medicine Course 2.jpg.jpeg'
+      },
+      {
+        title: 'IIACT 72X44 In Aesthetic Medicine Course',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/IIACT 72X44 In Aesthetic Medicine Course.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 72X44 In Aesthetic Medicine Course.jpg.jpg',
+        url: 'Graphical designs/IIACT 72X44 In Aesthetic Medicine Course.jpg.jpeg'
+      },
+      {
+        title: 'IIACT Facebook Cover Image (2)',
+        type: 'view',
+        meta: 'EDITORIAL',
+        src: 'Graphical designs/web/IIACT Facebook Cover Image (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT Facebook Cover Image (2).jpg.jpg',
+        url: 'Graphical designs/IIACT Facebook Cover Image (2).jpg.jpeg'
+      },
+      {
+        title: 'Kanthi Properties 2x3ft 6 Banner',
+        type: 'view',
+        meta: 'BANNER',
+        src: 'Graphical designs/web/Kanthi Properties 2x3ft 6 Banner.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Kanthi Properties 2x3ft 6 Banner.jpg.jpg',
+        url: 'Graphical designs/Kanthi Properties 2x3ft 6 Banner.jpg.jpeg'
+      },
+      {
+        title: 'Kanthi Properties Campaign Poster   Copy',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Kanthi Properties Campaign Poster - Copy.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Kanthi Properties Campaign Poster - Copy.jpg.jpg',
+        url: 'Graphical designs/Kanthi Properties Campaign Poster - Copy.jpg.jpeg'
+      },
+      {
+        title: 'Kulali Collections Grand Opening Poster 2',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Kulali Collections Grand Opening Poster 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Kulali Collections Grand Opening Poster 2.jpg.jpg',
+        url: 'Graphical designs/Kulali Collections Grand Opening Poster 2.jpg.jpeg'
+      },
+      {
+        title: 'kurumbada potti director',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/kurumbada potti director.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/kurumbada potti director.jpg.jpg',
+        url: 'Graphical designs/kurumbada potti director.jpg.jpeg'
+      },
+      {
+        title: 'New Year Poster 02 With.F',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/New Year Poster 02 With.F.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/New Year Poster 02 With.F.jpg.jpg',
+        url: 'Graphical designs/New Year Poster 02 With.F.jpg.jpeg'
+      },
+      {
+        title: 'PRP Treatment 1.1',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/PRP Treatment 1.1.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/PRP Treatment 1.1.jpg.jpg',
+        url: 'Graphical designs/PRP Treatment 1.1.jpg.jpeg'
+      },
+      {
+        title: 'RUKS Magazine Quarter Page (2)',
+        type: 'view',
+        meta: 'EDITORIAL',
+        src: 'Graphical designs/web/RUKS-Magazine Quarter Page (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/RUKS-Magazine Quarter Page (2).jpg.jpg',
+        url: 'Graphical designs/RUKS-Magazine Quarter Page (2).jpg.jpeg'
+      },
+      {
+        title: 'Saathanaiyaalargalin Sangamam 2',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Saathanaiyaalargalin Sangamam 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Saathanaiyaalargalin Sangamam 2.jpg.jpg',
+        url: 'Graphical designs/Saathanaiyaalargalin Sangamam 2.jpg.jpeg'
+      },
+      {
+        title: 'Shiphakala Panchamuga Vinayagar Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
+        url: 'Graphical designs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpeg'
+      },
+      {
+        title: 'Summer Tennis Coaching 2025 2',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Summer Tennis Coaching 2025 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Summer Tennis Coaching 2025 2.jpg.jpg',
+        url: 'Graphical designs/Summer Tennis Coaching 2025 2.jpg.jpeg'
+      },
+      {
+        title: 'Tennis Coaching Poster 02',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Tennis Coaching Poster 02.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Tennis Coaching Poster 02.jpg.jpg',
+        url: 'Graphical designs/Tennis Coaching Poster 02.jpg.jpeg'
+      },
+      {
+        title: 'Tennis Coaching Poster 03',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Tennis Coaching Poster 03.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Tennis Coaching Poster 03.jpg.jpg',
+        url: 'Graphical designs/Tennis Coaching Poster 03.jpg.jpeg'
+      }
     ]
   },
   {
@@ -145,7 +500,11 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Main Cut', type: 'play', meta: '0:00' }
+      {
+        title: 'Main Cut',
+        type: 'play',
+        meta: '0:00'
+      }
     ]
   },
   {
@@ -158,7 +517,11 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Full BTS', type: 'play', meta: '0:00' }
+      {
+        title: 'Full BTS',
+        type: 'play',
+        meta: '0:00'
+      }
     ]
   },
   {
@@ -166,12 +529,16 @@ window.PROJECTS = [
     slot: 12,
     title: 'REEL 2026',
     category: 'Video',
-    short: 'The full year showreel \u2014 best cuts in one edit.',
+    short: 'The full year showreel — best cuts in one edit.',
     description: 'Annual highlight reel bringing together video editing, motion design, and direction.',
     thumb: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Full Reel', type: 'play', meta: '0:00' }
+      {
+        title: 'Full Reel',
+        type: 'play',
+        meta: '0:00'
+      }
     ]
   },
   {
@@ -179,13 +546,17 @@ window.PROJECTS = [
     slot: 27,
     title: 'LUMINAL HR',
     category: 'UI/UX',
-    short: 'An HRIS dashboard for a 500-person company \u2014 three personas, one system.',
+    short: 'An HRIS dashboard for a 500-person company — three personas, one system.',
     description: 'Luminal HR is a Human Resource Information System designed for a mid-sized company.',
-    moreInfo: 'Process: problem analysis \u2192 user flows \u2192 high-fidelity Figma UI.',
+    moreInfo: 'Process: problem analysis → user flows → high-fidelity Figma UI.',
     thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'HR Admin Dashboard', type: 'view', meta: 'Figma' }
+      {
+        title: 'HR Admin Dashboard',
+        type: 'view',
+        meta: 'Figma'
+      }
     ]
   },
   {
@@ -198,7 +569,11 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Journey Map', type: 'view', meta: 'Figma' }
+      {
+        title: 'Journey Map',
+        type: 'view',
+        meta: 'Figma'
+      }
     ]
   },
   {
@@ -211,7 +586,11 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Journey Map', type: 'view', meta: 'Figma' }
+      {
+        title: 'Journey Map',
+        type: 'view',
+        meta: 'Figma'
+      }
     ]
   },
   {
@@ -224,47 +603,183 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Journey Map', type: 'view', meta: 'Figma' }
+      {
+        title: 'Journey Map',
+        type: 'view',
+        meta: 'Figma'
+      }
     ]
   },
   {
     slug: 'poster-series',
     slot: 10,
-    title: 'POSTER SERIES',
+    title: 'GRAPHICAL DESIGN',
     category: 'Graphic Design',
-    short: 'A set of typographic event posters.',
-    description: 'Experimental typographic poster series exploring brutalist grid layouts and film stills.',
-    thumb: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop',
+    short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
+    description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
+    thumb: 'Graphical designs/thumbs/Summer Tennis Coaching 2025 2.jpg.jpg',
     mediaKind: 'image',
     items: [
-      { title: 'Poster 01', type: 'view', meta: 'PNG' }
-    ]
+      {
+        title: 'Summer Tennis Coaching 2025 Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Summer Tennis Coaching 2025 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Summer Tennis Coaching 2025 2.jpg.jpg',
+        url: 'Graphical designs/Summer Tennis Coaching 2025 2.jpg.jpeg'
+      },
+      {
+        title: 'Kurumbada Potti Short Film Poster',
+        type: 'view',
+        meta: 'CINEMA',
+        src: 'Graphical designs/web/kurumbada potti director.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/kurumbada potti director.jpg.jpg',
+        url: 'Graphical designs/kurumbada potti director.jpg.jpeg'
+      },
+      {
+        title: 'Saathanaiyaalargalin Sangamam Event Poster',
+        type: 'view',
+        meta: 'EVENT',
+        src: 'Graphical designs/web/Saathanaiyaalargalin Sangamam 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Saathanaiyaalargalin Sangamam 2.jpg.jpg',
+        url: 'Graphical designs/Saathanaiyaalargalin Sangamam 2.jpg.jpeg'
+      },
+      {
+        title: 'Tennis Coaching Poster 02',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Tennis Coaching Poster 02.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Tennis Coaching Poster 02.jpg.jpg',
+        url: 'Graphical designs/Tennis Coaching Poster 02.jpg.jpeg'
+      },
+      {
+        title: 'Annam Trust Grand Occasion Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Annam Trust & Pollachi Sandhippu Grand Occation Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Annam Trust & Pollachi Sandhippu Grand Occation Poster.jpg.jpg',
+        url: 'Graphical designs/Annam Trust & Pollachi Sandhippu Grand Occation Poster.jpg.jpeg'
+      }
+    ],
+    media: {
+      type: 'image',
+      src: 'Graphical designs/web/Summer Tennis Coaching 2025 2.jpg.jpg'
+    },
+    targetSlug: 'graphical-design'
   },
   {
     slug: 'brand-identity',
     slot: 5,
-    title: 'BRAND IDENTITY',
+    title: 'GRAPHICAL DESIGN',
     category: 'Graphic Design',
-    short: 'Logo, color system, and type stack for a modern brand.',
-    description: 'Minimalist brand identity system including typography, stationery, and packaging.',
-    thumb: 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?q=80&w=800&auto=format&fit=crop',
+    short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
+    description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
+    thumb: 'Graphical designs/thumbs/Kulali Collections Grand Opening Poster 2.jpg.jpg',
     mediaKind: 'image',
     items: [
-      { title: 'Logo & Marks', type: 'view', meta: 'PDF' }
-    ]
+      {
+        title: 'Kulali Collections Grand Opening Poster',
+        type: 'view',
+        meta: 'BRANDING',
+        src: 'Graphical designs/web/Kulali Collections Grand Opening Poster 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Kulali Collections Grand Opening Poster 2.jpg.jpg',
+        url: 'Graphical designs/Kulali Collections Grand Opening Poster 2.jpg.jpeg'
+      },
+      {
+        title: 'Kanthi Properties Campaign Poster',
+        type: 'view',
+        meta: 'CAMPAIGN',
+        src: 'Graphical designs/web/Kanthi Properties Campaign Poster - Copy.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Kanthi Properties Campaign Poster - Copy.jpg.jpg',
+        url: 'Graphical designs/Kanthi Properties Campaign Poster - Copy.jpg.jpeg'
+      },
+      {
+        title: 'Kanthi Properties 2x3ft Banner',
+        type: 'view',
+        meta: 'BANNER',
+        src: 'Graphical designs/web/Kanthi Properties 2x3ft 6 Banner.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Kanthi Properties 2x3ft 6 Banner.jpg.jpg',
+        url: 'Graphical designs/Kanthi Properties 2x3ft 6 Banner.jpg.jpeg'
+      },
+      {
+        title: 'Aazhira Diwali Special Offer',
+        type: 'view',
+        meta: 'RETAIL',
+        src: 'Graphical designs/web/Aazhira Diwali Special Offer.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Aazhira Diwali Special Offer.jpg.jpg',
+        url: 'Graphical designs/Aazhira Diwali Special Offer.jpg.jpeg'
+      },
+      {
+        title: 'New Year Celebration Poster',
+        type: 'view',
+        meta: 'PROMO',
+        src: 'Graphical designs/web/New Year Poster 02 With.F.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/New Year Poster 02 With.F.jpg.jpg',
+        url: 'Graphical designs/New Year Poster 02 With.F.jpg.jpeg'
+      }
+    ],
+    media: {
+      type: 'image',
+      src: 'Graphical designs/web/Kulali Collections Grand Opening Poster 2.jpg.jpg'
+    },
+    targetSlug: 'graphical-design'
   },
   {
     slug: 'illustration-set',
     slot: 11,
-    title: 'ILLUSTRATION SET',
+    title: 'GRAPHICAL DESIGN',
     category: 'Graphic Design',
-    short: 'Digital illustrations and vector artwork.',
-    description: 'Curated gallery of vector artwork and digital illustrations.',
-    thumb: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
+    short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
+    description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
+    thumb: 'Graphical designs/thumbs/Freshh Diwali Poster 02.jpg.jpg',
     mediaKind: 'image',
     items: [
-      { title: 'Illustration 01', type: 'view', meta: 'SVG' }
-    ]
+      {
+        title: 'Freshh Diwali Poster 02',
+        type: 'view',
+        meta: 'FESTIVAL',
+        src: 'Graphical designs/web/Freshh Diwali Poster 02.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Diwali Poster 02.jpg.jpg',
+        url: 'Graphical designs/Freshh Diwali Poster 02.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Ganesh Chaturthi Poster',
+        type: 'view',
+        meta: 'FESTIVAL',
+        src: 'Graphical designs/web/Freshh Ganesh Chaturthi Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Ganesh Chaturthi Poster.jpg.jpg',
+        url: 'Graphical designs/Freshh Ganesh Chaturthi Poster.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Krishna Jayanti Poster',
+        type: 'view',
+        meta: 'FESTIVAL',
+        src: 'Graphical designs/web/Freshh Krishna Jeyanti Poster 03.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Krishna Jeyanti Poster 03.jpg.jpg',
+        url: 'Graphical designs/Freshh Krishna Jeyanti Poster 03.jpg.jpeg'
+      },
+      {
+        title: 'Freshh Ayudha Puja Poster',
+        type: 'view',
+        meta: 'FESTIVAL',
+        src: 'Graphical designs/web/Freshh Ayudha Puja Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Freshh Ayudha Puja Poster.jpg.jpg',
+        url: 'Graphical designs/Freshh Ayudha Puja Poster.jpg.jpeg'
+      },
+      {
+        title: 'Shiphakala Panchamuga Vinayagar Poster',
+        type: 'view',
+        meta: 'DEVOTIONAL',
+        src: 'Graphical designs/web/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
+        url: 'Graphical designs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpeg'
+      }
+    ],
+    media: {
+      type: 'image',
+      src: 'Graphical designs/web/Freshh Diwali Poster 02.jpg.jpg'
+    },
+    targetSlug: 'graphical-design'
   },
   {
     slug: 'cinema-stills',
@@ -276,7 +791,11 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: '35mm Stills', type: 'view', meta: 'PNG' }
+      {
+        title: '35mm Stills',
+        type: 'view',
+        meta: 'PNG'
+      }
     ]
   },
   {
@@ -289,21 +808,77 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'UI Kit', type: 'view', meta: 'Figma' }
+      {
+        title: 'UI Kit',
+        type: 'view',
+        meta: 'Figma'
+      }
     ]
   },
   {
     slug: 'editorial-layout',
     slot: 26,
-    title: 'EDITORIAL LAYOUT',
+    title: 'GRAPHICAL DESIGN',
     category: 'Graphic Design',
-    short: 'Print magazine layout and typography exploration.',
-    description: 'Minimalist editorial spread design using high-contrast serif typography.',
-    thumb: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop',
+    short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
+    description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
+    thumb: 'Graphical designs/thumbs/RUKS-Magazine Quarter Page (2).jpg.jpg',
     mediaKind: 'image',
     items: [
-      { title: 'Magazine Spread', type: 'view', meta: 'PDF' }
-    ]
+      {
+        title: 'RUKS Magazine Quarter Page Ad',
+        type: 'view',
+        meta: 'MAGAZINE',
+        src: 'Graphical designs/web/RUKS-Magazine Quarter Page (2).jpg.jpg',
+        thumb: 'Graphical designs/thumbs/RUKS-Magazine Quarter Page (2).jpg.jpg',
+        url: 'Graphical designs/RUKS-Magazine Quarter Page (2).jpg.jpeg'
+      },
+      {
+        title: 'IIACT Aesthetic Medicine Course (72x44)',
+        type: 'view',
+        meta: 'EDITORIAL',
+        src: 'Graphical designs/web/IIACT 72X44 In Aesthetic Medicine Course 2.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 72X44 In Aesthetic Medicine Course 2.jpg.jpg',
+        url: 'Graphical designs/IIACT 72X44 In Aesthetic Medicine Course 2.jpg.jpeg'
+      },
+      {
+        title: 'IIACT 6x4 ft Banner',
+        type: 'view',
+        meta: 'BANNER',
+        src: 'Graphical designs/web/IIACT 6x4 ft Banner.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/IIACT 6x4 ft Banner.jpg.jpg',
+        url: 'Graphical designs/IIACT 6x4 ft Banner.jpg.jpeg'
+      },
+      {
+        title: 'Clinical Cosmetology Poster',
+        type: 'view',
+        meta: 'CLINICAL',
+        src: 'Graphical designs/web/Clinical Cosmetology Poster 01.1.jpg',
+        thumb: 'Graphical designs/thumbs/Clinical Cosmetology Poster 01.1.jpg',
+        url: 'Graphical designs/Clinical Cosmetology Poster 01.1.png'
+      },
+      {
+        title: 'Facial Aesthetics & Cosmetology',
+        type: 'view',
+        meta: 'CLINICAL',
+        src: 'Graphical designs/web/Facial Aesthetics & Cosmetology 01.jpg',
+        thumb: 'Graphical designs/thumbs/Facial Aesthetics & Cosmetology 01.jpg',
+        url: 'Graphical designs/Facial Aesthetics & Cosmetology 01.png'
+      },
+      {
+        title: 'Hydra Facial & Dermabrasion Poster',
+        type: 'view',
+        meta: 'POSTER',
+        src: 'Graphical designs/web/Hydra Facial & Dermabrasion.jpg.jpg',
+        thumb: 'Graphical designs/thumbs/Hydra Facial & Dermabrasion.jpg.jpg',
+        url: 'Graphical designs/Hydra Facial & Dermabrasion.jpg.jpeg'
+      }
+    ],
+    media: {
+      type: 'image',
+      src: 'Graphical designs/web/RUKS-Magazine Quarter Page (2).jpg.jpg'
+    },
+    targetSlug: 'graphical-design'
   },
   {
     slug: 'motion-graphics',
@@ -315,7 +890,11 @@ window.PROJECTS = [
     thumb: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
-      { title: 'Title Reel', type: 'play', meta: '0:00' }
+      {
+        title: 'Title Reel',
+        type: 'play',
+        meta: '0:00'
+      }
     ]
   },
   {
@@ -360,7 +939,7 @@ window.PROJECTS = [
     description: 'High-speed FPV tracking cut focusing on spatial rhythm and kinetic motion.',
     thumb: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    targetSlug: 'wheelie-city'
+    targetSlug: 'graphical-design'
   },
   {
     slug: 'sound-design-lab',

@@ -2,6 +2,9 @@ export interface ProjectItem {
   title: string;
   type: string;
   meta: string;
+  src?: string;
+  url?: string;
+  thumb?: string;
 }
 
 export interface ProjectMedia {
@@ -23,6 +26,7 @@ export interface Project {
   mediaKind?: 'video' | 'image';
   items?: ProjectItem[];
   targetSlug?: string;
+  isTileOnly?: boolean;
   externalUrl?: string;
   slot?: number;
 }
