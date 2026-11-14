@@ -118,14 +118,20 @@ window.PROJECTS = [
     },
     items: [
       {
-        title: 'Guerrilla 450 Cut',
-        type: 'play',
-        meta: '0:00'
+        title: "Guerrilla 450 Cut",
+        type: "play",
+        meta: "0:00",
+        src: "media/team-never-enough.jpg",
+        thumb: "media/team-never-enough.jpg",
+        url: "#"
       },
       {
-        title: 'Slow-Mo Vertical Stunt Reel',
-        type: 'play',
-        meta: '0:00'
+        title: "Slow-Mo Vertical Stunt Reel",
+        type: "play",
+        meta: "0:00",
+        src: "media/tne-poster.jpg",
+        thumb: "media/tne-poster.jpg",
+        url: "#"
       }
     ]
   },
@@ -501,9 +507,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Main Cut',
-        type: 'play',
-        meta: '0:00'
+        title: "Main Cut",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -518,9 +527,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Full BTS',
-        type: 'play',
-        meta: '0:00'
+        title: "Full BTS",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -535,9 +547,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Full Reel',
-        type: 'play',
-        meta: '0:00'
+        title: "Full Reel",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -553,9 +568,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'HR Admin Dashboard',
-        type: 'view',
-        meta: 'Figma'
+        title: "HR Admin Dashboard",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -570,9 +588,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Journey Map',
-        type: 'view',
-        meta: 'Figma'
+        title: "Journey Map",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -587,9 +608,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Journey Map',
-        type: 'view',
-        meta: 'Figma'
+        title: "Journey Map",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -604,9 +628,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Journey Map',
-        type: 'view',
-        meta: 'Figma'
+        title: "Journey Map",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -792,9 +819,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: '35mm Stills',
-        type: 'view',
-        meta: 'PNG'
+        title: "35mm Stills",
+        type: "view",
+        meta: "PNG",
+        src: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -809,9 +839,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'UI Kit',
-        type: 'view',
-        meta: 'Figma'
+        title: "UI Kit",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -891,9 +924,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Title Reel',
-        type: 'play',
-        meta: '0:00'
+        title: "Title Reel",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
