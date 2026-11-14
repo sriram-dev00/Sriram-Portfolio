@@ -186,7 +186,7 @@ button:focus-visible {
   transform: none !important;
   filter: blur(2.5px) !important;
   transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 5 !important;
 }
 
@@ -1171,8 +1171,8 @@ body:has(#view-project.active) .brand,
 body:has([data-view="project"].active) .index-toggle,
 body:has(#view-project.active) .index-toggle,
 body.project-active .index-toggle,
-.view[data-view="project"].active ~ .brand,
-.view[data-view="project"].active ~ .index-toggle {
+.view[data-view="project"].active~.brand,
+.view[data-view="project"].active~.index-toggle {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
@@ -1591,8 +1591,13 @@ body.project-active .index-toggle,
 }
 
 @keyframes spinBadge {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .badge-text {
@@ -3815,13 +3820,33 @@ body.in-gate-state .tile {
   animation: gateWordIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.mg-intro-words .mg-word:nth-child(1) span { animation-delay: 0.12s; }
-.mg-intro-words .mg-word:nth-child(2) span { animation-delay: 0.20s; }
-.mg-intro-words .mg-word:nth-child(3) span { animation-delay: 0.28s; }
-.mg-intro-words .mg-word:nth-child(4) span { animation-delay: 0.36s; }
-.mg-intro-words .mg-word:nth-child(5) span { animation-delay: 0.44s; }
-.mg-intro-words .mg-word:nth-child(6) span { animation-delay: 0.52s; }
-.mg-intro-words .mg-word:nth-child(7) span { animation-delay: 0.60s; }
+.mg-intro-words .mg-word:nth-child(1) span {
+  animation-delay: 0.12s;
+}
+
+.mg-intro-words .mg-word:nth-child(2) span {
+  animation-delay: 0.20s;
+}
+
+.mg-intro-words .mg-word:nth-child(3) span {
+  animation-delay: 0.28s;
+}
+
+.mg-intro-words .mg-word:nth-child(4) span {
+  animation-delay: 0.36s;
+}
+
+.mg-intro-words .mg-word:nth-child(5) span {
+  animation-delay: 0.44s;
+}
+
+.mg-intro-words .mg-word:nth-child(6) span {
+  animation-delay: 0.52s;
+}
+
+.mg-intro-words .mg-word:nth-child(7) span {
+  animation-delay: 0.60s;
+}
 
 @keyframes gateWordIn {
   0% {
@@ -3829,6 +3854,7 @@ body.in-gate-state .tile {
     transform: translateY(8px);
     filter: blur(2.5px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -3841,6 +3867,7 @@ body.in-gate-state .tile {
     opacity: 0;
     transform: translate(-50%, 6px);
   }
+
   100% {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -4106,19 +4133,23 @@ body.in-gate-state .tile {
 }
 
 @media (max-width: 900px) {
+
   .proj-stage-card.stage-card-prev,
   .proj-stage-card.stage-card-next {
     display: none;
   }
+
   .proj-stage-container {
     max-width: 680px;
     padding: 0 44px;
     min-height: 42vh;
   }
+
   .stage-card-center .proj-media {
     height: 40vh;
     min-height: 260px;
   }
+
   .proj-carousel-arrow {
     height: 180px;
     width: 40px;
@@ -4190,21 +4221,26 @@ body.in-gate-state .tile {
     padding: 0 34px;
     min-height: 38vh;
   }
+
   .stage-card-center .proj-media {
     height: 36vh;
     min-height: 220px;
   }
+
   .proj-carousel-arrow {
     height: 120px;
     width: 32px;
     border-radius: 16px;
   }
+
   .proj-carousel-arrow.prev-arrow {
     left: 0;
   }
+
   .proj-carousel-arrow.next-arrow {
     right: 0;
   }
+
   .proj-thumb-card {
     flex: 0 0 58px;
     height: 58px;
