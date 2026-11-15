@@ -27,7 +27,12 @@ export const ProjectView: React.FC = () => {
     if (referred) project = referred;
   }
 
-  const imageItems = (project.items || []).filter((it) => it.src || it.url || it.type === 'view');
+  const isProjectVideo = project.mediaKind === 'video' || project.media?.type === 'video';
+  const defaultMediaSrc = (project.media && project.media.src) || project.thumb || '';
+  const mediaSrc = activeMediaSrc || defaultMediaSrc;
+  const isVideo = isProjectVideo || (Boolean(mediaSrc) && mediaSrc.endsWith('.mp4'));
+
+  const imageItems = !isVideo ? (project.items || []).filter((it) => it.src || it.url || it.type === 'view') : [];
   const isCarousel = imageItems.length > 1;
 
   const currentGalleryIdx = activeItemIdx ?? 0;
@@ -36,10 +41,6 @@ export const ProjectView: React.FC = () => {
   const nextIdx = (currentGalleryIdx + 1) % (imageItems.length || 1);
   const prevItem = imageItems[prevIdx];
   const nextItem = imageItems[nextIdx];
-
-  const defaultMediaSrc = currentItem?.src || currentItem?.url || project.thumb || project.media?.src || '';
-  const mediaSrc = activeMediaSrc || defaultMediaSrc;
-  const isVideo = !activeMediaSrc && (project.mediaKind === 'video' || project.media?.type === 'video');
 
   const goToImage = (newIdx: number) => {
     if (!imageItems.length) return;
@@ -249,7 +250,7 @@ export const ProjectView: React.FC = () => {
                 <span>{project.title}</span>
               </div>
             )}
-            <span className="play-label">{isVideo ? 'PLAY VIDEO' : 'VIEW MEDIA'}</span>
+            {!isVideo && <span className="play-label">VIEW MEDIA</span>}
           </div>
         )}
 
@@ -258,10 +259,11 @@ export const ProjectView: React.FC = () => {
             {project.items.map((it, i) => {
               const isItemPlaying = playingIdx === i;
               const isItemActive = activeItemIdx === i;
+              const isInitialVideoPlaying = isVideo && playingIdx === null && activeItemIdx === null && i === 0;
               return (
                 <div
                   key={i}
-                  className={`track-row ${it.type === 'view' ? 'view' : ''} ${isItemPlaying || isItemActive ? 'is-playing' : ''}`}
+                  className={`track-row ${it.type === 'view' ? 'view' : ''} ${isItemPlaying || isItemActive || isInitialVideoPlaying ? 'is-playing' : ''}`}
                   onClick={() => {
                     if (it.type === 'view') {
                       if (it.src || it.url) {
@@ -269,7 +271,12 @@ export const ProjectView: React.FC = () => {
                         setActiveItemIdx(i);
                       }
                     } else {
-                      setPlayingIdx(isItemPlaying ? null : i);
+                      const nextPlaying = isItemPlaying ? null : i;
+                      setPlayingIdx(nextPlaying);
+                      setActiveItemIdx(i);
+                      if (it.src || it.url) {
+                        setActiveMediaSrc(it.src || it.url || null);
+                      }
                     }
                   }}
                 >
@@ -279,7 +286,7 @@ export const ProjectView: React.FC = () => {
                   </div>
                   <button
                     className="playmini"
-                    aria-label={it.type === 'view' ? 'View' : 'Play'}
+                    aria-label={it.type === 'view' ? 'View' : (isItemPlaying || isInitialVideoPlaying ? 'Pause' : 'Play')}
                     onClick={(e) => {
                       if (it.type === 'view' && (it.url || it.src)) {
                         e.stopPropagation();
@@ -291,11 +298,16 @@ export const ProjectView: React.FC = () => {
                   >
                     {it.type === 'view' ? (
                       <span>{it.meta || 'VIEW'}</span>
+                    ) : (isItemPlaying || isInitialVideoPlaying ? (
+                      <svg className="icon-pause" viewBox="0 0 24 24">
+                        <rect x="6" y="5" width="4" height="14"></rect>
+                        <rect x="14" y="5" width="4" height="14"></rect>
+                      </svg>
                     ) : (
                       <svg className="icon-play" viewBox="0 0 24 24">
                         <polygon points="7 5 19 12 7 19 7 5" />
                       </svg>
-                    )}
+                    ))}
                   </button>
                   <span className="time">{it.meta || '0:00'}</span>
                 </div>

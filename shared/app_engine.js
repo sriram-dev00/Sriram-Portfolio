@@ -1498,7 +1498,7 @@
     const mediaSrc = (p.media && p.media.src) ? p.media.src : (p.thumb || '');
     const isVideo = (p.media && p.media.type === 'video') || p.thumbType === 'video' || (mediaSrc && mediaSrc.endsWith('.mp4'));
 
-    const imageItems = (p.items || []).filter(it => it.src || it.url || it.type === 'view');
+    const imageItems = !isVideo ? (p.items || []).filter(it => it.src || it.url || it.type === 'view') : [];
     const isCarousel = imageItems.length > 1;
 
     const mediaHTML = isVideo
@@ -1560,15 +1560,15 @@
       `;
     } else {
       mediaSectionHTML = `
-        <div class="proj-media">
+        <div class="proj-media ${isVideo ? 'is-video' : ''}">
           ${mediaHTML}
-          <span class="play-label">${isVideo ? 'PLAY VIDEO' : 'VIEW MEDIA'}</span>
+          ${!isVideo ? '<span class="play-label">VIEW MEDIA</span>' : ''}
         </div>
       `;
     }
 
     const itemsHTML = (p.items || []).map((it, i) => `
-      <div class="track-row ${it.type === 'view' ? 'view' : ''}" data-idx="${i}">
+      <div class="track-row ${it.type === 'view' ? 'view' : ''} ${isVideo && i === 0 ? 'is-playing' : ''}" data-idx="${i}">
         <div class="track-left">
           <span class="num">${String(i + 1).padStart(3, '0')}</span>
           <span class="tname">${it.title}</span>
@@ -1577,8 +1577,8 @@
           ${it.type === 'view'
         ? `<span>${it.meta || 'VIEW'}</span>`
         : `
-              <svg class="icon-play" viewBox="0 0 24 24"><polygon points="7 5 19 12 7 19 7 5"></polygon></svg>
-              <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
+              <svg class="icon-play" viewBox="0 0 24 24" style="${isVideo && i === 0 ? 'display:none;' : ''}"><polygon points="7 5 19 12 7 19 7 5"></polygon></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" style="${isVideo && i === 0 ? 'display:block;' : 'display:none;'}"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
             `
       }
         </button>
@@ -1824,12 +1824,46 @@
           if (iconPause) iconPause.style.display = 'block';
           const videoEl = projV.querySelector('.proj-media video');
           if (videoEl && itemData && (itemData.src || itemData.url) && itemData.src !== '#' && itemData.url !== '#') {
-            videoEl.src = itemData.src || itemData.url;
+            const targetSrc = itemData.src || itemData.url;
+            const currentSrc = videoEl.getAttribute('src');
+            if (currentSrc !== targetSrc) {
+              videoEl.src = targetSrc;
+            }
             videoEl.play().catch(() => {});
+          }
+        } else {
+          const videoEl = projV.querySelector('.proj-media video');
+          if (videoEl) {
+            videoEl.pause();
           }
         }
       });
     });
+
+    const videoEl = projV.querySelector('.proj-media video');
+    if (videoEl) {
+      videoEl.addEventListener('play', () => {
+        const cur = videoEl.getAttribute('src') || videoEl.currentSrc || '';
+        projV.querySelectorAll('.track-row').forEach((r, ri) => {
+          const item = (p.items || [])[ri];
+          const isCurrent = item && (cur.endsWith(encodeURI(item.src || '')) || cur.endsWith(item.src || '') || (ri === 0 && !cur));
+          r.classList.toggle('is-playing', Boolean(isCurrent));
+          const pIcon = r.querySelector('.icon-play');
+          const paIcon = r.querySelector('.icon-pause');
+          if (pIcon) pIcon.style.display = isCurrent ? 'none' : 'block';
+          if (paIcon) paIcon.style.display = isCurrent ? 'block' : 'none';
+        });
+      });
+      videoEl.addEventListener('pause', () => {
+        projV.querySelectorAll('.track-row').forEach(r => {
+          r.classList.remove('is-playing');
+          const pIcon = r.querySelector('.icon-play');
+          const paIcon = r.querySelector('.icon-pause');
+          if (pIcon) pIcon.style.display = 'block';
+          if (paIcon) paIcon.style.display = 'none';
+        });
+      });
+    }
   }
 
   function setupAboutView() {

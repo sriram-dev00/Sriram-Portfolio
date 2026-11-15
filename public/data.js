@@ -575,22 +575,6 @@ window.PROJECTS = [
         src: "Motion Graphics/motion graphics videos/cross slide animation.mp4",
         thumb: "Motion Graphics/motion-graphics-upscaled-16x9.jpg",
         url: "Motion Graphics/motion graphics videos/cross slide animation.mp4"
-      },
-      {
-        title: "Motion Graphic Key Visual",
-        type: "view",
-        meta: "16:9",
-        src: "Motion Graphics/motion-graphics-upscaled-16x9.jpg",
-        thumb: "Motion Graphics/motion-graphic-16x9.jpg",
-        url: "Motion Graphics/motion-graphics-upscaled-16x9.jpg"
-      },
-      {
-        title: "Motion Graphics Identity",
-        type: "view",
-        meta: "Still",
-        src: "Motion Graphics/motion graphics thumb 1.png",
-        thumb: "Motion Graphics/motion graphics thumb 1.png",
-        url: "Motion Graphics/motion graphics thumb 1.png"
       }
     ]
   },
