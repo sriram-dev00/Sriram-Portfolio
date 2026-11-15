@@ -110,28 +110,28 @@ window.PROJECTS = [
     short: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
     description: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
     moreInfo: 'Royal Enfield Guerrilla 450 edition. Precision street riding, vertical balance acrobatics, and raw visual velocity.',
-    thumb: 'media/team-never-enough.jpg?v=5238',
+    thumb: 'Team Never Enough/3d space tne/tne 1 img.jpg',
     indexThumb: 'Team Never Enough/3d space tne/tne 1 img.jpg',
     mediaKind: 'image',
     media: {
       type: 'image',
-      src: 'media/team-never-enough.jpg?v=5238'
+      src: 'Team Never Enough/3d space tne/tne 1 img.jpg'
     },
     items: [
       {
         title: "Guerrilla 450 Cut",
         type: "play",
         meta: "0:00",
-        src: "media/team-never-enough.jpg",
-        thumb: "media/team-never-enough.jpg",
+        src: "Team Never Enough/3d space tne/tne 1 img.jpg",
+        thumb: "Team Never Enough/3d space tne/tne 1 img.jpg",
         url: "#"
       },
       {
         title: "Slow-Mo Vertical Stunt Reel",
         type: "play",
         meta: "0:00",
-        src: "media/tne-poster.jpg",
-        thumb: "media/tne-poster.jpg",
+        src: "Team Never Enough/3d space tne/tne 2.jpeg",
+        thumb: "Team Never Enough/3d space tne/tne 2.jpeg",
         url: "#"
       }
     ]
@@ -969,7 +969,7 @@ window.PROJECTS = [
     category: 'Motorcycle Stunt Collective',
     short: 'Action still from the vertical balance acrobatic series on the Royal Enfield Guerrilla 450.',
     description: 'High-speed street precision stunts and balance acrobatics by Team Never Enough.',
-    thumb: 'media/tne-poster.jpg?v=5241',
+    thumb: 'Team Never Enough/3d space tne/tne 2.jpeg',
     mediaKind: 'image',
     targetSlug: 'team-never-enough'
   },
@@ -988,10 +988,10 @@ window.PROJECTS = [
     slug: 'stunt-telemetry',
     slot: 8,
     title: 'STUNT TELEMETRY',
-    category: 'UI/UX',
+    category: 'Motorcycle Stunt Collective',
     short: 'Real-time telemetry HUD overlay for high-velocity stunt analytics.',
     description: 'Telemetry dashboard capturing lean angle, velocity curves, and vertical balance points.',
-    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Team Never Enough/3d space tne/tne 1 img.jpg',
     mediaKind: 'image',
     targetSlug: 'team-never-enough'
   },
@@ -1046,7 +1046,7 @@ window.PROJECTS = [
     category: 'Motorcycle Stunt Collective',
     short: '120fps high-frame-rate breakdown of suspension compression and balance locks.',
     description: 'Detailed physical examination of balance physics and stunt riding acrobatics.',
-    thumb: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Team Never Enough/3d space tne/Tne 3.jpeg',
     mediaKind: 'image',
     targetSlug: 'team-never-enough'
   },
@@ -1117,7 +1117,7 @@ window.PROJECTS = [
     category: 'Motorcycle Stunt Collective',
     short: 'Uncut street riding audio track paired with raw, authentic visual pacing.',
     description: 'Raw engine notes, tire screech, and unfiltered visual velocity from Team Never Enough.',
-    thumb: 'media/tne-poster.jpg?v=5241',
+    thumb: 'Team Never Enough/3d space tne/tne 4.png',
     mediaKind: 'image',
     targetSlug: 'team-never-enough'
   }
