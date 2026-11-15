@@ -1500,6 +1500,7 @@
 
     const imageItems = !isVideo ? (p.items || []).filter(it => it.src || it.url || it.type === 'view') : [];
     const isCarousel = imageItems.length > 1;
+    const videoItems = isVideo ? (p.items || []).filter(it => it.src || it.url || it.type === 'play') : [];
 
     const mediaHTML = isVideo
       ? `<video src="${mediaSrc}" controls autoplay loop muted playsinline poster="${p.media ? p.media.poster || '' : ''}"></video>`
@@ -1558,11 +1559,45 @@
           `).join('')}
         </div>
       `;
+    } else if (isVideo) {
+      const curItem = videoItems[0] || { title: p.title, src: mediaSrc };
+      const showArrows = videoItems.length > 1;
+      mediaSectionHTML = `
+        <div class="proj-video-stage">
+          ${showArrows ? `
+            <button class="proj-carousel-arrow prev-arrow" aria-label="Previous video" data-cursor="Prev" title="Previous video (←)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+          ` : ''}
+
+          <div class="proj-video-wrapper">
+            <div class="proj-media is-video">
+              <video src="${curItem.src || mediaSrc}" controls autoplay loop muted playsinline poster="${p.media ? p.media.poster || '' : ''}"></video>
+            </div>
+            ${videoItems.length > 0 ? `
+              <div class="proj-media-caption">
+                <span class="proj-media-counter">01 / ${String(videoItems.length).padStart(2, '0')}</span>
+                <span class="proj-media-title">${curItem.title || p.title}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          ${showArrows ? `
+            <button class="proj-carousel-arrow next-arrow" aria-label="Next video" data-cursor="Next" title="Next video (→)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          ` : ''}
+        </div>
+      `;
     } else {
       mediaSectionHTML = `
-        <div class="proj-media ${isVideo ? 'is-video' : ''}">
+        <div class="proj-media">
           ${mediaHTML}
-          ${!isVideo ? '<span class="play-label">VIEW MEDIA</span>' : ''}
+          <span class="play-label">VIEW MEDIA</span>
         </div>
       `;
     }
@@ -1785,11 +1820,75 @@
       window.addEventListener('keydown', handleKeyNav);
     }
 
+    let currentVideoIdx = 0;
+    function updateVideo(newIdx) {
+      if (!videoItems.length) return;
+      currentVideoIdx = (newIdx + videoItems.length) % videoItems.length;
+      const cur = videoItems[currentVideoIdx];
+      const videoEl = projV.querySelector('.proj-video-stage .proj-media video') || projV.querySelector('.proj-media video');
+      if (videoEl && cur && (cur.src || cur.url)) {
+        const targetSrc = cur.src || cur.url;
+        const currentSrc = videoEl.getAttribute('src');
+        if (currentSrc !== targetSrc) {
+          videoEl.src = targetSrc;
+        }
+        videoEl.play().catch(() => {});
+      }
+
+      const counterEl = projV.querySelector('.proj-video-stage .proj-media-counter');
+      if (counterEl) {
+        counterEl.textContent = `${String(currentVideoIdx + 1).padStart(2, '0')} / ${String(videoItems.length).padStart(2, '0')}`;
+      }
+      const titleEl = projV.querySelector('.proj-video-stage .proj-media-title');
+      if (titleEl) {
+        titleEl.textContent = cur.title || p.title;
+      }
+
+      projV.querySelectorAll('.track-row').forEach((r, ri) => {
+        const isMatch = ri === currentVideoIdx;
+        r.classList.toggle('is-playing', isMatch);
+        const iconPlay = r.querySelector('.icon-play');
+        const iconPause = r.querySelector('.icon-pause');
+        if (iconPlay) iconPlay.style.display = isMatch ? 'none' : 'block';
+        if (iconPause) iconPause.style.display = isMatch ? 'block' : 'none';
+      });
+    }
+
+    if (isVideo && videoItems.length > 1) {
+      const prevVideoBtn = projV.querySelector('.proj-video-stage .prev-arrow');
+      if (prevVideoBtn) {
+        prevVideoBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateVideo(currentVideoIdx - 1);
+        });
+      }
+
+      const nextVideoBtn = projV.querySelector('.proj-video-stage .next-arrow');
+      if (nextVideoBtn) {
+        nextVideoBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          updateVideo(currentVideoIdx + 1);
+        });
+      }
+
+      const handleVideoKeyNav = (e) => {
+        if (activeView !== 'project') return;
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        if (e.key === 'ArrowLeft') updateVideo(currentVideoIdx - 1);
+        if (e.key === 'ArrowRight') updateVideo(currentVideoIdx + 1);
+      };
+      window.addEventListener('keydown', handleVideoKeyNav);
+    }
+
     projV.querySelectorAll('.track-row').forEach(row => {
       row.addEventListener('click', () => {
         const idx = parseInt(row.dataset.idx, 10);
         if (isCarousel) {
           updateGallery(idx);
+          return;
+        }
+        if (isVideo) {
+          updateVideo(idx);
           return;
         }
         const itemData = (p.items || [])[idx];

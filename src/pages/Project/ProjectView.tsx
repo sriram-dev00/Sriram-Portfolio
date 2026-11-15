@@ -34,6 +34,7 @@ export const ProjectView: React.FC = () => {
 
   const imageItems = !isVideo ? (project.items || []).filter((it) => it.src || it.url || it.type === 'view') : [];
   const isCarousel = imageItems.length > 1;
+  const videoItems = isVideo ? (project.items || []).filter((it) => it.src || it.url || it.type === 'play') : [];
 
   const currentGalleryIdx = activeItemIdx ?? 0;
   const currentItem = imageItems[currentGalleryIdx];
@@ -41,6 +42,18 @@ export const ProjectView: React.FC = () => {
   const nextIdx = (currentGalleryIdx + 1) % (imageItems.length || 1);
   const prevItem = imageItems[prevIdx];
   const nextItem = imageItems[nextIdx];
+
+  const currentVideoIdx = activeItemIdx ?? 0;
+  const currentVideoItem = videoItems[currentVideoIdx] || { title: project.title, src: mediaSrc };
+
+  const goToVideo = (newIdx: number) => {
+    if (!videoItems.length) return;
+    const bounded = (newIdx + videoItems.length) % videoItems.length;
+    const targetItem = videoItems[bounded];
+    setActiveItemIdx(bounded);
+    setPlayingIdx(bounded);
+    setActiveMediaSrc(targetItem?.src || targetItem?.url || null);
+  };
 
   const goToImage = (newIdx: number) => {
     if (!imageItems.length) return;
@@ -73,6 +86,17 @@ export const ProjectView: React.FC = () => {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [isCarousel, currentGalleryIdx, imageItems]);
+
+  React.useEffect(() => {
+    if (!isVideo || videoItems.length <= 1) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target && ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA')) return;
+      if (e.key === 'ArrowLeft') goToVideo(currentVideoIdx - 1);
+      if (e.key === 'ArrowRight') goToVideo(currentVideoIdx + 1);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isVideo, currentVideoIdx, videoItems]);
 
   return (
     <div
@@ -222,35 +246,84 @@ export const ProjectView: React.FC = () => {
               ))}
             </div>
           </>
+        ) : isVideo ? (
+          <div className="proj-video-stage">
+            {videoItems.length > 1 && (
+              <button
+                className="proj-carousel-arrow prev-arrow"
+                aria-label="Previous video"
+                data-cursor="Prev"
+                title="Previous video (←)"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToVideo(currentVideoIdx - 1);
+                }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+            )}
+
+            <div className="proj-video-wrapper">
+              <div className="proj-media is-video">
+                <video
+                  key={mediaSrc}
+                  src={mediaSrc}
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster={project.media?.poster || ''}
+                />
+              </div>
+              {videoItems.length > 0 && (
+                <div className="proj-media-caption">
+                  <span className="proj-media-counter">
+                    {String(currentVideoIdx + 1).padStart(2, '0')} / {String(videoItems.length).padStart(2, '0')}
+                  </span>
+                  <span className="proj-media-title">{currentVideoItem.title || project.title}</span>
+                </div>
+              )}
+            </div>
+
+            {videoItems.length > 1 && (
+              <button
+                className="proj-carousel-arrow next-arrow"
+                aria-label="Next video"
+                data-cursor="Next"
+                title="Next video (→)"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToVideo(currentVideoIdx + 1);
+                }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            )}
+          </div>
         ) : (
           <div
             className="proj-media"
             style={{ cursor: mediaSrc ? 'pointer' : 'default' }}
             onClick={() => {
-              if (mediaSrc && !isVideo) {
+              if (mediaSrc) {
                 window.open(mediaSrc, '_blank', 'noopener,noreferrer');
               }
             }}
-            title={!isVideo && mediaSrc ? 'Click to view full image in new tab' : undefined}
+            title={mediaSrc ? 'Click to view full image in new tab' : undefined}
           >
-            {isVideo ? (
-              <video
-                src={mediaSrc}
-                controls
-                autoPlay
-                loop
-                muted
-                playsInline
-                poster={project.media?.poster || ''}
-              />
-            ) : mediaSrc ? (
+            {mediaSrc ? (
               <img src={mediaSrc} alt={project.title} decoding="async" />
             ) : (
               <div className="ph">
                 <span>{project.title}</span>
               </div>
             )}
-            {!isVideo && <span className="play-label">VIEW MEDIA</span>}
+            <span className="play-label">VIEW MEDIA</span>
           </div>
         )}
 
@@ -270,6 +343,8 @@ export const ProjectView: React.FC = () => {
                         setActiveMediaSrc(it.src || it.url || null);
                         setActiveItemIdx(i);
                       }
+                    } else if (isVideo) {
+                      goToVideo(i);
                     } else {
                       const nextPlaying = isItemPlaying ? null : i;
                       setPlayingIdx(nextPlaying);
