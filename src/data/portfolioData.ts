@@ -522,6 +522,26 @@ export const PROJECTS: Project[] = [
     ]
   },
   {
+    slug: 'motion-graphics',
+    slot: 6,
+    title: 'MOTION GRAPHICS',
+    category: 'Video',
+    short: '3D title sequences and kinetic typography.',
+    description: 'Kinetic title sequence and procedural motion design graphics.',
+    thumb: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    items: [
+      {
+        title: "Title Reel",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+        url: "#"
+      }
+    ]
+  },
+  {
     slug: 'burnout',
     slot: 13,
     title: 'BURNOUT',
@@ -901,26 +921,6 @@ export const PROJECTS: Project[] = [
       src: 'Graphical designs/web/RUKS-Magazine Quarter Page (2).jpg.jpg'
     },
     targetSlug: 'graphical-design'
-  },
-  {
-    slug: 'motion-graphics',
-    slot: 6,
-    title: 'MOTION GRAPHICS',
-    category: 'Video',
-    short: '3D title sequences and kinetic typography.',
-    description: 'Kinetic title sequence and procedural motion design graphics.',
-    thumb: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-    mediaKind: 'image',
-    items: [
-      {
-        title: "Title Reel",
-        type: "play",
-        meta: "0:00",
-        src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
-        url: "#"
-      }
-    ]
   },
   {
     slug: 'tne-guerrilla-cut',
