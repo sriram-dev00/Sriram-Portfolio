@@ -144,6 +144,7 @@ window.PROJECTS = [
     description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
     moreInfo: 'Designed across Adobe Illustrator, Photoshop, and InDesign. Featuring 43 production-ready posters, vinyl signage, banners, and editorial compositions.',
     thumb: 'Graphical designs/thumbs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
+    indexThumb: 'Graphical designs/graphical design thumbnail/graphical typo.png',
     mediaKind: 'image',
     media: {
       type: 'image',
