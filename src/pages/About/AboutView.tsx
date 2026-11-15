@@ -3,7 +3,7 @@ import { usePortfolio } from '../../context/PortfolioContext';
 import { PROJECTS, SITE_CONFIG } from '../../data/portfolioData';
 import { SectionIndicator } from './SectionIndicator';
 
-const ORBIT_SLUGS = ['team-never-enough', 'luminal-hr', 'burnout', 'wheelie-city', 'behind-the-lens', 'reel-2026'];
+const ORBIT_SLUGS = ['team-never-enough', 'ui-and-ux-design', 'burnout', 'graphical-design', 'behind-the-lens', 'reel-2026'];
 
 export const AboutView: React.FC = () => {
   const { activeView, navigate } = usePortfolio();

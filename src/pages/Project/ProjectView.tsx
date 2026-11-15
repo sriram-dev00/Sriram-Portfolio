@@ -19,7 +19,8 @@ export const ProjectView: React.FC = () => {
     return null;
   }
 
-  const currentIdx = PROJECTS.findIndex((p) => p.slug === activeProjectSlug);
+  const resolvedSlug = (activeProjectSlug === 'luminal-hr' || activeProjectSlug === 'ui-ux-design') ? 'ui-and-ux-design' : activeProjectSlug;
+  const currentIdx = PROJECTS.findIndex((p) => p.slug === resolvedSlug || p.slug === activeProjectSlug);
   let project = PROJECTS[currentIdx] || PROJECTS[0];
   if (project.targetSlug) {
     const referred = PROJECTS.find((p) => p.slug === project.targetSlug);

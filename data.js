@@ -74,7 +74,7 @@ window.SITE = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['team-never-enough', 'luminal-hr', 'burnout', 'graphical-design']
+      cards: ['team-never-enough', 'ui-and-ux-design', 'burnout', 'graphical-design']
     },
     {
       id: 'section-socials',
@@ -118,14 +118,20 @@ window.PROJECTS = [
     },
     items: [
       {
-        title: 'Guerrilla 450 Cut',
-        type: 'play',
-        meta: '0:00'
+        title: "Guerrilla 450 Cut",
+        type: "play",
+        meta: "0:00",
+        src: "media/team-never-enough.jpg",
+        thumb: "media/team-never-enough.jpg",
+        url: "#"
       },
       {
-        title: 'Slow-Mo Vertical Stunt Reel',
-        type: 'play',
-        meta: '0:00'
+        title: "Slow-Mo Vertical Stunt Reel",
+        type: "play",
+        meta: "0:00",
+        src: "media/tne-poster.jpg",
+        thumb: "media/tne-poster.jpg",
+        url: "#"
       }
     ]
   },
@@ -491,6 +497,55 @@ window.PROJECTS = [
     ]
   },
   {
+    slug: 'ui-and-ux-design',
+    slot: 27,
+    title: 'UI AND UX DESIGN',
+    category: 'UI/UX',
+    short: 'An HRIS dashboard for a 500-person company — three personas, one system.',
+    description: 'Comprehensive UI/UX design showcase featuring the Luminal HR ecosystem — covering Leave Management, Payroll, Performance Reviews, Recruitment, and Employee Directory across three personas: HR Admin, Manager, and Employee.',
+    moreInfo: 'Process: problem analysis → user flows → wireframes → high-fidelity Figma UI → interactive prototypes.',
+    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    mediaKind: 'image',
+    media: {
+      type: 'image',
+      src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop'
+    },
+    items: [
+      {
+        title: "HR Admin Dashboard",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
+        url: "#"
+      },
+      {
+        title: "HR Admin Flow",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
+        url: "#"
+      },
+      {
+        title: "Manager Flow",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop",
+        url: "#"
+      },
+      {
+        title: "Employee Flow",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop",
+        url: "#"
+      }
+    ]
+  },
+  {
     slug: 'burnout',
     slot: 13,
     title: 'BURNOUT',
@@ -501,9 +556,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Main Cut',
-        type: 'play',
-        meta: '0:00'
+        title: "Main Cut",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -518,9 +576,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Full BTS',
-        type: 'play',
-        meta: '0:00'
+        title: "Full BTS",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -535,80 +596,59 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Full Reel',
-        type: 'play',
-        meta: '0:00'
-      }
-    ]
-  },
-  {
-    slug: 'luminal-hr',
-    slot: 27,
-    title: 'LUMINAL HR',
-    category: 'UI/UX',
-    short: 'An HRIS dashboard for a 500-person company — three personas, one system.',
-    description: 'Luminal HR is a Human Resource Information System designed for a mid-sized company.',
-    moreInfo: 'Process: problem analysis → user flows → high-fidelity Figma UI.',
-    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
-    mediaKind: 'image',
-    items: [
-      {
-        title: 'HR Admin Dashboard',
-        type: 'view',
-        meta: 'Figma'
+        title: "Full Reel",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
   {
     slug: 'hr-admin-flow',
     slot: 7,
-    title: 'HR ADMIN FLOW',
+    title: 'UI AND UX DESIGN',
     category: 'UI/UX',
     short: 'How an HR admin manages policy, compliance, and headcount.',
     description: 'Comprehensive administrative UI workflow covering employee records and compliance.',
     thumb: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    items: [
-      {
-        title: 'Journey Map',
-        type: 'view',
-        meta: 'Figma'
-      }
-    ]
+    media: {
+      type: 'image',
+      src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop'
+    },
+    targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'manager-flow',
     slot: 28,
-    title: 'MANAGER FLOW',
+    title: 'UI AND UX DESIGN',
     category: 'UI/UX',
     short: 'Overseeing team performance, leave, and hiring in one view.',
     description: 'Clean manager overview portal balancing quick actions and team telemetry.',
     thumb: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    items: [
-      {
-        title: 'Journey Map',
-        type: 'view',
-        meta: 'Figma'
-      }
-    ]
+    media: {
+      type: 'image',
+      src: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+    },
+    targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'employee-flow',
     slot: 20,
-    title: 'EMPLOYEE FLOW',
+    title: 'UI AND UX DESIGN',
     category: 'UI/UX',
     short: 'Self-service profile, leave requests, and career growth.',
     description: 'Mobile-first self service interface designed for seamless employee onboarding.',
     thumb: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    items: [
-      {
-        title: 'Journey Map',
-        type: 'view',
-        meta: 'Figma'
-      }
-    ]
+    media: {
+      type: 'image',
+      src: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop'
+    },
+    targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'poster-series',
@@ -792,9 +832,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: '35mm Stills',
-        type: 'view',
-        meta: 'PNG'
+        title: "35mm Stills",
+        type: "view",
+        meta: "PNG",
+        src: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -809,9 +852,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'UI Kit',
-        type: 'view',
-        meta: 'Figma'
+        title: "UI Kit",
+        type: "view",
+        meta: "Figma",
+        src: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -891,9 +937,12 @@ window.PROJECTS = [
     mediaKind: 'image',
     items: [
       {
-        title: 'Title Reel',
-        type: 'play',
-        meta: '0:00'
+        title: "Title Reel",
+        type: "play",
+        meta: "0:00",
+        src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+        thumb: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
+        url: "#"
       }
     ]
   },
@@ -994,7 +1043,7 @@ window.PROJECTS = [
     description: 'Enterprise telemetry design system prioritizing instant cognitive clarity under pressure.',
     thumb: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    targetSlug: 'luminal-hr'
+    targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'atmospheric-foley',
