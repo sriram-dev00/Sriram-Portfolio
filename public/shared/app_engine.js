@@ -1296,8 +1296,8 @@
       const firstImg = (Array.isArray(p.images) && p.images.length > 0)
         ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0].src || p.images[0].thumb || ''))
         : '';
-      const bgSrc = p.thumb || firstImg || (p.media ? p.media.src : '');
-      const isVid = (p.media && p.media.type === 'video') || (bgSrc && bgSrc.endsWith('.mp4'));
+      const bgSrc = p.indexThumb || p.thumb || firstImg || (p.media ? p.media.src : '');
+      const isVid = Boolean(bgSrc && (bgSrc.endsWith('.mp4') || bgSrc.endsWith('.webm')));
       const numSpaced = String(i + 1).padStart(3, '0').split('').join(' ');
       return `
               <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-is-vid="${isVid ? 'true' : 'false'}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}" style="animation-delay: ${i * 38}ms;">

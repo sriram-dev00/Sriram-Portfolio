@@ -552,12 +552,13 @@ window.PROJECTS = [
     category: 'Video',
     short: '3D title sequences, procedural animations, and kinetic typography.',
     description: 'Dynamic motion graphics and procedural 3D animation cut focusing on kinetic typography, brand reveals, and spatial visual pacing.',
-    thumb: 'Motion Graphics/motion-graphic-16x9.jpg',
+    thumb: 'Motion Graphics/motion-graphics-upscaled-16x9.jpg',
+    indexThumb: 'Motion Graphics/motion-graphics-upscaled-16x9.jpg',
     mediaKind: 'video',
     media: {
       type: 'video',
       src: 'Motion Graphics/motion graphics videos/Og Instagram in animation.mp4',
-      poster: 'Motion Graphics/motion-graphic-16x9.jpg'
+      poster: 'Motion Graphics/motion-graphics-upscaled-16x9.jpg'
     },
     items: [
       {

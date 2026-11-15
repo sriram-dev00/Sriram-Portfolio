@@ -22,6 +22,7 @@ export interface Project {
   moreInfo?: string;
   thumb: string;
   thumbType?: string;
+  indexThumb?: string;
   media?: ProjectMedia | null;
   mediaKind?: 'video' | 'image';
   items?: ProjectItem[];
