@@ -526,18 +526,47 @@ export const PROJECTS: Project[] = [
     slot: 6,
     title: 'MOTION GRAPHICS',
     category: 'Video',
-    short: '3D title sequences and kinetic typography.',
-    description: 'Kinetic title sequence and procedural motion design graphics.',
-    thumb: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
-    mediaKind: 'image',
+    short: '3D title sequences, procedural animations, and kinetic typography.',
+    description: 'Dynamic motion graphics and procedural 3D animation cut focusing on kinetic typography, brand reveals, and spatial visual pacing.',
+    thumb: 'Motion Graphics/motion-graphic-16x9.jpg',
+    mediaKind: 'video',
+    media: {
+      type: 'video',
+      src: 'Motion Graphics/motion graphics videos/Og Instagram in animation.mp4',
+      poster: 'Motion Graphics/motion-graphic-16x9.jpg'
+    },
     items: [
       {
-        title: "Title Reel",
+        title: "Instagram In Animation",
         type: "play",
-        meta: "0:00",
-        src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop",
-        url: "#"
+        meta: "0:12",
+        src: "Motion Graphics/motion graphics videos/Og Instagram in animation.mp4",
+        thumb: "Motion Graphics/motion-graphic-16x9.jpg",
+        url: "Motion Graphics/motion graphics videos/Og Instagram in animation.mp4"
+      },
+      {
+        title: "Cross Slide Animation",
+        type: "play",
+        meta: "0:08",
+        src: "Motion Graphics/motion graphics videos/cross slide animation.mp4",
+        thumb: "Motion Graphics/motion-graphics-upscaled-16x9.jpg",
+        url: "Motion Graphics/motion graphics videos/cross slide animation.mp4"
+      },
+      {
+        title: "Motion Graphic Key Visual",
+        type: "view",
+        meta: "16:9",
+        src: "Motion Graphics/motion-graphics-upscaled-16x9.jpg",
+        thumb: "Motion Graphics/motion-graphic-16x9.jpg",
+        url: "Motion Graphics/motion-graphics-upscaled-16x9.jpg"
+      },
+      {
+        title: "Motion Graphics Identity",
+        type: "view",
+        meta: "Still",
+        src: "Motion Graphics/motion graphics thumb 1.png",
+        thumb: "Motion Graphics/motion graphics thumb 1.png",
+        url: "Motion Graphics/motion graphics thumb 1.png"
       }
     ]
   },
@@ -1061,8 +1090,13 @@ export const PROJECTS: Project[] = [
     category: 'Motion Design',
     short: 'Typographic title sequences with variable font interpolation and displacement.',
     description: 'Modern title sequences driven by audio transients and variable font physics.',
-    thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
-    mediaKind: 'image',
+    thumb: 'Motion Graphics/motion graphics thumb 1.png',
+    mediaKind: 'video',
+    media: {
+      type: 'video',
+      src: 'Motion Graphics/motion graphics videos/cross slide animation.mp4',
+      poster: 'Motion Graphics/motion graphics thumb 1.png'
+    },
     targetSlug: 'motion-graphics'
   },
   {

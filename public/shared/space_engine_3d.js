@@ -260,7 +260,8 @@
         const mediaSrc = project.thumb || project.image || project.src || (project.media && project.media.src) || '';
         if (!mediaSrc) return;
 
-        const isVideo = project.mediaKind === 'video' || project.type === 'video' || (typeof mediaSrc === 'string' && mediaSrc.endsWith('.mp4'));
+        const videoSrc = (typeof mediaSrc === 'string' && mediaSrc.endsWith('.mp4')) ? mediaSrc : ((project.media && typeof project.media.src === 'string' && project.media.src.endsWith('.mp4')) ? project.media.src : null);
+        const isVideo = (typeof mediaSrc === 'string' && mediaSrc.endsWith('.mp4')) || (project.thumbType === 'video' && !!videoSrc);
 
         // Proportional sizing enlarged by +25% and expanded by +10%
         const SIZE_SCALE = 1.25 * 1.10; // 1.375 (+10% expansion)
@@ -307,7 +308,7 @@
         let createdMesh = null;
         if (isVideo) {
           const video = document.createElement('video');
-          video.src = mediaSrc;
+          video.src = videoSrc || mediaSrc;
           video.crossOrigin = 'anonymous';
           video.loop = true;
           video.muted = true;

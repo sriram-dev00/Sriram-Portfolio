@@ -1822,6 +1822,11 @@
           row.classList.add('is-playing');
           if (iconPlay) iconPlay.style.display = 'none';
           if (iconPause) iconPause.style.display = 'block';
+          const videoEl = projV.querySelector('.proj-media video');
+          if (videoEl && itemData && (itemData.src || itemData.url) && itemData.src !== '#' && itemData.url !== '#') {
+            videoEl.src = itemData.src || itemData.url;
+            videoEl.play().catch(() => {});
+          }
         }
       });
     });
