@@ -87,6 +87,7 @@ export const PROJECTS: Project[] = [
     description: 'I’ve been a fan of Team Never Enough and their unique approach to motorcycle stunt performances. I create and edit videos of their work out of genuine passion, not as a paid project. For me, it’s a way to combine my love for their work with my passion for editing and visual storytelling.',
     moreInfo: 'Royal Enfield Guerrilla 450 edition. Precision street riding, vertical balance acrobatics, and raw visual velocity.',
     thumb: 'media/team-never-enough.jpg?v=5238',
+    indexThumb: 'Team Never Enough/3d space tne/tne 1 img.jpg',
     mediaKind: 'image',
     media: {
       type: 'image',
