@@ -483,6 +483,7 @@ export const PROJECTS: Project[] = [
     description: 'Comprehensive UI/UX design showcase featuring the Luminal HR ecosystem — covering Leave Management, Payroll, Performance Reviews, Recruitment, and Employee Directory across three personas: HR Admin, Manager, and Employee.',
     moreInfo: 'Process: problem analysis → user flows → wireframes → high-fidelity Figma UI → interactive prototypes.',
     thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    indexThumb: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png',
     mediaKind: 'image',
     media: {
       type: 'image',
