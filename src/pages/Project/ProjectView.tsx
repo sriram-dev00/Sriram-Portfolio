@@ -19,7 +19,7 @@ export const ProjectView: React.FC = () => {
     return null;
   }
 
-  const resolvedSlug = (activeProjectSlug === 'luminal-hr' || activeProjectSlug === 'ui-ux-design') ? 'ui-and-ux-design' : (activeProjectSlug === 'burnout' ? 'promotion-videos' : activeProjectSlug);
+  const resolvedSlug = (activeProjectSlug === 'luminal-hr' || activeProjectSlug === 'ui-ux-design') ? 'ui-and-ux-design' : (activeProjectSlug === 'burnout' ? 'promotion-videos' : (activeProjectSlug === 'behind-the-lens' ? 'modern-design-and-typography' : activeProjectSlug));
   const currentIdx = PROJECTS.findIndex((p) => p.slug === resolvedSlug || p.slug === activeProjectSlug);
   let project = PROJECTS[currentIdx] || PROJECTS[0];
   if (project.targetSlug) {

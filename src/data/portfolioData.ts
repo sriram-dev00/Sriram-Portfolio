@@ -53,7 +53,7 @@ export const SITE_CONFIG: SiteConfig = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['team-never-enough', 'ui-and-ux-design', 'promotion-videos', 'graphical-design', 'behind-the-lens', 'reel-2026']
+      cards: ['team-never-enough', 'ui-and-ux-design', 'promotion-videos', 'graphical-design', 'modern-design-and-typography', 'reel-2026']
     },
     {
       id: 'section-socials',
@@ -578,17 +578,17 @@ export const PROJECTS: Project[] = [
     ]
   },
   {
-    slug: 'behind-the-lens',
+    slug: 'modern-design-and-typography',
     slot: 25,
-    title: 'BEHIND THE LENS',
-    category: 'Video',
-    short: 'Behind-the-scenes look at a shoot day.',
-    description: 'Documentary style behind-the-scenes film capturing the creative process on set.',
+    title: 'MODERN DESIGN AND TYPOGRAPHY',
+    category: 'Design & Typography',
+    short: 'Modern graphic systems, editorial layouts, and kinetic typography.',
+    description: 'Contemporary exploration of visual hierarchy, spatial tension, grid systems, and expressive typography.',
     thumb: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
     items: [
       {
-        title: "Full BTS",
+        title: "Modern Design & Typography Exploration",
         type: "play",
         meta: "0:00",
         src: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
@@ -1002,7 +1002,7 @@ export const PROJECTS: Project[] = [
     description: 'Technical visual exploration of optical aberrations and anamorphic flare rendering.',
     thumb: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    targetSlug: 'behind-the-lens'
+    targetSlug: 'modern-design-and-typography'
   },
   {
     slug: 'chromatic-flow',
@@ -1046,7 +1046,7 @@ export const PROJECTS: Project[] = [
     description: 'Environmental acoustic sampling exploring natural reverberation in empty spaces.',
     thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    targetSlug: 'behind-the-lens'
+    targetSlug: 'modern-design-and-typography'
   },
   {
     slug: 'street-optics',
@@ -1068,7 +1068,7 @@ export const PROJECTS: Project[] = [
     description: 'Studio lighting architecture diagrams and practical fixture placement study.',
     thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    targetSlug: 'behind-the-lens'
+    targetSlug: 'modern-design-and-typography'
   },
   {
     slug: 'kinetic-titles',
