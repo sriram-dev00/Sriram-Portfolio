@@ -566,6 +566,14 @@ export const PROJECTS: Project[] = [
         src: "Promotion Videos/Ganesh sha silks store promotion.mp4",
         thumb: "Promotion Videos/promotion-videos-poster.jpg",
         url: "Promotion Videos/Ganesh sha silks store promotion.mp4"
+      },
+      {
+        title: "Team Never Enough — Bengaluru Show",
+        type: "play",
+        meta: "0:42",
+        src: "Promotion Videos/Team Never Enough blr show completion.mp4",
+        thumb: "Promotion Videos/tne-blr-show-poster.jpg",
+        url: "Promotion Videos/Team Never Enough blr show completion.mp4"
       }
     ]
   },
@@ -944,11 +952,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'night-drift',
     slot: 22,
-    title: 'PROMOTION VIDEOS — SHOWROOM',
+    title: 'TNE — BLR SHOW ACTION',
     category: 'Commercial Video',
-    short: 'Silk saree collections, showroom elegance, and vibrant retail displays.',
-    description: 'Silk saree collections, showroom elegance, and vibrant retail displays.',
-    thumb: 'Promotion Videos/promotion-videos-scene-2.jpg',
+    short: 'Live stunt choreography, high-velocity drift lines, and event promotion.',
+    description: 'Live stunt choreography, high-velocity drift lines, and event promotion.',
+    thumb: 'Promotion Videos/tne-blr-show-action-16x9.jpg',
     mediaKind: 'image',
     targetSlug: 'promotion-videos'
   },
@@ -977,11 +985,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'sound-design-lab',
     slot: 24,
-    title: 'PROMOTION VIDEOS — FESTIVE',
+    title: 'TNE — BLR SHOW FINALE',
     category: 'Commercial Video',
-    short: 'Festive bridal silks and intricate handloom border details.',
-    description: 'Festive bridal silks and intricate handloom border details.',
-    thumb: 'Promotion Videos/promotion-videos-scene-3.jpg',
+    short: 'Arena crowd energy, motorcycle stunt execution, and promotional show reel.',
+    description: 'Arena crowd energy, motorcycle stunt execution, and promotional show reel.',
+    thumb: 'Promotion Videos/tne-blr-show-finale-16x9.jpg',
     mediaKind: 'image',
     targetSlug: 'promotion-videos'
   },
