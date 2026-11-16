@@ -503,48 +503,33 @@ window.PROJECTS = [
     slot: 27,
     title: 'UI AND UX DESIGN',
     category: 'UI/UX',
-    short: 'An HRIS dashboard for a 500-person company — three personas, one system.',
-    description: 'Comprehensive UI/UX design showcase featuring the Luminal HR ecosystem — covering Leave Management, Payroll, Performance Reviews, Recruitment, and Employee Directory across three personas: HR Admin, Manager, and Employee.',
+    short: 'Interactive systems, digital product design, and cohesive user experience flows.',
+    description: 'Comprehensive UI/UX design showcase featuring the Luminal HR ecosystem and digital product design — covering interactive prototypes, company management, and responsive systems.',
     moreInfo: 'Process: problem analysis → user flows → wireframes → high-fidelity Figma UI → interactive prototypes.',
-    thumb: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png',
     indexThumb: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png',
-    mediaKind: 'image',
+    mediaKind: 'video',
     media: {
-      type: 'image',
-      src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop'
+      type: 'video',
+      src: 'Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4',
+      poster: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png'
     },
     items: [
       {
-        title: "HR Admin Dashboard",
-        type: "view",
-        meta: "Figma",
-        src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop",
-        url: "#"
+        title: "People Flow (Company Management)",
+        type: "play",
+        meta: "Video",
+        src: "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4",
+        thumb: "Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png",
+        url: "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4"
       },
       {
-        title: "HR Admin Flow",
-        type: "view",
-        meta: "Figma",
-        src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
-        url: "#"
-      },
-      {
-        title: "Manager Flow",
-        type: "view",
-        meta: "Figma",
-        src: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop",
-        url: "#"
-      },
-      {
-        title: "Employee Flow",
-        type: "view",
-        meta: "Figma",
-        src: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop",
-        url: "#"
+        title: "Portfolio Preview",
+        type: "play",
+        meta: "Video",
+        src: "Ui and ux design/ui & ux design videos/portfolio design/Portfolio Preview.mp4",
+        thumb: "Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png",
+        url: "Ui and ux design/ui & ux design videos/portfolio design/Portfolio Preview.mp4"
       }
     ]
   },
