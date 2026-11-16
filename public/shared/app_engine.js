@@ -1484,7 +1484,7 @@
   function setupProjectView(slug) {
     const projV = makeView('project');
     const normalizedSlug = slug ? decodeURIComponent(slug).trim().toLowerCase().replace(/\s+/g, '-') : '';
-    const resolvedSlug = (normalizedSlug === 'luminal-hr' || normalizedSlug === 'ui-ux-design') ? 'ui-and-ux-design' : normalizedSlug;
+    const resolvedSlug = (normalizedSlug === 'luminal-hr' || normalizedSlug === 'ui-ux-design') ? 'ui-and-ux-design' : (normalizedSlug === 'promotion-videos' ? 'promotion-videos' : normalizedSlug);
     let p = PROJECTS.find(item => item.slug === resolvedSlug || item.slug === slug || item.slug === normalizedSlug) || PROJECTS[0];
     if (p && p.targetSlug) {
       const referred = PROJECTS.find(item => item.slug === p.targetSlug);
@@ -2015,7 +2015,7 @@
     }
 
     // Top projects for orbit cards in Section 3
-    const orbitSlugs = ['team-never-enough', 'ui-and-ux-design', 'burnout', 'graphical-design', 'behind-the-lens', 'reel-2026'];
+    const orbitSlugs = ['team-never-enough', 'ui-and-ux-design', 'promotion-videos', 'graphical-design', 'behind-the-lens', 'reel-2026'];
     const orbitProjects = orbitSlugs.map(slug => PROJECTS.find(p => p.slug === slug)).filter(Boolean);
     const orbitCardsHTML = orbitProjects.map((p, i) => {
       const thumb = p.thumb || (p.media && p.media.src) || '';

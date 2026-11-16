@@ -74,7 +74,7 @@ window.SITE = {
       eyebrow: 'DISCIPLINES & EXPERIMENTS',
       lead: 'EDITING, ARCHITECTING, AND CRAFTING ACROSS EVERY MEDIUM',
       sub: 'COMBINING HIGH-OCTANE VIDEO EDITING, SYSTEMIC PRODUCT DESIGN, AND EXPERIMENTAL TYPOGRAPHY',
-      cards: ['team-never-enough', 'ui-and-ux-design', 'burnout', 'graphical-design']
+      cards: ['team-never-enough', 'ui-and-ux-design', 'promotion-videos', 'graphical-design']
     },
     {
       id: 'section-socials',
@@ -568,22 +568,28 @@ window.PROJECTS = [
     ]
   },
   {
-    slug: 'burnout',
+    slug: 'promotion-videos',
     slot: 13,
-    title: 'BURNOUT',
+    title: 'PROMOTION VIDEOS',
     category: 'Video',
-    short: 'Sound-forward edit built around engine and tire audio.',
-    description: 'Dynamic automotive film focusing on sound design and fast-paced rhythmic editing.',
-    thumb: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop',
-    mediaKind: 'image',
+    short: 'High-impact commercial video production, retail store campaigns, and promotional storytelling.',
+    description: 'Dynamic commercial promotional video cut focusing on retail brand presence, store ambiance, and rhythmic pacing.',
+    thumb: 'Promotion Videos/promotion-videos-16x9.jpg',
+    indexThumb: 'Promotion Videos/promotion-videos-poster.jpg',
+    mediaKind: 'video',
+    media: {
+      type: 'video',
+      src: 'Promotion Videos/Ganesh sha silks store promotion.mp4',
+      poster: 'Promotion Videos/promotion-videos-poster.jpg'
+    },
     items: [
       {
-        title: "Main Cut",
+        title: "Ganesh Sha Silks Store Promotion",
         type: "play",
-        meta: "0:00",
-        src: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800&auto=format&fit=crop",
-        url: "#"
+        meta: "0:26",
+        src: "Promotion Videos/Ganesh sha silks store promotion.mp4",
+        thumb: "Promotion Videos/promotion-videos-poster.jpg",
+        url: "Promotion Videos/Ganesh sha silks store promotion.mp4"
       }
     ]
   },
@@ -968,7 +974,7 @@ window.PROJECTS = [
     description: 'Moody midnight drift film highlighting visceral tire friction and engine growl.',
     thumb: 'media/night-ride.jpg?v=5241',
     mediaKind: 'image',
-    targetSlug: 'burnout'
+    targetSlug: 'promotion-videos'
   },
   {
     slug: 'stunt-telemetry',
@@ -1001,7 +1007,7 @@ window.PROJECTS = [
     description: 'Experimental audio design laboratory showcasing layered Foley and synthesized drones.',
     thumb: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
     mediaKind: 'image',
-    targetSlug: 'burnout'
+    targetSlug: 'promotion-videos'
   },
   {
     slug: 'aperture-study',
