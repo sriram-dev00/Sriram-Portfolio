@@ -550,7 +550,7 @@ export const PROJECTS: Project[] = [
     category: 'Video',
     short: 'High-impact commercial video production, retail store campaigns, and promotional storytelling.',
     description: 'Dynamic commercial promotional video cut focusing on retail brand presence, store ambiance, and rhythmic pacing.',
-    thumb: 'Promotion Videos/promotion-videos-16x9.jpg',
+    thumb: 'Promotion Videos/promotion-videos-scene-1.jpg',
     indexThumb: 'Promotion Videos/promotion-videos-poster.jpg',
     mediaKind: 'video',
     media: {
@@ -944,11 +944,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'night-drift',
     slot: 22,
-    title: 'NIGHT DRIFT',
-    category: 'Video',
-    short: 'Midnight automotive drift reel with heavy analog sound textures.',
-    description: 'Moody midnight drift film highlighting visceral tire friction and engine growl.',
-    thumb: 'media/night-ride.jpg?v=5241',
+    title: 'PROMOTION VIDEOS — SHOWROOM',
+    category: 'Commercial Video',
+    short: 'Silk saree collections, showroom elegance, and vibrant retail displays.',
+    description: 'Silk saree collections, showroom elegance, and vibrant retail displays.',
+    thumb: 'Promotion Videos/promotion-videos-scene-2.jpg',
     mediaKind: 'image',
     targetSlug: 'promotion-videos'
   },
@@ -977,11 +977,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'sound-design-lab',
     slot: 24,
-    title: 'SOUND DESIGN LAB',
-    category: 'Sound Design',
-    short: 'Sub-bass harmonics, granular synthesizer patches, and industrial mechanical Foley.',
-    description: 'Experimental audio design laboratory showcasing layered Foley and synthesized drones.',
-    thumb: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
+    title: 'PROMOTION VIDEOS — FESTIVE',
+    category: 'Commercial Video',
+    short: 'Festive bridal silks and intricate handloom border details.',
+    description: 'Festive bridal silks and intricate handloom border details.',
+    thumb: 'Promotion Videos/promotion-videos-scene-3.jpg',
     mediaKind: 'image',
     targetSlug: 'promotion-videos'
   },
