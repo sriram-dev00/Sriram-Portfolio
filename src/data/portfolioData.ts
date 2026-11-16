@@ -120,12 +120,12 @@ export const PROJECTS: Project[] = [
     short: 'Extensive portfolio of commercial print banners, typography posters, event creatives, and branding signage.',
     description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
     moreInfo: 'Designed across Adobe Illustrator, Photoshop, and InDesign. Featuring 43 production-ready posters, vinyl signage, banners, and editorial compositions.',
-    thumb: 'Graphical designs/thumbs/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg',
-    indexThumb: 'Graphical designs/graphical design thumbnail/graphical typo.png',
+    thumb: 'Graphical designs/3d space GD/graphical typo.png',
+    indexThumb: 'Graphical designs/graphical design thumbnail/sriram_mj_index.jpeg',
     mediaKind: 'image',
     media: {
       type: 'image',
-      src: 'Graphical designs/web/Shiphakala-Panchamuga Vinayagar Poster.jpg.jpg'
+      src: 'Graphical designs/3d space GD/graphical typo.png'
     },
     items: [
       {
@@ -277,7 +277,7 @@ export const PROJECTS: Project[] = [
         type: 'view',
         meta: 'POSTER',
         src: 'Graphical designs/web/Freshh Diwali Poster 02.jpg.jpg',
-        thumb: 'Graphical designs/thumbs/Freshh Diwali Poster 02.jpg.jpg',
+        thumb: 'Graphical designs/3d space GD/Freshh Ayudha Puja Poster.jpg.jpeg',
         url: 'Graphical designs/Freshh Diwali Poster 02.jpg.jpeg'
       },
       {
@@ -397,7 +397,7 @@ export const PROJECTS: Project[] = [
         type: 'view',
         meta: 'POSTER',
         src: 'Graphical designs/web/Kulali Collections Grand Opening Poster 2.jpg.jpg',
-        thumb: 'Graphical designs/thumbs/Kulali Collections Grand Opening Poster 2.jpg.jpg',
+        thumb: 'Graphical designs/3d space GD/Freshh Ganesh Chaturthi Poster.jpg.jpeg',
         url: 'Graphical designs/Kulali Collections Grand Opening Poster 2.jpg.jpeg'
       },
       {
@@ -429,7 +429,7 @@ export const PROJECTS: Project[] = [
         type: 'view',
         meta: 'EDITORIAL',
         src: 'Graphical designs/web/RUKS-Magazine Quarter Page (2).jpg.jpg',
-        thumb: 'Graphical designs/thumbs/RUKS-Magazine Quarter Page (2).jpg.jpg',
+        thumb: 'Graphical designs/3d space GD/4x1.5 Vinyl Consultation Room (2).jpg.jpeg',
         url: 'Graphical designs/RUKS-Magazine Quarter Page (2).jpg.jpeg'
       },
       {
@@ -453,7 +453,7 @@ export const PROJECTS: Project[] = [
         type: 'view',
         meta: 'POSTER',
         src: 'Graphical designs/web/Summer Tennis Coaching 2025 2.jpg.jpg',
-        thumb: 'Graphical designs/thumbs/Summer Tennis Coaching 2025 2.jpg.jpg',
+        thumb: 'Graphical designs/3d space GD/4x3 Vinyl Glass.jpg.jpeg',
         url: 'Graphical designs/Summer Tennis Coaching 2025 2.jpg.jpeg'
       },
       {
@@ -669,7 +669,7 @@ export const PROJECTS: Project[] = [
     category: 'Graphic Design',
     short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
     description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
-    thumb: 'Graphical designs/thumbs/Summer Tennis Coaching 2025 2.jpg.jpg',
+    thumb: 'Graphical designs/3d space GD/4x3 Vinyl Glass.jpg.jpeg',
     mediaKind: 'image',
     items: [
       {
@@ -726,7 +726,7 @@ export const PROJECTS: Project[] = [
     category: 'Graphic Design',
     short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
     description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
-    thumb: 'Graphical designs/thumbs/Kulali Collections Grand Opening Poster 2.jpg.jpg',
+    thumb: 'Graphical designs/3d space GD/Freshh Ganesh Chaturthi Poster.jpg.jpeg',
     mediaKind: 'image',
     items: [
       {
@@ -783,7 +783,7 @@ export const PROJECTS: Project[] = [
     category: 'Graphic Design',
     short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
     description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
-    thumb: 'Graphical designs/thumbs/Freshh Diwali Poster 02.jpg.jpg',
+    thumb: 'Graphical designs/3d space GD/Freshh Ayudha Puja Poster.jpg.jpeg',
     mediaKind: 'image',
     items: [
       {
@@ -880,7 +880,7 @@ export const PROJECTS: Project[] = [
     category: 'Graphic Design',
     short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
     description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
-    thumb: 'Graphical designs/thumbs/RUKS-Magazine Quarter Page (2).jpg.jpg',
+    thumb: 'Graphical designs/3d space GD/4x1.5 Vinyl Consultation Room (2).jpg.jpeg',
     mediaKind: 'image',
     items: [
       {
@@ -974,11 +974,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'urban-velocity',
     slot: 2,
-    title: 'URBAN VELOCITY',
-    category: 'Video',
-    short: 'FPV drone tracking through narrow alleys and elevated highway lines.',
-    description: 'High-speed FPV tracking cut focusing on spatial rhythm and kinetic motion.',
-    thumb: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?q=80&w=800&auto=format&fit=crop',
+    title: 'GRAPHICAL DESIGN',
+    category: 'Graphic Design',
+    short: 'Commercial print banners, typography posters, event creatives, and branding signage.',
+    description: 'Comprehensive showcase of professional graphic design work spanning medical clinic branding, corporate events, retail inaugurations, festival creatives, and large-format architectural signage.',
+    thumb: 'Graphical designs/3d space GD/New Year Poster 02 With.F.jpg.jpeg',
     mediaKind: 'image',
     targetSlug: 'graphical-design'
   },
