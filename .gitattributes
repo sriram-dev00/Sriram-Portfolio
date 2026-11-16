@@ -1,0 +1,2 @@
+Ui[[:space:]]and[[:space:]]ux[[:space:]]design/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+public/Ui[[:space:]]and[[:space:]]ux[[:space:]]design/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
