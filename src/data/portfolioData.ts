@@ -482,13 +482,13 @@ export const PROJECTS: Project[] = [
     short: 'Interactive systems, digital product design, and cohesive user experience flows.',
     description: 'Comprehensive UI/UX design showcase featuring the Luminal HR ecosystem and digital product design — covering interactive prototypes, company management, and responsive systems.',
     moreInfo: 'Process: problem analysis → user flows → wireframes → high-fidelity Figma UI → interactive prototypes.',
-    thumb: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png',
+    thumb: 'Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg',
     indexThumb: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png',
     mediaKind: 'video',
     media: {
       type: 'video',
       src: 'Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4',
-      poster: 'Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png'
+      poster: 'Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg'
     },
     items: [
       {
@@ -496,7 +496,7 @@ export const PROJECTS: Project[] = [
         type: "play",
         meta: "Video",
         src: "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4",
-        thumb: "Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png",
+        thumb: "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
         url: "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4"
       },
       {
@@ -504,7 +504,7 @@ export const PROJECTS: Project[] = [
         type: "play",
         meta: "Video",
         src: "Ui and ux design/ui & ux design videos/portfolio design/Portfolio Preview.mp4",
-        thumb: "Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png",
+        thumb: "Ui and ux design/3d space uiux/uiux-portfolio-preview-16x9.jpg",
         url: "Ui and ux design/ui & ux design videos/portfolio design/Portfolio Preview.mp4"
       }
     ]
@@ -584,16 +584,49 @@ export const PROJECTS: Project[] = [
     category: 'Design & Typography',
     short: 'Modern graphic systems, editorial layouts, and kinetic typography.',
     description: 'Contemporary exploration of visual hierarchy, spatial tension, grid systems, and expressive typography.',
-    thumb: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Modern Design and Typography/Asal Clothing Brand(அசல்)Modern Typo.png',
+    indexThumb: 'Modern Design and Typography/Asal Clothing Brand(அசல்)Modern Typo.png',
     mediaKind: 'image',
     items: [
       {
-        title: "Modern Design & Typography Exploration",
-        type: "play",
-        meta: "0:00",
-        src: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
-        thumb: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
-        url: "#"
+        title: "Asal Clothing Brand (அசல்) Modern Typo",
+        type: "view",
+        meta: "Modern Typography",
+        src: "Modern Design and Typography/Asal Clothing Brand(அசல்)Modern Typo.png",
+        thumb: "Modern Design and Typography/Asal Clothing Brand(அசல்)Modern Typo.png",
+        url: "Modern Design and Typography/Asal Clothing Brand(அசல்)Modern Typo.png"
+      },
+      {
+        title: "Fitro Brand Presentation",
+        type: "view",
+        meta: "Brand Presentation",
+        src: "Modern Design and Typography/fitro_brand_presentation.jpg",
+        thumb: "Modern Design and Typography/fitro_brand_presentation.jpg",
+        url: "Modern Design and Typography/fitro_brand_presentation.jpg"
+      },
+      {
+        title: "Fitro Logo Branding",
+        type: "view",
+        meta: "Brand Identity",
+        src: "Modern Design and Typography/fitro_logo_4x3.jpeg",
+        thumb: "Modern Design and Typography/fitro_logo_4x3.jpeg",
+        url: "Modern Design and Typography/fitro_logo_4x3.jpeg"
+      },
+      {
+        title: "Team Never Enough Motorsport (MS) Typo",
+        type: "view",
+        meta: "Motorsport Typography",
+        src: "Modern Design and Typography/Team Never Enough Ms(Moto Sport) Typo.png",
+        thumb: "Modern Design and Typography/Team Never Enough Ms(Moto Sport) Typo.png",
+        url: "Modern Design and Typography/Team Never Enough Ms(Moto Sport) Typo.png"
+      },
+      {
+        title: "சுவை (Suvai Restaurant) Modern Typo",
+        type: "view",
+        meta: "Culinary Typography",
+        src: "Modern Design and Typography/சுவை(Suvai restuarant ) Modern Typo.png",
+        thumb: "Modern Design and Typography/சுவை(Suvai restuarant ) Modern Typo.png",
+        url: "Modern Design and Typography/சுவை(Suvai restuarant ) Modern Typo.png"
       }
     ]
   },
@@ -620,45 +653,45 @@ export const PROJECTS: Project[] = [
   {
     slug: 'hr-admin-flow',
     slot: 7,
-    title: 'UI AND UX DESIGN',
+    title: 'PEOPLE FLOW — HR ADMIN',
     category: 'UI/UX',
     short: 'How an HR admin manages policy, compliance, and headcount.',
     description: 'Comprehensive administrative UI workflow covering employee records and compliance.',
-    thumb: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Ui and ux design/3d space uiux/uiux-hr-admin-flow-16x9.jpg',
     mediaKind: 'image',
     media: {
       type: 'image',
-      src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop'
+      src: 'Ui and ux design/3d space uiux/uiux-hr-admin-flow-16x9.jpg'
     },
     targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'manager-flow',
     slot: 28,
-    title: 'UI AND UX DESIGN',
+    title: 'PEOPLE FLOW — MANAGER DASHBOARD',
     category: 'UI/UX',
     short: 'Overseeing team performance, leave, and hiring in one view.',
     description: 'Clean manager overview portal balancing quick actions and team telemetry.',
-    thumb: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Ui and ux design/3d space uiux/uiux-manager-flow-16x9.jpg',
     mediaKind: 'image',
     media: {
       type: 'image',
-      src: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=800&auto=format&fit=crop'
+      src: 'Ui and ux design/3d space uiux/uiux-manager-flow-16x9.jpg'
     },
     targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'employee-flow',
     slot: 20,
-    title: 'UI AND UX DESIGN',
+    title: 'PEOPLE FLOW — EMPLOYEE PORTAL',
     category: 'UI/UX',
     short: 'Self-service profile, leave requests, and career growth.',
     description: 'Mobile-first self service interface designed for seamless employee onboarding.',
-    thumb: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Ui and ux design/3d space uiux/uiux-employee-flow-16x9.jpg',
     mediaKind: 'image',
     media: {
       type: 'image',
-      src: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=800&auto=format&fit=crop'
+      src: 'Ui and ux design/3d space uiux/uiux-employee-flow-16x9.jpg'
     },
     targetSlug: 'ui-and-ux-design'
   },
@@ -996,11 +1029,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'aperture-study',
     slot: 3,
-    title: 'APERTURE STUDY',
-    category: 'Cinematography',
-    short: 'Color density and depth of field experiments on anamorphic glass.',
-    description: 'Technical visual exploration of optical aberrations and anamorphic flare rendering.',
-    thumb: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
+    title: 'FITRO — BRAND PRESENTATION',
+    category: 'Brand Design',
+    short: 'Comprehensive brand identity presentation and visual identity design.',
+    description: 'Comprehensive brand identity presentation and visual identity design.',
+    thumb: 'Modern Design and Typography/fitro_brand_presentation.jpg',
     mediaKind: 'image',
     targetSlug: 'modern-design-and-typography'
   },
@@ -1029,22 +1062,22 @@ export const PROJECTS: Project[] = [
   {
     slug: 'telemetry-dashboard',
     slot: 16,
-    title: 'TELEMETRY DASHBOARD',
+    title: 'PORTFOLIO PREVIEW — DESIGN SYSTEM',
     category: 'UI/UX',
     short: 'Data dense performance dashboard designed for high-refresh telemetry displays.',
     description: 'Enterprise telemetry design system prioritizing instant cognitive clarity under pressure.',
-    thumb: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop',
+    thumb: 'Ui and ux design/3d space uiux/uiux-portfolio-preview-16x9.jpg',
     mediaKind: 'image',
     targetSlug: 'ui-and-ux-design'
   },
   {
     slug: 'atmospheric-foley',
     slot: 14,
-    title: 'ATMOSPHERIC FOLEY',
-    category: 'Sound Design',
-    short: 'Field recording acoustic captures in brutalist concrete architectures.',
-    description: 'Environmental acoustic sampling exploring natural reverberation in empty spaces.',
-    thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop',
+    title: 'TNE MOTORSPORT — TYPO',
+    category: 'Modern Typography',
+    short: 'High-impact typographic layout and motorsport identity poster.',
+    description: 'High-impact typographic layout and motorsport identity poster.',
+    thumb: 'Modern Design and Typography/Team Never Enough Ms(Moto Sport) Typo.png',
     mediaKind: 'image',
     targetSlug: 'modern-design-and-typography'
   },
@@ -1062,11 +1095,11 @@ export const PROJECTS: Project[] = [
   {
     slug: 'lighting-architecture',
     slot: 19,
-    title: 'LIGHTING ARCHITECTURE',
-    category: 'Cinematography',
-    short: 'Volumetric haze and negative fill studies on soundstage sets.',
-    description: 'Studio lighting architecture diagrams and practical fixture placement study.',
-    thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
+    title: 'SUVAI RESTAURANT — MODERN TYPO',
+    category: 'Modern Typography',
+    short: 'Cultural and modern typographic composition for culinary branding.',
+    description: 'Cultural and modern typographic composition for culinary branding.',
+    thumb: 'Modern Design and Typography/சுவை(Suvai restuarant ) Modern Typo.png',
     mediaKind: 'image',
     targetSlug: 'modern-design-and-typography'
   },
