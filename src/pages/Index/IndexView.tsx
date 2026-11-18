@@ -80,7 +80,7 @@ export const IndexView: React.FC = () => {
                   }
                 }}
               >
-                <span className="n">{String(i + 1).padStart(3, '0')}</span>
+                <span className="n">{String(i + 1).padStart(3, '0').split('').join(' ')}</span>
                 <span className="name">{p.title}</span>
               </div>
             );

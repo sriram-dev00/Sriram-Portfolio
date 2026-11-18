@@ -2015,7 +2015,7 @@
     }
 
     // Top projects for orbit cards in Section 3
-    const orbitSlugs = ['team-never-enough', 'ui-and-ux-design', 'promotion-videos', 'graphical-design', 'modern-design-and-typography', 'reel-2026'];
+    const orbitSlugs = ['team-never-enough', 'ui-and-ux-design', 'promotion-videos', 'graphical-design', 'modern-design-and-typography', 'creative-direction'];
     const orbitProjects = orbitSlugs.map(slug => PROJECTS.find(p => p.slug === slug)).filter(Boolean);
     const orbitCardsHTML = orbitProjects.map((p, i) => {
       const thumb = p.thumb || (p.media && p.media.src) || '';

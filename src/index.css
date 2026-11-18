@@ -2400,9 +2400,11 @@ body.project-active .index-toggle,
   .proj-video-stage {
     padding: 0 44px;
   }
+
   .proj-video-stage .proj-media.is-video video {
     max-height: 52vh;
   }
+
   .o-about-section-indicator {
     right: 18px;
   }
@@ -4294,9 +4296,11 @@ body.in-gate-state .tile {
   .proj-video-stage {
     padding: 0 34px;
   }
+
   .proj-video-stage .proj-media.is-video video {
     max-height: 40vh;
   }
+
   .proj-stage-container {
     padding: 0 34px;
     min-height: 38vh;
