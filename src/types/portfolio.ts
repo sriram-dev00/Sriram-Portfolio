@@ -5,6 +5,7 @@ export interface ProjectItem {
   src?: string;
   url?: string;
   thumb?: string;
+  poster?: string;
 }
 
 export interface ProjectMedia {

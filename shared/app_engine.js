@@ -1279,15 +1279,10 @@
       </button>
       <div class="index-hover-preview" id="indexHoverPreview" aria-hidden="true">
         <div class="index-preview-card" id="indexPreviewCard">
-          <div class="index-preview-layer active" id="previewLayerA">
-            <img class="index-preview-media img" alt="" />
+          <div class="index-preview-foreground-wrapper">
+            <img class="index-preview-media img" alt="" style="display:none;" />
             <video class="index-preview-media vid" autoplay loop muted playsinline style="display:none;"></video>
           </div>
-          <div class="index-preview-layer" id="previewLayerB">
-            <img class="index-preview-media img" alt="" />
-            <video class="index-preview-media vid" autoplay loop muted playsinline style="display:none;"></video>
-          </div>
-          <div class="index-preview-glare" id="previewGlare"></div>
         </div>
       </div>
       <div class="index-page-inner">
@@ -1297,10 +1292,11 @@
         ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0].src || p.images[0].thumb || ''))
         : '';
       const bgSrc = p.indexThumb || p.thumb || firstImg || (p.media ? p.media.src : '');
+      const poster = (p.media && p.media.poster) || p.thumb || '';
       const isVid = Boolean(bgSrc && (bgSrc.endsWith('.mp4') || bgSrc.endsWith('.webm')));
       const numSpaced = String(i + 1).padStart(3, '0').split('').join(' ');
       return `
-              <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-is-vid="${isVid ? 'true' : 'false'}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}" style="animation-delay: ${i * 38}ms;">
+              <div class="row" data-slug="${p.slug}" data-bg="${bgSrc}" data-poster="${poster}" data-is-vid="${isVid ? 'true' : 'false'}" data-index="${i}" data-cursor="Open" role="button" tabindex="0" aria-label="Open project ${p.title}" style="animation-delay: ${i * 38}ms;">
                 <span class="n">${numSpaced}</span>
                 <span class="name">${p.title}</span>
               </div>
@@ -1329,42 +1325,76 @@
     let activeRow = null;
     let currentLayerName = 'a';
     let currentLoadedSlug = null;
+    let selectedRowIdx = -1;
 
-    function setCardMedia(bgSrc, isVid, slug) {
+    const allIndexProjects = getIndexProjects();
+    function preloadAdjacent(idx) {
+      if (!allIndexProjects.length) return;
+      const nextIdx = (idx + 1) % allIndexProjects.length;
+      const prevIdx = (idx - 1 + allIndexProjects.length) % allIndexProjects.length;
+      [nextIdx, prevIdx].forEach(i => {
+        const p = allIndexProjects[i];
+        if (!p) return;
+        const firstImg = (Array.isArray(p.images) && p.images.length > 0)
+          ? (typeof p.images[0] === 'string' ? p.images[0] : (p.images[0].src || p.images[0].thumb || ''))
+          : '';
+        const src = p.indexThumb || p.thumb || firstImg || (p.media ? p.media.src : '');
+        if (src && !src.endsWith('.mp4') && !src.endsWith('.webm')) {
+          const img = new Image();
+          img.src = src;
+        }
+      });
+    }
+
+    const fgImg = previewCard ? previewCard.querySelector('.index-preview-media.img') : null;
+    const fgVid = previewCard ? previewCard.querySelector('.index-preview-media.vid') : null;
+
+    function setCardMedia(bgSrc, isVid, slug, poster) {
       if (!bgSrc || !previewCard) return;
       if (slug && slug === currentLoadedSlug) return;
       currentLoadedSlug = slug;
 
-      const nextLayerName = currentLayerName === 'a' ? 'b' : 'a';
-      const currentLayer = previewCard.querySelector(`#previewLayer${currentLayerName.toUpperCase()}`);
-      const nextLayer = previewCard.querySelector(`#previewLayer${nextLayerName.toUpperCase()}`);
-      const glare = previewCard.querySelector('#previewGlare');
-
-      if (!nextLayer) return;
-
-      const nextImg = nextLayer.querySelector('.img');
-      const nextVid = nextLayer.querySelector('.vid');
-
-      if (isVid && nextVid) {
-        nextVid.src = bgSrc;
-        nextVid.style.display = 'block';
-        if (nextImg) nextImg.style.display = 'none';
-      } else if (nextImg) {
-        nextImg.src = bgSrc;
-        nextImg.style.display = 'block';
-        if (nextVid) nextVid.style.display = 'none';
+      if (isVid) {
+        if (fgVid) {
+          fgVid.src = bgSrc;
+          if (poster) fgVid.poster = poster;
+          fgVid.style.display = 'block';
+          fgVid.currentTime = 0;
+          fgVid.play().catch(() => {});
+        }
+        if (fgImg) {
+          fgImg.style.display = 'none';
+          fgImg.removeAttribute('src');
+        }
+      } else {
+        if (fgVid) {
+          fgVid.pause();
+          fgVid.style.display = 'none';
+          fgVid.removeAttribute('src');
+        }
+        if (fgImg) {
+          fgImg.src = bgSrc;
+          fgImg.style.display = 'block';
+        }
       }
+    }
 
-      // Simple, smooth crossfade transition between text hover changes
-      nextLayer.classList.remove('outgoing');
-      nextLayer.classList.add('active');
-
-      if (currentLayer) {
-        currentLayer.classList.remove('active');
-        currentLayer.classList.add('outgoing');
+    function hidePreview() {
+      activeRow = null;
+      currentLoadedSlug = null;
+      selectedRowIdx = -1;
+      if (indexList) indexList.classList.remove('has-hover');
+      indexV.querySelectorAll('.row').forEach(r => r.classList.remove('is-hovered'));
+      if (previewWrap) previewWrap.classList.remove('visible');
+      if (fgVid) {
+        fgVid.pause();
+        fgVid.style.display = 'none';
+        fgVid.removeAttribute('src');
       }
-
-      currentLayerName = nextLayerName;
+      if (fgImg) {
+        fgImg.style.display = 'none';
+        fgImg.removeAttribute('src');
+      }
     }
 
     function renderPreviewFrame() {
@@ -1408,16 +1438,51 @@
       targetY = Math.max(20, Math.min(window.innerHeight - cardH - 20, rawTargetY));
     }
 
-    indexV.querySelectorAll('.row[data-slug]').forEach(row => {
+    const rows = Array.from(indexV.querySelectorAll('.row[data-slug]'));
+
+    function selectRowByIndex(idx) {
+      if (idx < 0 || idx >= rows.length) return;
+      selectedRowIdx = idx;
+      const targetRow = rows[idx];
+      activeRow = targetRow;
+      rows.forEach(r => r.classList.remove('is-hovered'));
+      targetRow.classList.add('is-hovered');
+      if (indexList) indexList.classList.add('has-hover');
+
+      const bgSrc = targetRow.dataset.bg;
+      const isVid = targetRow.dataset.isVid === 'true';
+      const poster = targetRow.dataset.poster || '';
+      setCardMedia(bgSrc, isVid, targetRow.dataset.slug, poster);
+
+      updateCardCoordinates(targetRow);
+
+      if (previewWrap && !previewWrap.classList.contains('visible')) {
+        currentX = targetX;
+        currentY = targetY;
+      }
+
+      if (previewWrap) previewWrap.classList.add('visible');
+
+      if (!indexPreviewRafId) {
+        indexPreviewRafId = requestAnimationFrame(renderPreviewFrame);
+      }
+
+      preloadAdjacent(idx);
+      targetRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    rows.forEach((row, i) => {
       row.addEventListener('mouseenter', (e) => {
         activeRow = row;
-        indexV.querySelectorAll('.row').forEach(r => r.classList.remove('is-hovered'));
+        selectedRowIdx = i;
+        rows.forEach(r => r.classList.remove('is-hovered'));
         row.classList.add('is-hovered');
         if (indexList) indexList.classList.add('has-hover');
 
         const bgSrc = row.dataset.bg;
         const isVid = row.dataset.isVid === 'true';
-        setCardMedia(bgSrc, isVid, row.dataset.slug);
+        const poster = row.dataset.poster || '';
+        setCardMedia(bgSrc, isVid, row.dataset.slug, poster);
 
         updateCardCoordinates(row, e.clientX, e.clientY);
 
@@ -1432,6 +1497,8 @@
         if (!indexPreviewRafId) {
           indexPreviewRafId = requestAnimationFrame(renderPreviewFrame);
         }
+
+        preloadAdjacent(i);
       });
 
       row.addEventListener('mousemove', (e) => {
@@ -1460,25 +1527,45 @@
       }
     });
 
-    if (indexList && previewWrap) {
-      indexList.addEventListener('mouseleave', () => {
-        activeRow = null;
-        currentLoadedSlug = null;
-        indexList.classList.remove('has-hover');
-        indexV.querySelectorAll('.row').forEach(r => r.classList.remove('is-hovered'));
-        previewWrap.classList.remove('visible');
-      });
+    if (indexList) {
+      indexList.addEventListener('mouseleave', hidePreview);
     }
 
-    if (inner && previewWrap) {
+    if (inner) {
+      inner.addEventListener('mouseleave', hidePreview);
       inner.addEventListener('scroll', () => {
         if (activeRow) {
           updateCardCoordinates(activeRow);
         } else {
-          previewWrap.classList.remove('visible');
+          hidePreview();
         }
       }, { passive: true });
     }
+
+    indexV.addEventListener('mouseleave', hidePreview);
+
+    const handleIndexKeyNav = (e) => {
+      if (activeView !== 'index') return;
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = (selectedRowIdx + 1) % rows.length;
+        selectRowByIndex(next);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = (selectedRowIdx - 1 + rows.length) % rows.length;
+        selectRowByIndex(prev);
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        if (selectedRowIdx >= 0 && selectedRowIdx < rows.length) {
+          e.preventDefault();
+          go('project', rows[selectedRowIdx].dataset.slug);
+        }
+      } else if (e.key === 'Escape') {
+        go('space');
+      }
+    };
+    window.addEventListener('keydown', handleIndexKeyNav);
   }
 
   function setupProjectView(slug) {
@@ -1495,12 +1582,14 @@
     const projIndex = PROJECTS.findIndex(item => item.slug === p.slug);
     const nextProj = PROJECTS[(projIndex + 1) % PROJECTS.length];
 
+    const allItems = p.items || [];
     const mediaSrc = (p.media && p.media.src) ? p.media.src : (p.thumb || '');
-    const isVideo = (p.media && p.media.type === 'video') || p.thumbType === 'video' || (mediaSrc && mediaSrc.endsWith('.mp4'));
+    const isProjectAllVideo = allItems.length > 0 && allItems.every(it => it.type === 'play' || (it.src && it.src.endsWith('.mp4')));
+    const isVideo = isProjectAllVideo || (allItems.length === 0 && ((p.media && p.media.type === 'video') || p.thumbType === 'video' || (mediaSrc && mediaSrc.endsWith('.mp4'))));
 
-    const imageItems = !isVideo ? (p.items || []).filter(it => it.src || it.url || it.type === 'view') : [];
+    const imageItems = !isVideo ? allItems : [];
     const isCarousel = imageItems.length > 1;
-    const videoItems = isVideo ? (p.items || []).filter(it => it.src || it.url || it.type === 'play') : [];
+    const videoItems = isVideo ? allItems : [];
 
     const mediaHTML = isVideo
       ? `<video src="${mediaSrc}" controls autoplay loop muted playsinline poster="${p.media ? p.media.poster || '' : ''}"></video>`
@@ -1516,40 +1605,45 @@
 
       mediaSectionHTML = `
         <div class="proj-stage-container">
-          <button class="proj-carousel-arrow prev-arrow" aria-label="Previous image" data-cursor="Prev">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-          </button>
+          <div class="proj-stage-wrapper">
+            <button class="proj-carousel-arrow prev-arrow" aria-label="Previous image" data-cursor="Prev">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
 
-          <div class="proj-stage-track">
-            <div class="proj-stage-card stage-card-prev" title="Previous: ${prevItem.title}">
-              <img src="${prevItem.thumb || prevItem.src || prevItem.url}" alt="${prevItem.title}" />
-              <span class="stage-card-label">${prevItem.title}</span>
-            </div>
-
-            <div class="proj-stage-card stage-card-center">
-              <div class="proj-media" title="Click to view full image in new tab">
-                <img src="${curItem.src || curItem.url || mediaSrc}" alt="${curItem.title || p.title}" />
-                <span class="play-label">VIEW MEDIA</span>
+            <div class="proj-stage-track">
+              <div class="proj-stage-card stage-card-prev" title="Previous: ${prevItem.title}">
+                <img src="${prevItem.thumb || prevItem.src || prevItem.url}" alt="${prevItem.title}" />
               </div>
-              <div class="proj-media-caption">
-                <span class="proj-media-counter">01 / ${String(imageItems.length).padStart(2, '0')}</span>
-                <span class="proj-media-title">${curItem.title || p.title}</span>
+
+              <div class="proj-stage-card stage-card-center">
+                <div class="proj-media" title="Click to view full image in new tab">
+                  <img class="proj-media-backdrop" src="${curItem.src || curItem.url || mediaSrc}" alt="" aria-hidden="true" />
+                  <img class="proj-media-sharp" src="${curItem.src || curItem.url || mediaSrc}" alt="${curItem.title || p.title}" />
+                  <span class="proj-view-media-pill">VIEW MEDIA</span>
+                </div>
+              </div>
+
+              <div class="proj-stage-card stage-card-next" title="Next: ${nextItem.title}">
+                <img src="${nextItem.thumb || nextItem.src || nextItem.url}" alt="${nextItem.title}" />
               </div>
             </div>
 
-            <div class="proj-stage-card stage-card-next" title="Next: ${nextItem.title}">
-              <img src="${nextItem.thumb || nextItem.src || nextItem.url}" alt="${nextItem.title}" />
-              <span class="stage-card-label">${nextItem.title}</span>
-            </div>
+            <button class="proj-carousel-arrow next-arrow" aria-label="Next image" data-cursor="Next">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
           </div>
 
-          <button class="proj-carousel-arrow next-arrow" aria-label="Next image" data-cursor="Next">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
+          <div class="proj-media-caption">
+            <span class="proj-media-counter">01 / ${String(imageItems.length).padStart(2, '0')}</span>
+            <span class="proj-media-title">${curItem.title || p.title}</span>
+          </div>
+          <div class="proj-dot-nav">
+            ${imageItems.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-idx="${i}"></span>`).join('')}
+          </div>
         </div>
         <div class="proj-thumb-strip">
           ${imageItems.map((it, idx) => `
@@ -1564,40 +1658,75 @@
       const showArrows = videoItems.length > 1;
       mediaSectionHTML = `
         <div class="proj-video-stage">
-          ${showArrows ? `
-            <button class="proj-carousel-arrow prev-arrow" aria-label="Previous video" data-cursor="Prev" title="Previous video (←)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-          ` : ''}
+          <div class="proj-stage-wrapper">
+            ${showArrows ? `
+              <button class="proj-carousel-arrow prev-arrow" aria-label="Previous video" data-cursor="Prev" title="Previous video (←)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+            ` : ''}
 
-          <div class="proj-video-wrapper">
-            <div class="proj-media is-video">
-              <video src="${curItem.src || mediaSrc}" controls autoplay loop muted playsinline poster="${p.media ? p.media.poster || '' : ''}"></video>
-            </div>
-            ${videoItems.length > 0 ? `
-              <div class="proj-media-caption">
-                <span class="proj-media-counter">01 / ${String(videoItems.length).padStart(2, '0')}</span>
-                <span class="proj-media-title">${curItem.title || p.title}</span>
+            <div class="proj-stage-card stage-card-center proj-media is-video">
+              <div class="proj-video-player-frame">
+                <video class="proj-video-main" src="${curItem.src || mediaSrc}" preload="metadata" playsinline muted autoplay poster="${p.media ? p.media.poster || '' : ''}"></video>
+                <div class="proj-video-controls">
+                  <button class="proj-video-play-btn" aria-label="Play or pause">
+                    <svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg>
+                    <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" fill="currentColor"></rect><rect x="14" y="4" width="4" height="16" fill="currentColor"></rect></svg>
+                  </button>
+                  <div class="proj-video-timeline">
+                    <div class="proj-video-buffered" style="width: 0%;"></div>
+                    <div class="proj-video-progress" style="width: 0%;"></div>
+                    <div class="proj-video-handle" style="left: 0%;"></div>
+                  </div>
+                  <div class="proj-video-time">
+                    <span class="proj-time-cur">0:00</span>
+                    <span class="proj-video-time-sep">/</span>
+                    <span class="proj-time-dur">0:00</span>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            ${showArrows ? `
+              <button class="proj-carousel-arrow next-arrow" aria-label="Next video" data-cursor="Next" title="Next video (→)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
             ` : ''}
           </div>
 
-          ${showArrows ? `
-            <button class="proj-carousel-arrow next-arrow" aria-label="Next video" data-cursor="Next" title="Next video (→)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+          ${videoItems.length > 0 ? `
+            <div class="proj-media-caption">
+              <span class="proj-media-counter">01 / ${String(videoItems.length).padStart(2, '0')}</span>
+              <span class="proj-media-title">${curItem.title || p.title}</span>
+            </div>
+            ${videoItems.length > 1 ? `
+              <div class="proj-dot-nav">
+                ${videoItems.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-idx="${i}"></span>`).join('')}
+              </div>
+            ` : ''}
           ` : ''}
         </div>
       `;
     } else {
       mediaSectionHTML = `
-        <div class="proj-media">
-          ${mediaHTML}
-          <span class="play-label">VIEW MEDIA</span>
+        <div class="proj-stage-container proj-single-stage">
+          <div class="proj-stage-wrapper">
+            <div class="proj-stage-card stage-card-center">
+              <div class="proj-media">
+                <img class="proj-media-backdrop" src="${mediaSrc}" alt="" aria-hidden="true" />
+                <img class="proj-media-sharp" src="${mediaSrc}" alt="${p.title}" />
+                <span class="proj-view-media-pill">VIEW MEDIA</span>
+              </div>
+            </div>
+          </div>
+          <div class="proj-media-caption">
+            <span class="proj-media-counter">01 / 01</span>
+            <span class="proj-media-title">${p.title}</span>
+          </div>
         </div>
       `;
     }
@@ -1697,7 +1826,7 @@
       }
     }
 
-    function updateGallery(newIdx) {
+    function updateGallery(newIdx, dir = 'next') {
       if (!imageItems.length) return;
       currentGalleryIdx = (newIdx + imageItems.length) % imageItems.length;
       const cur = imageItems[currentGalleryIdx];
@@ -1705,49 +1834,56 @@
       const next = imageItems[(currentGalleryIdx + 1) % imageItems.length];
       const targetSrc = cur.src || cur.url || mediaSrc;
 
-      // Update Center Spotlight Image with instant, fluid transition
-      const centerImg = projV.querySelector('.stage-card-center .proj-media img') || projV.querySelector('.proj-media img');
-      if (centerImg) {
-        if (centerImg.src !== targetSrc) {
-          centerImg.style.opacity = '0.50';
-          centerImg.src = targetSrc;
-          centerImg.alt = cur.title || p.title;
-          requestAnimationFrame(() => {
-            centerImg.style.opacity = '1';
-          });
+      // Update Center Spotlight Image/Video with 400ms cross-fade and 20px horizontal slide
+      const isCurVideo = cur.type === 'play' || (targetSrc && (targetSrc.endsWith('.mp4') || targetSrc.endsWith('.webm')));
+      const centerMediaBox = projV.querySelector('.stage-card-center .proj-media');
+      if (centerMediaBox) {
+        if (isCurVideo) {
+          centerMediaBox.classList.add('is-video');
+          centerMediaBox.style.cursor = 'default';
+          centerMediaBox.innerHTML = `
+            <video class="proj-video-main" src="${targetSrc}" controls autoplay loop muted playsinline poster="${cur.poster || cur.thumb || ''}"></video>
+          `;
+        } else {
+          centerMediaBox.classList.remove('is-video');
+          centerMediaBox.style.cursor = 'pointer';
+          centerMediaBox.innerHTML = `
+            <img class="proj-media-backdrop" src="${targetSrc}" alt="" aria-hidden="true" />
+            <img class="proj-media-sharp ${dir === 'prev' ? 'slide-enter-prev' : 'slide-enter-next'}" src="${targetSrc}" alt="${cur.title || p.title}" decoding="async" />
+            <span class="proj-view-media-pill">VIEW MEDIA</span>
+          `;
+          const pill = centerMediaBox.querySelector('.proj-view-media-pill');
+          if (pill) {
+            pill.addEventListener('click', (e) => {
+              e.stopPropagation();
+              window.open(targetSrc, '_blank', 'noopener,noreferrer');
+            });
+          }
         }
       }
 
       // Update Prev Side Card
       const prevCardImg = projV.querySelector('.stage-card-prev img');
-      const prevCardLabel = projV.querySelector('.stage-card-prev .stage-card-label');
       if (prevCardImg && prev) {
         prevCardImg.src = prev.thumb || prev.src || prev.url;
         prevCardImg.alt = prev.title || '';
       }
-      if (prevCardLabel && prev) {
-        prevCardLabel.textContent = prev.title || '';
-      }
 
       // Update Next Side Card
       const nextCardImg = projV.querySelector('.stage-card-next img');
-      const nextCardLabel = projV.querySelector('.stage-card-next .stage-card-label');
       if (nextCardImg && next) {
         nextCardImg.src = next.thumb || next.src || next.url;
         nextCardImg.alt = next.title || '';
       }
-      if (nextCardLabel && next) {
-        nextCardLabel.textContent = next.title || '';
-      }
 
-      // Preload next/prev images in background for instant responsiveness
+      // Preload next/prev images in background for native resolution instant responsiveness
       preloadNearby(currentGalleryIdx);
 
-      const counterEl = projV.querySelector('.proj-media-counter');
+      const counterEl = projV.querySelector('.proj-media-caption .proj-media-counter');
       if (counterEl) {
         counterEl.textContent = `${String(currentGalleryIdx + 1).padStart(2, '0')} / ${String(imageItems.length).padStart(2, '0')}`;
       }
-      const titleEl = projV.querySelector('.proj-media-title');
+      const titleEl = projV.querySelector('.proj-media-caption .proj-media-title');
       if (titleEl) {
         titleEl.textContent = cur.title || p.title;
       }
@@ -1756,6 +1892,9 @@
         if (ci === currentGalleryIdx) {
           card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
+      });
+      projV.querySelectorAll('.proj-dot-nav .dot').forEach((d, di) => {
+        d.classList.toggle('active', di === currentGalleryIdx);
       });
       projV.querySelectorAll('.track-row').forEach((r, ri) => {
         r.classList.toggle('is-playing', ri === currentGalleryIdx);
@@ -1767,7 +1906,7 @@
       if (prevBtn) {
         prevBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          updateGallery(currentGalleryIdx - 1);
+          updateGallery(currentGalleryIdx - 1, 'prev');
         });
       }
 
@@ -1775,7 +1914,7 @@
       if (nextBtn) {
         nextBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          updateGallery(currentGalleryIdx + 1);
+          updateGallery(currentGalleryIdx + 1, 'next');
         });
       }
 
@@ -1783,7 +1922,7 @@
       if (prevSideCard) {
         prevSideCard.addEventListener('click', (e) => {
           e.stopPropagation();
-          updateGallery(currentGalleryIdx - 1);
+          updateGallery(currentGalleryIdx - 1, 'prev');
         });
       }
 
@@ -1791,7 +1930,7 @@
       if (nextSideCard) {
         nextSideCard.addEventListener('click', (e) => {
           e.stopPropagation();
-          updateGallery(currentGalleryIdx + 1);
+          updateGallery(currentGalleryIdx + 1, 'next');
         });
       }
 
@@ -1799,50 +1938,218 @@
         card.addEventListener('click', (e) => {
           e.stopPropagation();
           const idx = parseInt(card.dataset.idx, 10);
-          updateGallery(idx);
+          updateGallery(idx, idx > currentGalleryIdx ? 'next' : 'prev');
         });
       });
 
-      const mediaBox = projV.querySelector('.proj-media');
+      projV.querySelectorAll('.proj-dot-nav .dot').forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(dot.dataset.idx, 10);
+          updateGallery(idx, idx > currentGalleryIdx ? 'next' : 'prev');
+        });
+      });
+
+      const mediaBox = projV.querySelector('.stage-card-center .proj-media');
       if (mediaBox && !isVideo) {
         mediaBox.addEventListener('click', () => {
+          if (mediaBox.classList.contains('is-video')) return;
           const cur = imageItems[currentGalleryIdx] || {};
           const fullSrc = cur.src || cur.url || mediaSrc;
           if (fullSrc) window.open(fullSrc, '_blank', 'noopener,noreferrer');
         });
       }
 
+      // Touch swipe for mobile carousel
+      const stageContainer = projV.querySelector('.proj-stage-container');
+      if (stageContainer) {
+        let touchStartX = null;
+        stageContainer.addEventListener('touchstart', (e) => {
+          touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+        stageContainer.addEventListener('touchend', (e) => {
+          if (touchStartX === null) return;
+          const delta = e.changedTouches[0].clientX - touchStartX;
+          if (delta > 40) updateGallery(currentGalleryIdx - 1, 'prev');
+          else if (delta < -40) updateGallery(currentGalleryIdx + 1, 'next');
+          touchStartX = null;
+        }, { passive: true });
+      }
+
       const handleKeyNav = (e) => {
         if (activeView !== 'project') return;
-        if (e.key === 'ArrowLeft') updateGallery(currentGalleryIdx - 1);
-        if (e.key === 'ArrowRight') updateGallery(currentGalleryIdx + 1);
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        if (e.key === 'ArrowLeft') updateGallery(currentGalleryIdx - 1, 'prev');
+        if (e.key === 'ArrowRight') updateGallery(currentGalleryIdx + 1, 'next');
       };
       window.addEventListener('keydown', handleKeyNav);
     }
 
     let currentVideoIdx = 0;
+    const formatVideoTime = (sec) => {
+      if (!sec || isNaN(sec)) return '0:00';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
+    function setupCustomVideoPlayer() {
+      const videoEl = projV.querySelector('.proj-video-player-frame video.proj-video-main') || projV.querySelector('.proj-video-player-frame video:not(.proj-media-backdrop)') || projV.querySelector('.proj-video-player-frame video');
+      if (!videoEl) return;
+
+      const playBtn = projV.querySelector('.proj-video-play-btn');
+      const iconPlay = playBtn ? playBtn.querySelector('.icon-play') : null;
+      const iconPause = playBtn ? playBtn.querySelector('.icon-pause') : null;
+      const timelineEl = projV.querySelector('.proj-video-timeline');
+      const progEl = projV.querySelector('.proj-video-progress');
+      const buffEl = projV.querySelector('.proj-video-buffered');
+      const handEl = projV.querySelector('.proj-video-handle');
+      const timeCurEl = projV.querySelector('.proj-time-cur');
+      const timeDurEl = projV.querySelector('.proj-time-dur');
+      const controlsEl = projV.querySelector('.proj-video-controls');
+
+      let vAnimId = null;
+      const tick = () => {
+        if (videoEl && videoEl.duration) {
+          const cur = videoEl.currentTime;
+          const dur = videoEl.duration;
+          const pct = (cur / dur) * 100;
+          if (progEl) progEl.style.width = `${pct}%`;
+          if (handEl) handEl.style.left = `${pct}%`;
+          if (timeCurEl) timeCurEl.textContent = formatVideoTime(cur);
+          if (timeDurEl) timeDurEl.textContent = formatVideoTime(dur);
+          if (videoEl.buffered.length > 0 && buffEl) {
+            const bPct = (videoEl.buffered.end(videoEl.buffered.length - 1) / dur) * 100;
+            buffEl.style.width = `${bPct}%`;
+          }
+        }
+        if (videoEl && !videoEl.paused && !videoEl.ended) {
+          vAnimId = requestAnimationFrame(tick);
+        }
+      };
+
+      const togglePlay = () => {
+        if (videoEl.paused) {
+          videoEl.play().catch(() => {});
+        } else {
+          videoEl.pause();
+        }
+      };
+
+      if (playBtn) {
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          togglePlay();
+        });
+      }
+
+      videoEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePlay();
+      });
+
+      videoEl.addEventListener('play', () => {
+        if (iconPlay) iconPlay.style.display = 'none';
+        if (iconPause) iconPause.style.display = 'block';
+        vAnimId = requestAnimationFrame(tick);
+      });
+
+      videoEl.addEventListener('pause', () => {
+        if (iconPlay) iconPlay.style.display = 'block';
+        if (iconPause) iconPause.style.display = 'none';
+        if (vAnimId) cancelAnimationFrame(vAnimId);
+      });
+
+      videoEl.addEventListener('loadedmetadata', () => {
+        if (timeDurEl) timeDurEl.textContent = formatVideoTime(videoEl.duration);
+        if (timeCurEl) timeCurEl.textContent = formatVideoTime(videoEl.currentTime);
+      });
+
+      videoEl.addEventListener('progress', () => {
+        if (videoEl.duration && videoEl.buffered.length > 0 && buffEl) {
+          const bPct = (videoEl.buffered.end(videoEl.buffered.length - 1) / videoEl.duration) * 100;
+          buffEl.style.width = `${bPct}%`;
+        }
+      });
+
+      // Click to seek and drag scrub
+      const seek = (clientX) => {
+        if (!timelineEl || !videoEl.duration) return;
+        const rect = timelineEl.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        videoEl.currentTime = ratio * videoEl.duration;
+        const pct = ratio * 100;
+        if (progEl) progEl.style.width = `${pct}%`;
+        if (handEl) handEl.style.left = `${pct}%`;
+        if (timeCurEl) timeCurEl.textContent = formatVideoTime(videoEl.currentTime);
+      };
+
+      if (timelineEl) {
+        timelineEl.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          if (controlsEl) controlsEl.classList.add('is-scrubbing');
+          timelineEl.classList.add('is-scrubbing');
+          seek(e.clientX);
+
+          const onMouseMove = (ev) => seek(ev.clientX);
+          const onMouseUp = () => {
+            if (controlsEl) controlsEl.classList.remove('is-scrubbing');
+            timelineEl.classList.remove('is-scrubbing');
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+          };
+          window.addEventListener('mousemove', onMouseMove);
+          window.addEventListener('mouseup', onMouseUp);
+        });
+      }
+
+      // Spacebar play/pause
+      const handleSpaceKey = (e) => {
+        if (activeView !== 'project') return;
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+        if (e.code === 'Space' || e.key === ' ') {
+          e.preventDefault();
+          togglePlay();
+        }
+      };
+      window.addEventListener('keydown', handleSpaceKey);
+    }
+
     function updateVideo(newIdx) {
       if (!videoItems.length) return;
       currentVideoIdx = (newIdx + videoItems.length) % videoItems.length;
       const cur = videoItems[currentVideoIdx];
-      const videoEl = projV.querySelector('.proj-video-stage .proj-media video') || projV.querySelector('.proj-media video');
+      const videoEl = projV.querySelector('.proj-video-player-frame video.proj-video-main') || projV.querySelector('.proj-video-player-frame video:not(.proj-media-backdrop)') || projV.querySelector('.proj-video-player-frame video');
       if (videoEl && cur && (cur.src || cur.url)) {
         const targetSrc = cur.src || cur.url;
         const currentSrc = videoEl.getAttribute('src');
         if (currentSrc !== targetSrc) {
           videoEl.src = targetSrc;
         }
+        videoEl.currentTime = 0;
+        videoEl.muted = true;
         videoEl.play().catch(() => {});
       }
 
-      const counterEl = projV.querySelector('.proj-video-stage .proj-media-counter');
+      const counterEl = projV.querySelector('.proj-video-stage .proj-media-caption .proj-media-counter') || projV.querySelector('.proj-video-stage .proj-media-counter');
       if (counterEl) {
         counterEl.textContent = `${String(currentVideoIdx + 1).padStart(2, '0')} / ${String(videoItems.length).padStart(2, '0')}`;
       }
-      const titleEl = projV.querySelector('.proj-video-stage .proj-media-title');
+      const titleEl = projV.querySelector('.proj-video-stage .proj-media-caption .proj-media-title') || projV.querySelector('.proj-video-stage .proj-media-title');
       if (titleEl) {
         titleEl.textContent = cur.title || p.title;
       }
+      const videoBackdrop = projV.querySelector('.proj-video-player-frame .proj-media-backdrop');
+      if (videoBackdrop && cur) {
+        if (cur.poster || cur.thumb) {
+          videoBackdrop.src = cur.poster || cur.thumb;
+        } else if (cur.src || cur.url) {
+          videoBackdrop.src = `${cur.src || cur.url}#t=0.001`;
+        }
+      }
+      projV.querySelectorAll('.proj-video-stage .proj-dot-nav .dot').forEach((d, di) => {
+        d.classList.toggle('active', di === currentVideoIdx);
+      });
 
       projV.querySelectorAll('.track-row').forEach((r, ri) => {
         const isMatch = ri === currentVideoIdx;
@@ -1854,30 +2161,58 @@
       });
     }
 
-    if (isVideo && videoItems.length > 1) {
-      const prevVideoBtn = projV.querySelector('.proj-video-stage .prev-arrow');
-      if (prevVideoBtn) {
-        prevVideoBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          updateVideo(currentVideoIdx - 1);
-        });
-      }
+    if (isVideo) {
+      setupCustomVideoPlayer();
 
-      const nextVideoBtn = projV.querySelector('.proj-video-stage .next-arrow');
-      if (nextVideoBtn) {
-        nextVideoBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          updateVideo(currentVideoIdx + 1);
-        });
-      }
+      if (videoItems.length > 1) {
+        const prevVideoBtn = projV.querySelector('.proj-video-stage .prev-arrow');
+        if (prevVideoBtn) {
+          prevVideoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateVideo(currentVideoIdx - 1);
+          });
+        }
 
-      const handleVideoKeyNav = (e) => {
-        if (activeView !== 'project') return;
-        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-        if (e.key === 'ArrowLeft') updateVideo(currentVideoIdx - 1);
-        if (e.key === 'ArrowRight') updateVideo(currentVideoIdx + 1);
-      };
-      window.addEventListener('keydown', handleVideoKeyNav);
+        const nextVideoBtn = projV.querySelector('.proj-video-stage .next-arrow');
+        if (nextVideoBtn) {
+          nextVideoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateVideo(currentVideoIdx + 1);
+          });
+        }
+
+        projV.querySelectorAll('.proj-video-stage .proj-dot-nav .dot').forEach(dot => {
+          dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(dot.dataset.idx, 10);
+            updateVideo(idx);
+          });
+        });
+
+        // Touch swipe for mobile video
+        const videoStage = projV.querySelector('.proj-video-stage');
+        if (videoStage) {
+          let touchStartX = null;
+          videoStage.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+          }, { passive: true });
+          videoStage.addEventListener('touchend', (e) => {
+            if (touchStartX === null) return;
+            const delta = e.changedTouches[0].clientX - touchStartX;
+            if (delta > 40) updateVideo(currentVideoIdx - 1);
+            else if (delta < -40) updateVideo(currentVideoIdx + 1);
+            touchStartX = null;
+          }, { passive: true });
+        }
+
+        const handleVideoKeyNav = (e) => {
+          if (activeView !== 'project') return;
+          if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+          if (e.key === 'ArrowLeft') updateVideo(currentVideoIdx - 1);
+          if (e.key === 'ArrowRight') updateVideo(currentVideoIdx + 1);
+        };
+        window.addEventListener('keydown', handleVideoKeyNav);
+      }
     }
 
     projV.querySelectorAll('.track-row').forEach(row => {

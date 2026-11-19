@@ -482,21 +482,29 @@ export const PROJECTS: Project[] = [
     "short": "Interactive systems, digital product design, and cohesive user experience flows.",
     "description": "Comprehensive UI/UX design showcase featuring the Luminal HR ecosystem and digital product design — covering interactive prototypes, company management, and responsive systems.",
     "moreInfo": "Process: problem analysis → user flows → wireframes → high-fidelity Figma UI → interactive prototypes.",
-    "thumb": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
-    "indexThumb": "Ui and ux design/ui & ux thumb/index hover image/sriram_mj_login_signup_monochrome_4k_16x9.png",
-    "mediaKind": "video",
+    "thumb": "Ui and ux design/3d space uiux/ui and ux space thumb 1.jpg",
+    "indexThumb": "Ui and ux design/ui & ux design videos/Modern Furniture Website UI Design _ eCommerce Landing Page.jpg",
+    "mediaKind": "image",
     "media": {
-      "type": "video",
-      "src": "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4",
-      "poster": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg"
+      "type": "image",
+      "src": "Ui and ux design/3d space uiux/ui and ux space thumb 1.jpg"
     },
     "items": [
+      {
+        "title": "Modern Furniture Website UI Design — eCommerce Landing Page",
+        "type": "view",
+        "meta": "UI/UX",
+        "src": "Ui and ux design/ui & ux design videos/Modern Furniture Website UI Design _ eCommerce Landing Page.jpg",
+        "thumb": "Ui and ux design/ui & ux design videos/Modern Furniture Website UI Design _ eCommerce Landing Page.jpg",
+        "url": "Ui and ux design/ui & ux design videos/Modern Furniture Website UI Design _ eCommerce Landing Page.jpg"
+      },
       {
         "title": "People Flow (Company Management)",
         "type": "play",
         "meta": "Video",
         "src": "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4",
         "thumb": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
+        "poster": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
         "url": "Ui and ux design/ui & ux design videos/people flow(Company Management) design/people flow(Company Management).mp4"
       },
       {
@@ -504,7 +512,8 @@ export const PROJECTS: Project[] = [
         "type": "play",
         "meta": "Video",
         "src": "Ui and ux design/ui & ux design videos/portfolio design/Portfolio Preview.mp4",
-        "thumb": "Ui and ux design/3d space uiux/uiux-portfolio-preview-16x9.jpg",
+        "thumb": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
+        "poster": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
         "url": "Ui and ux design/ui & ux design videos/portfolio design/Portfolio Preview.mp4"
       }
     ]
@@ -710,45 +719,45 @@ export const PROJECTS: Project[] = [
   {
     "slug": "hr-admin-flow",
     "slot": 7,
-    "title": "PEOPLE FLOW — HR ADMIN",
+    "title": "PEOPLE FLOW — SYSTEM DESIGN",
     "category": "UI/UX",
-    "short": "How an HR admin manages policy, compliance, and headcount.",
+    "short": "Comprehensive company management and organizational architecture.",
     "description": "Comprehensive administrative UI workflow covering employee records and compliance.",
-    "thumb": "Ui and ux design/3d space uiux/uiux-hr-admin-flow-16x9.jpg",
+    "thumb": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg",
     "mediaKind": "image",
     "media": {
       "type": "image",
-      "src": "Ui and ux design/3d space uiux/uiux-hr-admin-flow-16x9.jpg"
+      "src": "Ui and ux design/3d space uiux/uiux-peopleflow-main-16x9.jpg"
     },
     "targetSlug": "ui-and-ux-design"
   },
   {
     "slug": "manager-flow",
     "slot": 28,
-    "title": "PEOPLE FLOW — MANAGER DASHBOARD",
+    "title": "LOGIN & SIGNUP — MONOCHROME 4K",
     "category": "UI/UX",
-    "short": "Overseeing team performance, leave, and hiring in one view.",
+    "short": "High-fidelity monochrome login and registration flow in 4K resolution.",
     "description": "Clean manager overview portal balancing quick actions and team telemetry.",
-    "thumb": "Ui and ux design/3d space uiux/uiux-manager-flow-16x9.jpg",
+    "thumb": "Ui and ux design/3d space uiux/sriram_mj_login_signup_monochrome_4k_16x9.png",
     "mediaKind": "image",
     "media": {
       "type": "image",
-      "src": "Ui and ux design/3d space uiux/uiux-manager-flow-16x9.jpg"
+      "src": "Ui and ux design/3d space uiux/sriram_mj_login_signup_monochrome_4k_16x9.png"
     },
     "targetSlug": "ui-and-ux-design"
   },
   {
     "slug": "employee-flow",
     "slot": 20,
-    "title": "PEOPLE FLOW — EMPLOYEE PORTAL",
+    "title": "MODERN FURNITURE — UI DESIGN",
     "category": "UI/UX",
-    "short": "Self-service profile, leave requests, and career growth.",
-    "description": "Mobile-first self service interface designed for seamless employee onboarding.",
-    "thumb": "Ui and ux design/3d space uiux/uiux-employee-flow-16x9.jpg",
+    "short": "Modern eCommerce landing page and furniture product catalog.",
+    "description": "E-commerce landing page exploration with clean grid structure and product storytelling.",
+    "thumb": "Ui and ux design/3d space uiux/Modern Furniture Website UI Design _ eCommerce Landing Page.jpg",
     "mediaKind": "image",
     "media": {
       "type": "image",
-      "src": "Ui and ux design/3d space uiux/uiux-employee-flow-16x9.jpg"
+      "src": "Ui and ux design/3d space uiux/Modern Furniture Website UI Design _ eCommerce Landing Page.jpg"
     },
     "targetSlug": "ui-and-ux-design"
   },
@@ -1027,12 +1036,16 @@ export const PROJECTS: Project[] = [
   {
     "slug": "telemetry-dashboard",
     "slot": 16,
-    "title": "PORTFOLIO PREVIEW — DESIGN SYSTEM",
+    "title": "UI & UX SPACE SHOWCASE",
     "category": "UI/UX",
-    "short": "Data dense performance dashboard designed for high-refresh telemetry displays.",
+    "short": "Interactive systems and cohesive product design architecture.",
     "description": "Enterprise telemetry design system prioritizing instant cognitive clarity under pressure.",
-    "thumb": "Ui and ux design/3d space uiux/uiux-portfolio-preview-16x9.jpg",
+    "thumb": "Ui and ux design/3d space uiux/ui and ux space thumb 1.jpg",
     "mediaKind": "image",
+    "media": {
+      "type": "image",
+      "src": "Ui and ux design/3d space uiux/ui and ux space thumb 1.jpg"
+    },
     "targetSlug": "ui-and-ux-design"
   },
   {

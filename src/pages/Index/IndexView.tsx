@@ -1,28 +1,161 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { PROJECTS } from '../../data/portfolioData';
+import { Project } from '../../types/portfolio';
 
 export const IndexView: React.FC = () => {
   const { activeView, navigate } = usePortfolio();
-  const [previewSrc, setPreviewSrc] = useState<string>('');
-  const [previewTop, setPreviewTop] = useState<number>(0);
-  const [isPreviewVisible, setIsPreviewVisible] = useState<boolean>(false);
+  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const [activeMedia, setActiveMedia] = useState<{
+    src: string;
+    isVid: boolean;
+    poster?: string;
+    title: string;
+  } | null>(null);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const posRef = useRef({ currentX: 0, currentY: 0, targetX: 0, targetY: 0 });
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const handleRowEnter = (e: React.MouseEvent<HTMLDivElement>, src: string) => {
-    if (!src) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    setPreviewSrc(src);
-    setPreviewTop(rect.top + rect.height / 2);
-    setIsPreviewVisible(true);
+  const indexProjects = PROJECTS.filter((p) => !p.isTileOnly && !p.targetSlug);
+
+  // Smooth 60fps lerp tracking loop
+  useEffect(() => {
+    if (activeView !== 'index') {
+      setIsVisible(false);
+      return;
+    }
+
+    const tick = () => {
+      const p = posRef.current;
+      p.currentX += (p.targetX - p.currentX) * 0.1;
+      p.currentY += (p.targetY - p.currentY) * 0.1;
+
+      if (cardRef.current) {
+        cardRef.current.style.transform = `translate3d(${p.currentX.toFixed(1)}px, ${p.currentY.toFixed(1)}px, 0)`;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [activeView]);
+
+  // Preload adjacent project images for instant synchronization
+  const preloadAdjacent = useCallback((idx: number) => {
+    if (!indexProjects.length) return;
+    const nextIdx = (idx + 1) % indexProjects.length;
+    const prevIdx = (idx - 1 + indexProjects.length) % indexProjects.length;
+    [nextIdx, prevIdx].forEach((i) => {
+      const p = indexProjects[i];
+      const src = p.indexThumb || p.thumb || p.media?.src || '';
+      if (src && !src.endsWith('.mp4') && !src.endsWith('.webm')) {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, [indexProjects]);
+
+  const updateSelectedMedia = (p: Project, idx?: number) => {
+    const rawSrc = p.indexThumb || p.thumb || p.media?.src || '';
+    const isVid = Boolean(rawSrc && (rawSrc.endsWith('.mp4') || rawSrc.endsWith('.webm')));
+    const poster = p.media?.poster || p.thumb || '';
+
+    setActiveSlug(p.slug);
+    setActiveMedia({
+      src: rawSrc,
+      isVid,
+      poster,
+      title: p.title
+    });
+
+    if (typeof idx === 'number') {
+      preloadAdjacent(idx);
+    }
   };
+
+  const updateCardPosition = (rect: DOMRect, clientX: number, clientY: number) => {
+    const cardW = 380;
+    const cardH = 214;
+    const cursorX = clientX > 0 ? clientX : rect.left + rect.width / 2;
+    const cursorY = clientY > 0 ? clientY : rect.top + rect.height / 2;
+
+    const rawTargetX = cursorX - cardW / 2;
+    const boundedX = Math.max(20, Math.min(window.innerWidth - cardW - 20, rawTargetX));
+    const rowCenterY = rect.top + rect.height / 2;
+    const rawTargetY = rowCenterY - cardH / 2 + (cursorY - rowCenterY) * 0.15;
+    const boundedY = Math.max(20, Math.min(window.innerHeight - cardH - 20, rawTargetY));
+
+    posRef.current.targetX = boundedX;
+    posRef.current.targetY = boundedY;
+
+    if (!isVisible) {
+      posRef.current.currentX = boundedX;
+      posRef.current.currentY = boundedY;
+      setIsVisible(true);
+    }
+  };
+
+  const handleRowEnter = (e: React.MouseEvent<HTMLDivElement>, p: Project, idx: number) => {
+    updateSelectedMedia(p, idx);
+    setSelectedIndex(idx);
+    const rect = e.currentTarget.getBoundingClientRect();
+    updateCardPosition(rect, e.clientX, e.clientY);
+  };
+
+  const handleRowMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    updateCardPosition(rect, e.clientX, e.clientY);
+  };
+
+  // Keyboard navigation & accessibility (Arrow keys, Enter, Escape)
+  useEffect(() => {
+    if (activeView !== 'index') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedIndex((prev) => {
+          const next = (prev + 1) % indexProjects.length;
+          const proj = indexProjects[next];
+          updateSelectedMedia(proj, next);
+          setIsVisible(true);
+          return next;
+        });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedIndex((prev) => {
+          const next = (prev - 1 + indexProjects.length) % indexProjects.length;
+          const proj = indexProjects[next];
+          updateSelectedMedia(proj, next);
+          setIsVisible(true);
+          return next;
+        });
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        if (selectedIndex >= 0 && selectedIndex < indexProjects.length) {
+          e.preventDefault();
+          navigate('project', indexProjects[selectedIndex].slug);
+        }
+      } else if (e.key === 'Escape') {
+        navigate('space');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeView, indexProjects, selectedIndex, navigate]);
 
   return (
     <div
       className={`view ${activeView === 'index' ? 'active' : ''}`}
       data-view="index"
     >
+      {/* Back button to space */}
       <button
         className="index-back-btn a-arrow-text"
         aria-label="Back to space view"
@@ -43,35 +176,70 @@ export const IndexView: React.FC = () => {
         <span className="a-arrow-text_caption">TO SPACE VIEW</span>
       </button>
 
-      <div className="index-hover-preview" id="indexHoverPreview">
-        <img
-          className={`index-preview-img ${isPreviewVisible ? 'visible' : ''}`}
-          id="indexPreviewImg"
-          src={previewSrc}
-          style={{ top: `${previewTop.toFixed(1)}px` }}
-          alt="Preview"
-          decoding="async"
-        />
+      {/* Floating Dynamic Media Preview / Play Box Container */}
+      <div className={`index-hover-preview ${isVisible && activeMedia ? 'visible' : ''}`} aria-hidden="true">
+        <div ref={cardRef} className="index-preview-card" id="indexPreviewCard">
+          {activeMedia && (
+            <div key={activeMedia.src} className="index-preview-content">
+              {/* Undistorted Native Foreground Media Layer */}
+              <div className="index-preview-foreground-wrapper">
+                {activeMedia.isVid ? (
+                  <video
+                    className="index-preview-media vid"
+                    src={activeMedia.src}
+                    poster={activeMedia.poster}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    className="index-preview-media img"
+                    src={activeMedia.src}
+                    alt={activeMedia.title}
+                    decoding="async"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="index-page-inner">
+      {/* Index Project List */}
+      <div
+        className="index-page-inner"
+        onMouseLeave={() => {
+          setIsVisible(false);
+          setActiveSlug(null);
+          setActiveMedia(null);
+          setSelectedIndex(-1);
+        }}
+      >
         <div
           ref={listRef}
           className="index-list"
-          onMouseLeave={() => setIsPreviewVisible(false)}
+          onMouseLeave={() => {
+            setIsVisible(false);
+            setActiveSlug(null);
+            setActiveMedia(null);
+            setSelectedIndex(-1);
+          }}
         >
-          {PROJECTS.filter((p) => !p.isTileOnly && !p.targetSlug).map((p, i) => {
-            const bgSrc = p.indexThumb || p.thumb || p.media?.src || '';
+          {indexProjects.map((p, i) => {
+            const isHovered = activeSlug === p.slug || selectedIndex === i;
             return (
               <div
                 key={p.slug}
-                className="row"
+                className={`row ${isHovered ? 'is-hovered' : ''}`}
                 data-slug={p.slug}
                 data-cursor="Open"
                 role="button"
                 tabIndex={0}
                 aria-label={`Open project ${p.title}`}
-                onMouseEnter={(e) => handleRowEnter(e, bgSrc)}
+                onMouseEnter={(e) => handleRowEnter(e, p, i)}
+                onMouseMove={handleRowMove}
                 onClick={() => navigate('project', p.slug)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
