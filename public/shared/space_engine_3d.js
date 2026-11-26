@@ -140,8 +140,13 @@
       this.gatePassed = sessionStorage.getItem('portfolio_gate_passed') === 'true';
       this.isUnfolding = false;
       this.unfoldStartTime = 0;
+      this.unfoldDuration = 1450;
       this.isCameraSwooping = false;
       this.cameraSwoopStartTime = 0;
+      this.cameraSwoopDuration = 1650;
+      this.cameraStartZ = 680;
+      this.cameraStartFov = 62;
+      this.cameraStartTiltX = -0.04;
       this.cameraSwoopFactor = this.gatePassed ? 1.0 : 0.0;
       this.isFlyingIn = false;
       this.entranceStartTime = 0;
@@ -202,7 +207,11 @@
       window.addEventListener('wheel', this._onWheel, { passive: false });
       window.addEventListener('dblclick', this._onDblClick);
 
-      this.start();
+      if (this.gatePassed) {
+        this.triggerEntranceUnfold({ quick: true });
+      } else {
+        this.start();
+      }
     }
 
     _updateCameraLimits() {
@@ -383,22 +392,37 @@
         }
 
         mesh.updateMatrixWorld();
+        mesh.originalPosition = new THREE.Vector3(posX, posY, posZ);
         mesh.originalQuaternion = mesh.quaternion.clone();
 
-        // Reference Michael Gatt folded state (Q(6)):
-        // 30 deg (PI / 6) outward cant based on camera projection
-        const worldPos = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld);
-        const projectedX = worldPos.project(this.camera).x;
-        const foldAngle = projectedX < 0 ? (Math.PI / 6) : -(Math.PI / 6);
-        mesh.foldedQuaternion = mesh.originalQuaternion.clone().multiply(
-          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), foldAngle)
+        // Radial push-out + subtle vertical spread for Michael Gatt-style 3D space "in" glide
+        mesh.introOffsetPosition = new THREE.Vector3(
+          radius * 1.32 * Math.cos(angleRad),
+          posY * 1.16,
+          radius * 1.32 * Math.sin(angleRad)
         );
 
+        // Reference Michael Gatt folded state:
+        // 45 deg (PI / 4) outward cant + subtle pitch based on camera projection
+        const worldPos = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld);
+        const projectedX = worldPos.project(this.camera).x;
+        const foldAngle = projectedX < 0 ? (Math.PI / 4) : -(Math.PI / 4);
+        mesh.foldedQuaternion = mesh.originalQuaternion.clone()
+          .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), foldAngle))
+          .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), projectedX < 0 ? 0.12 : -0.12));
+
+        // Center cards arrive first, peripheral cards sweep in smoothly (0 to 0.28 stagger)
+        mesh.introStagger = Math.min(0.28, (Math.abs(angleRad + Math.PI / 2) / Math.PI) * 0.36);
+
         if (!this.gatePassed) {
+          mesh.position.copy(mesh.introOffsetPosition);
           mesh.quaternion.copy(mesh.foldedQuaternion);
-          mesh.material.uniforms.uOpacity.value = 0.58;
+          mesh.scale.set(0.82, 0.82, 1.0);
+          mesh.material.uniforms.uOpacity.value = 0.0;
         } else {
+          mesh.position.copy(mesh.originalPosition);
           mesh.quaternion.copy(mesh.originalQuaternion);
+          mesh.scale.set(1.0, 1.0, 1.0);
           mesh.material.uniforms.uOpacity.value = 0.95;
         }
 
@@ -618,13 +642,34 @@
       this.rafId = requestAnimationFrame(this._loop);
     }
 
-    triggerEntranceUnfold() {
+    triggerEntranceUnfold(options = {}) {
+      const quick = !!(options && options.quick);
       this.gatePassed = true;
       this.isUnfolding = true;
+      this.unfoldDuration = quick ? 950 : 1450;
       this.unfoldStartTime = performance.now();
+
       this.isCameraSwooping = true;
+      this.cameraSwoopDuration = quick ? 1050 : 1650;
       this.cameraSwoopStartTime = performance.now();
-      this.camera.position.set(0, 0, 0);
+      this.cameraStartZ = quick ? 340 : 680;
+      this.cameraStartFov = quick ? 56 : 62;
+      this.cameraStartTiltX = quick ? -0.02 : -0.04;
+      this.cameraSwoopFactor = 0.0;
+
+      // Reset camera & meshes to pre-entry state cleanly before unfolding
+      this.camera.position.set(0, 0, this.cameraStartZ);
+      this.camera.rotation.x = this.cameraStartTiltX;
+      this.camera.fov = this.cameraStartFov;
+      this.camera.updateProjectionMatrix();
+
+      this.meshes.forEach((m) => {
+        if (m.introOffsetPosition) m.position.copy(m.introOffsetPosition);
+        if (m.foldedQuaternion) m.quaternion.copy(m.foldedQuaternion);
+        m.scale.set(0.82, 0.82, 1.0);
+        if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = 0.0;
+      });
+
       this.start();
     }
 
@@ -644,14 +689,29 @@
       this.smoothMouse.x += (this.targetMouse.x - this.smoothMouse.x) * 0.05;
       this.smoothMouse.y += (this.targetMouse.y - this.smoothMouse.y) * 0.05;
 
-      // 2. Camera swoop dampening on initial entry (2.0s duration Power4.easeOut matching Michael Gatt)
+      // 2. Camera swoop & push-in on entry (Power4.easeOut matching Michael Gatt)
       if (this.isCameraSwooping) {
-        const elapsed = (now - this.cameraSwoopStartTime) / 2000;
+        const elapsed = Math.min(1.0, (now - this.cameraSwoopStartTime) / this.cameraSwoopDuration);
+        const swoopEase = 1 - Math.pow(1 - elapsed, 4); // Power4.easeOut
+        this.cameraSwoopFactor = swoopEase;
+
+        this.camera.position.z = this.cameraStartZ * (1 - swoopEase);
+        this.camera.rotation.x = this.cameraStartTiltX * (1 - swoopEase);
+        const targetFov = 50 + (this.cameraStartFov - 50) * (1 - swoopEase);
+        if (Math.abs(this.camera.fov - targetFov) > 0.01) {
+          this.camera.fov = targetFov;
+          this.camera.updateProjectionMatrix();
+        }
+
         if (elapsed >= 1.0) {
           this.isCameraSwooping = false;
           this.cameraSwoopFactor = 1.0;
-        } else {
-          this.cameraSwoopFactor = 1 - Math.pow(1 - elapsed, 4); // Power4.easeOut
+          this.camera.position.z = 0;
+          this.camera.rotation.x = 0;
+          if (this.camera.fov !== 50) {
+            this.camera.fov = 50;
+            this.camera.updateProjectionMatrix();
+          }
         }
       } else {
         this.cameraSwoopFactor = this.gatePassed ? 1.0 : 0.0;
@@ -684,32 +744,44 @@
       this.currentRotY += (this.targetRotY - this.currentRotY) * 0.055;
       this.currentPosY += (this.targetPosY - this.currentPosY) * 0.055;
 
-      // In-place camera yaw orbit matching Michael Gatt (camera.position is locked to 0)
+      // In-place camera yaw orbit matching Michael Gatt (camera.position.z is 0 once swoop finishes)
       this.camera.rotation.y = this.currentRotY;
       this.camera.position.y = this.currentPosY;
       this.camera.position.x = 0;
-      this.camera.position.z = 0;
-      this.camera.rotation.x = 0;
+      if (!this.isCameraSwooping) {
+        this.camera.position.z = 0;
+        this.camera.rotation.x = 0;
+      }
       this.camera.rotation.z = 0;
 
-      // 4. Origami Mesh Unfolding Animation (0.75s Power4.easeOut matching Michael Gatt)
+      // 4. Staggered Origami Mesh Unfolding & Radial Glide-In (Power4.easeOut)
       if (this.isUnfolding) {
-        const elapsed = (now - this.unfoldStartTime) / 750;
-        if (elapsed >= 1.0) {
+        const rawElapsed = (now - this.unfoldStartTime) / this.unfoldDuration;
+        if (rawElapsed >= 1.0) {
           this.isUnfolding = false;
           this.meshes.forEach((m) => {
+            if (m.originalPosition) m.position.copy(m.originalPosition);
             if (m.originalQuaternion) m.quaternion.copy(m.originalQuaternion);
+            m.scale.set(1.0, 1.0, 1.0);
             if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = m.userData.baseOpacity || 0.95;
           });
         } else {
-          const ease = 1 - Math.pow(1 - elapsed, 4); // Power4.easeOut
           this.meshes.forEach((m) => {
+            const stagger = m.introStagger || 0;
+            const localT = THREE.MathUtils.clamp((rawElapsed - stagger) / (1 - stagger), 0, 1);
+            const ease = 1 - Math.pow(1 - localT, 4); // Power4.easeOut
+
+            if (m.introOffsetPosition && m.originalPosition) {
+              m.position.lerpVectors(m.introOffsetPosition, m.originalPosition, ease);
+            }
             if (m.foldedQuaternion && m.originalQuaternion) {
               m.quaternion.slerpQuaternions(m.foldedQuaternion, m.originalQuaternion, ease);
             }
+            const s = 0.82 + 0.18 * ease;
+            m.scale.set(s, s, 1.0);
             if (m.material.uniforms.uOpacity) {
               const baseOp = m.userData.baseOpacity || 0.95;
-              m.material.uniforms.uOpacity.value = 0.58 + (baseOp - 0.58) * ease;
+              m.material.uniforms.uOpacity.value = baseOp * ease;
             }
           });
         }

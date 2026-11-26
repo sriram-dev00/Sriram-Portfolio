@@ -239,22 +239,22 @@
         skipEl.style.transform = 'translate(-50%, 12px)';
       }
 
-      // 2. Black curtain fade out starting at 280ms
+      // 2. Black curtain fade out starting at 220ms
       setTimeout(() => {
         overlay.classList.add('gate-fade-out');
-      }, 280);
+      }, 220);
 
-      // 3. At 750ms, trigger the 3D space Origami Unfold & Camera Swoop
+      // 3. At 260ms, trigger the 3D space Origami Unfold & Camera Swoop right through the dissolving curtain
       setTimeout(() => {
         triggerEntranceFlyIn();
-      }, 750);
+      }, 260);
 
-      // 4. Remove overlay from DOM once animation completes
+      // 4. Remove overlay from DOM once fade completes
       setTimeout(() => {
         if (overlay && overlay.parentNode) {
           overlay.parentNode.removeChild(overlay);
         }
-      }, 850);
+      }, 950);
     }
 
     const skipBtn = overlay.querySelector('#btn-enter-without-sound');
@@ -2663,11 +2663,16 @@
     }
 
     if (viewName === 'space') {
+      const wasExistingSpace = !!views.space;
       if (!views.space) setupSpaceView();
       if (views.space) views.space.classList.remove('space-receded');
       views.space.classList.add('active');
       if (spaceEngine3DInstance) {
-        spaceEngine3DInstance.start();
+        if (wasExistingSpace && previousView !== 'space' && typeof spaceEngine3DInstance.triggerEntranceUnfold === 'function') {
+          spaceEngine3DInstance.triggerEntranceUnfold({ quick: true });
+        } else {
+          spaceEngine3DInstance.start();
+        }
       } else {
         spaceLoop();
       }

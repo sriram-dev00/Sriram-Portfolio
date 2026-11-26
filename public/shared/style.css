@@ -4572,6 +4572,22 @@ body.in-gate-state .tile {
   pointer-events: none !important;
 }
 
+body.in-gate-state .brand,
+body.in-gate-state .footer-nav,
+body.in-gate-state .index-toggle,
+body.in-gate-state .sound-toggle,
+body.in-gate-state .center-hero-overlay {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.brand,
+.footer-nav,
+.index-toggle,
+.sound-toggle {
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
+}
+
 
 /* Sound Gate Overlay */
 #soundGateOverlay {
@@ -4588,7 +4604,7 @@ body.in-gate-state .tile {
   -webkit-user-select: none;
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #soundGateOverlay.gate-fade-out {
