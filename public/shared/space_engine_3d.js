@@ -433,6 +433,10 @@
           slug: project.slug || project.targetSlug || '',
           baseScale: 1.0,
           baseOpacity: 0.95,
+          currentOpacity: this.gatePassed ? 0.95 : 0.0,
+          targetOpacity: 0.95,
+          currentScale: 1.0,
+          targetScale: 1.0,
           originalRadius: radius
         };
 
@@ -585,11 +589,11 @@
           clearTimeout(this.hoverExitTimer);
           this.activeHoveredMesh = hitMesh;
 
-          // Apply Michael Gatt's hover spotlight: active category/tile stays 1.0, non-active dim subtly to 0.32
+          // Apply Michael Gatt's hover spotlight: active tile -> 1.0, non-active smoothly dim to 0.20
           this.meshes.forEach((mesh) => {
             const isHovered = mesh === hitMesh;
-            mesh.material.uniforms.uOpacity.value = isHovered ? 1.0 : 0.32;
-            mesh.scale.set(isHovered ? 1.03 : 1.0, isHovered ? 1.03 : 1.0, 1.0);
+            mesh.userData.targetOpacity = isHovered ? 1.0 : 0.20;
+            mesh.userData.targetScale = isHovered ? 1.03 : 1.0;
           });
 
           if (this.onHoverTile && hitMesh.userData.project) {
@@ -601,8 +605,8 @@
         this.hoverExitTimer = setTimeout(() => {
           this.activeHoveredMesh = null;
           this.meshes.forEach((mesh) => {
-            mesh.material.uniforms.uOpacity.value = mesh.userData.baseOpacity;
-            mesh.scale.set(1.0, 1.0, 1.0);
+            mesh.userData.targetOpacity = mesh.userData.baseOpacity;
+            mesh.userData.targetScale = mesh.userData.baseScale || 1.0;
           });
           if (this.onHoverTile) {
             this.onHoverTile(null);
@@ -763,7 +767,12 @@
             if (m.originalPosition) m.position.copy(m.originalPosition);
             if (m.originalQuaternion) m.quaternion.copy(m.originalQuaternion);
             m.scale.set(1.0, 1.0, 1.0);
-            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = m.userData.baseOpacity || 0.95;
+            const restOp = m.userData.baseOpacity || 0.95;
+            m.userData.currentOpacity = restOp;
+            m.userData.targetOpacity = restOp;
+            m.userData.currentScale = 1.0;
+            m.userData.targetScale = 1.0;
+            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = restOp;
           });
         } else {
           this.meshes.forEach((m) => {
@@ -785,6 +794,20 @@
             }
           });
         }
+      } else {
+        this.meshes.forEach((m) => {
+          const targetOp = m.userData.targetOpacity !== undefined ? m.userData.targetOpacity : (m.userData.baseOpacity || 0.95);
+          const curOp = m.userData.currentOpacity !== undefined ? m.userData.currentOpacity : targetOp;
+          const nextOp = curOp + (targetOp - curOp) * 0.12;
+          m.userData.currentOpacity = nextOp;
+          if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = nextOp;
+
+          const targetSc = m.userData.targetScale !== undefined ? m.userData.targetScale : 1.0;
+          const curSc = m.userData.currentScale !== undefined ? m.userData.currentScale : targetSc;
+          const nextSc = curSc + (targetSc - curSc) * 0.12;
+          m.userData.currentScale = nextSc;
+          m.scale.set(nextSc, nextSc, 1.0);
+        });
       }
 
       // Render Three.js WebGL scene
