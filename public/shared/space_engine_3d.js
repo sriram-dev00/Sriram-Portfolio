@@ -293,8 +293,8 @@
         const posY = (0.5 - normY) * cylinderHeight;
         const posZ = radius * Math.sin(angleRad);
 
-        // Plane geometry (flat, uncurved, razor sharp)
-        const geometry = new THREE.PlaneGeometry(baseW, baseH, 1, 1);
+        // Plane geometry (8x8 segments so Michael Gatt parabolic surf curvature bends smoothly)
+        const geometry = new THREE.PlaneGeometry(baseW, baseH, 8, 8);
 
         // Helper to adjust geometry to the image's true natural aspect ratio
         const applyNaturalAspect = (nw, nh, targetMesh) => {
@@ -305,7 +305,7 @@
           const h = w / imageAspect;
 
           targetMesh.geometry.dispose();
-          targetMesh.geometry = new THREE.PlaneGeometry(w, h, 1, 1);
+          targetMesh.geometry = new THREE.PlaneGeometry(w, h, 8, 8);
           if (targetMesh.material.uniforms.uImageWidth) targetMesh.material.uniforms.uImageWidth.value = w;
           if (targetMesh.material.uniforms.uImageHeight) targetMesh.material.uniforms.uImageHeight.value = h;
           if (targetMesh.material.uniforms.uSizeFactorX) targetMesh.material.uniforms.uSizeFactorX.value = w / 2000;
@@ -423,16 +423,20 @@
           mesh.position.copy(mesh.originalPosition);
           mesh.quaternion.copy(mesh.originalQuaternion);
           mesh.scale.set(1.0, 1.0, 1.0);
-          mesh.material.uniforms.uOpacity.value = 0.95;
+          mesh.material.uniforms.uOpacity.value = 0.78;
         }
 
         mesh.userData = {
           slotIndex: i,
           slot: slot,
           project: project,
-          slug: project.slug || project.targetSlug || '',
+          slug: project.targetSlug || project.project || project.slug || '',
           baseScale: 1.0,
-          baseOpacity: 0.95,
+          baseOpacity: 0.78,
+          currentOpacity: this.gatePassed ? 0.78 : 0.0,
+          targetOpacity: 0.78,
+          currentScale: 1.0,
+          targetScale: 1.0,
           originalRadius: radius
         };
 
@@ -499,7 +503,12 @@
       this.mouse.y = -(e.clientY / height) * 2 + 1;
 
       if (!this.isDragging) {
-        this._checkIntersection();
+        const hoverEl = (e.target && typeof e.target.closest === 'function') ? e.target : null;
+        if (hoverEl && hoverEl.closest('.space-center-desc') && this.activeHoveredMesh) {
+          clearTimeout(this.hoverExitTimer);
+        } else {
+          this._checkIntersection();
+        }
       }
     }
 
@@ -584,12 +593,15 @@
         if (this.activeHoveredMesh !== hitMesh) {
           clearTimeout(this.hoverExitTimer);
           this.activeHoveredMesh = hitMesh;
+          const activeSlug = hitMesh.userData.slug || '';
 
-          // Apply Michael Gatt's hover spotlight: active category/tile stays 1.0, non-active dim subtly to 0.32
+          // Smooth Michael Gatt hover spotlight:
+          // Hovered card -> 1.0 (+scale 1.05), sibling project cards -> 0.85, others dim -> 0.20
           this.meshes.forEach((mesh) => {
             const isHovered = mesh === hitMesh;
-            mesh.material.uniforms.uOpacity.value = isHovered ? 1.0 : 0.32;
-            mesh.scale.set(isHovered ? 1.03 : 1.0, isHovered ? 1.03 : 1.0, 1.0);
+            const isSameProject = activeSlug && mesh.userData.slug === activeSlug;
+            mesh.userData.targetOpacity = isHovered ? 1.0 : (isSameProject ? 0.85 : 0.20);
+            mesh.userData.targetScale = isHovered ? 1.05 : (isSameProject ? 1.0 : 0.98);
           });
 
           if (this.onHoverTile && hitMesh.userData.project) {
@@ -601,8 +613,8 @@
         this.hoverExitTimer = setTimeout(() => {
           this.activeHoveredMesh = null;
           this.meshes.forEach((mesh) => {
-            mesh.material.uniforms.uOpacity.value = mesh.userData.baseOpacity;
-            mesh.scale.set(1.0, 1.0, 1.0);
+            mesh.userData.targetOpacity = mesh.userData.baseOpacity;
+            mesh.userData.targetScale = mesh.userData.baseScale || 1.0;
           });
           if (this.onHoverTile) {
             this.onHoverTile(null);
@@ -755,6 +767,12 @@
       this.camera.rotation.z = 0;
 
       // 4. Staggered Origami Mesh Unfolding & Radial Glide-In (Power4.easeOut)
+      // Plus velocity-driven parabolic surf curvature and smooth hover opacity/scale interpolation
+      const rotVel = this.currentRotY - this.prevRotY;
+      this.prevRotY = this.currentRotY;
+      const targetCurve = THREE.MathUtils.clamp(rotVel * 28.0, -0.45, 0.45);
+      this.currentCurveAmountX += (targetCurve - this.currentCurveAmountX) * 0.12;
+
       if (this.isUnfolding) {
         const rawElapsed = (now - this.unfoldStartTime) / this.unfoldDuration;
         if (rawElapsed >= 1.0) {
@@ -763,7 +781,13 @@
             if (m.originalPosition) m.position.copy(m.originalPosition);
             if (m.originalQuaternion) m.quaternion.copy(m.originalQuaternion);
             m.scale.set(1.0, 1.0, 1.0);
-            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = m.userData.baseOpacity || 0.95;
+            const restOp = m.userData.baseOpacity || 0.78;
+            m.userData.currentOpacity = restOp;
+            m.userData.targetOpacity = restOp;
+            m.userData.currentScale = 1.0;
+            m.userData.targetScale = 1.0;
+            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = restOp;
+            if (m.material.uniforms.uCurveAmountX) m.material.uniforms.uCurveAmountX.value = this.currentCurveAmountX;
           });
         } else {
           this.meshes.forEach((m) => {
@@ -780,11 +804,29 @@
             const s = 0.82 + 0.18 * ease;
             m.scale.set(s, s, 1.0);
             if (m.material.uniforms.uOpacity) {
-              const baseOp = m.userData.baseOpacity || 0.95;
+              const baseOp = m.userData.baseOpacity || 0.78;
               m.material.uniforms.uOpacity.value = baseOp * ease;
             }
           });
         }
+      } else {
+        this.meshes.forEach((m) => {
+          const targetOp = m.userData.targetOpacity !== undefined ? m.userData.targetOpacity : (m.userData.baseOpacity || 0.78);
+          const curOp = m.userData.currentOpacity !== undefined ? m.userData.currentOpacity : targetOp;
+          const nextOp = curOp + (targetOp - curOp) * 0.12;
+          m.userData.currentOpacity = nextOp;
+          if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = nextOp;
+
+          const targetSc = m.userData.targetScale !== undefined ? m.userData.targetScale : 1.0;
+          const curSc = m.userData.currentScale !== undefined ? m.userData.currentScale : targetSc;
+          const nextSc = curSc + (targetSc - curSc) * 0.12;
+          m.userData.currentScale = nextSc;
+          m.scale.set(nextSc, nextSc, 1.0);
+
+          if (m.material.uniforms.uCurveAmountX) {
+            m.material.uniforms.uCurveAmountX.value = this.currentCurveAmountX;
+          }
+        });
       }
 
       // Render Three.js WebGL scene
