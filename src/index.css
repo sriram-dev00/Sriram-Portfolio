@@ -4010,14 +4010,14 @@ body.in-gate-state .tile {
   box-sizing: border-box;
 }
 
-/* Fixed Stage Wrapper: never changes size when slides change */
+/* Fixed Stage Wrapper: generous sizing so wide and tall graphics display large and clear */
 .proj-stage-container .proj-stage-wrapper,
 .proj-video-stage .proj-stage-wrapper,
 .proj-single-stage .proj-stage-wrapper {
   position: relative;
-  width: min(1200px, 84vw);
-  max-width: 1200px;
-  height: clamp(420px, 68vh, 700px);
+  width: min(1440px, 92vw);
+  max-width: 1440px;
+  height: clamp(480px, 75vh, 840px);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -4029,6 +4029,7 @@ body.in-gate-state .tile {
 .proj-video-stage .proj-media.is-video,
 .proj-single-stage .proj-media {
   position: relative;
+  flex: 1 1 100%;
   width: 100%;
   height: 100%;
   max-width: 100%;
@@ -4087,7 +4088,7 @@ body.in-gate-state .tile {
   box-shadow: none !important;
   position: relative !important;
   overflow: hidden !important;
-  padding: 24px !important;
+  padding: 10px !important;
   box-sizing: border-box !important;
 }
 
@@ -4258,8 +4259,8 @@ body.in-gate-state .tile {
 /* Caption pinned to the stage edges */
 .proj-stage-container .proj-media-caption,
 .proj-video-stage .proj-media-caption {
-  width: min(1200px, 84vw);
-  max-width: 1200px;
+  width: min(1440px, 92vw);
+  max-width: 1440px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -4328,7 +4329,7 @@ body.in-gate-state .tile {
   max-height: 100%;
   margin: 0 auto;
   position: relative;
-  background: radial-gradient(circle at 50% 40%, rgba(20, 20, 20, 0.95) 0%, rgba(8, 8, 8, 0.98) 100%);
+  background: #000000;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   box-shadow: 0 35px 95px -20px rgba(0, 0, 0, 0.9), 0 0 50px rgba(0, 0, 0, 0.7);
@@ -4366,7 +4367,7 @@ video.proj-video-main {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 8px;
   box-sizing: border-box;
 }
 
