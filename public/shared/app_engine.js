@@ -1621,7 +1621,6 @@
                 <div class="proj-media" title="Click to view full image in new tab">
                   <img class="proj-media-backdrop" src="${curItem.src || curItem.url || mediaSrc}" alt="" aria-hidden="true" />
                   <img class="proj-media-sharp" src="${curItem.src || curItem.url || mediaSrc}" alt="${curItem.title || p.title}" />
-                  <span class="proj-view-media-pill">VIEW MEDIA</span>
                 </div>
               </div>
 
@@ -1719,7 +1718,6 @@
               <div class="proj-media">
                 <img class="proj-media-backdrop" src="${mediaSrc}" alt="" aria-hidden="true" />
                 <img class="proj-media-sharp" src="${mediaSrc}" alt="${p.title}" />
-                <span class="proj-view-media-pill">VIEW MEDIA</span>
               </div>
             </div>
           </div>
@@ -1850,15 +1848,7 @@
           centerMediaBox.innerHTML = `
             <img class="proj-media-backdrop" src="${targetSrc}" alt="" aria-hidden="true" />
             <img class="proj-media-sharp ${dir === 'prev' ? 'slide-enter-prev' : 'slide-enter-next'}" src="${targetSrc}" alt="${cur.title || p.title}" decoding="async" />
-            <span class="proj-view-media-pill">VIEW MEDIA</span>
           `;
-          const pill = centerMediaBox.querySelector('.proj-view-media-pill');
-          if (pill) {
-            pill.addEventListener('click', (e) => {
-              e.stopPropagation();
-              window.open(targetSrc, '_blank', 'noopener,noreferrer');
-            });
-          }
         }
       }
 

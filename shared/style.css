@@ -1841,8 +1841,12 @@ body.project-active .index-toggle,
   white-space: nowrap;
 }
 
-/* "View Media" corner pill pinned to bottom-right corner */
+/* "View Media" pill removed */
 .stage-card-center .proj-view-media-pill,
+.proj-view-media-pill {
+  display: none !important;
+}
+
 .stage-card-center .play-label {
   position: absolute;
   bottom: 14px;
@@ -1863,7 +1867,6 @@ body.project-active .index-toggle,
   transition: all 0.2s ease;
 }
 
-.stage-card-center .proj-view-media-pill:hover,
 .stage-card-center .play-label:hover {
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.4);
