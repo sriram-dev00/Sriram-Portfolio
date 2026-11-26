@@ -64,7 +64,7 @@ export const SITE_CONFIG: SiteConfig = {
       socials: [
         { label: 'INSTAGRAM', url: 'https://www.instagram.com/delusional.efx?stkn=MW82b2ttZW9vdnNuaw==' },
         { label: 'LINKEDIN', url: 'https://www.linkedin.com/in/sriram-m-j-5491a7322/' },
-        { label: 'EMAIL', url: 'mailto:srirammj221@gmail.com' }
+        { label: 'EMAIL', url: 'mailto:srirammj221@gmail.com?subject=Portfolio%20Inquiry%20%E2%80%93%20Collaboration%20with%20Sriram%20MJ&body=Hello%20Sriram%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20like%20to%20connect%20with%20you%20regarding%20a%20potential%20project%20or%20collaboration.%0A%0ALooking%20forward%20to%20hearing%20from%20you.' }
       ]
     }
   ],
@@ -73,7 +73,7 @@ export const SITE_CONFIG: SiteConfig = {
   contactLinks: [
     { label: 'Instagram', href: 'https://www.instagram.com/delusional.efx?stkn=MW82b2ttZW9vdnNuaw==' },
     { label: 'LinkedIn',  href: 'https://www.linkedin.com/in/sriram-m-j-5491a7322/' },
-    { label: 'Email',     href: 'mailto:srirammj221@gmail.com' }
+    { label: 'Email',     href: 'mailto:srirammj221@gmail.com?subject=Portfolio%20Inquiry%20%E2%80%93%20Collaboration%20with%20Sriram%20MJ&body=Hello%20Sriram%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20like%20to%20connect%20with%20you%20regarding%20a%20potential%20project%20or%20collaboration.%0A%0ALooking%20forward%20to%20hearing%20from%20you.' }
   ]
 };
 
