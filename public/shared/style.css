@@ -178,6 +178,8 @@ button:focus-visible {
   inset: 0;
   opacity: 0;
   pointer-events: none;
+  contain: layout style;
+  will-change: opacity, filter;
   transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
   filter: blur(4px);
   z-index: 10;

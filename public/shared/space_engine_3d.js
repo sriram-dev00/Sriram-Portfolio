@@ -138,6 +138,7 @@
       this.isRunning = false;
       this.rafId = null;
       this.lastTime = performance.now();
+      this._lastReportedScroll = -1;
       this.gatePassed = sessionStorage.getItem('portfolio_gate_passed') === 'true';
       this.isUnfolding = false;
       this.unfoldStartTime = 0;
@@ -189,7 +190,7 @@
         powerPreference: 'high-performance'
       });
       this.renderer.setSize(width, height);
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       this.canvas = this.renderer.domElement;
       this.container.appendChild(this.canvas);
 
@@ -261,8 +262,9 @@
       const cylinderHeight = usedCircumference / (refW / refH);
       const scaleUpFactor = usedCircumference / refW;
 
-      // Max anisotropy for razor-sharp textures at oblique angles
-      const maxAniso = this.renderer.capabilities.getMaxAnisotropy ? this.renderer.capabilities.getMaxAnisotropy() : 4;
+      // Max anisotropy capped at 4 for crisp oblique textures without GPU bandwidth spikes
+      const rawMaxAniso = this.renderer.capabilities.getMaxAnisotropy ? this.renderer.capabilities.getMaxAnisotropy() : 4;
+      const maxAniso = Math.min(4, rawMaxAniso);
 
       layout.forEach((slot, i) => {
         const slotNum = slot.slot || (i + 1);
@@ -320,13 +322,13 @@
           const video = document.createElement('video');
           video.src = videoSrc || mediaSrc;
           video.crossOrigin = 'anonymous';
+          video.preload = 'metadata';
           video.loop = true;
           video.muted = true;
           video.playsInline = true;
           video.addEventListener('loadedmetadata', () => {
             if (createdMesh) applyNaturalAspect(video.videoWidth, video.videoHeight, createdMesh);
           });
-          video.play().catch(() => {});
           this.videoElements.push(video);
           texture = new THREE.VideoTexture(video);
           texture.minFilter = THREE.LinearFilter;
@@ -643,7 +645,12 @@
     start() {
       if (this.isRunning) return;
       this.isRunning = true;
-      this.videoElements.forEach((v) => v.play().catch(() => {}));
+      this.lastTime = performance.now();
+      // Defer video decoding slightly so entry unfold stays locked at 60/120fps
+      setTimeout(() => {
+        if (!this.isRunning) return;
+        this.videoElements.forEach((v) => v.play().catch(() => {}));
+      }, 280);
       this.rafId = requestAnimationFrame(this._loop);
     }
 
@@ -699,9 +706,19 @@
     _loop(now) {
       if (!this.isRunning) return;
 
+      // Frame-rate independent delta-time (clamped to avoid jumps on tab switch)
+      const dt = Math.min(0.05, Math.max(0.001, (now - this.lastTime) / 1000));
+      this.lastTime = now;
+
+      const mouseAlpha = 1 - Math.exp(-3.2 * dt);
+      const orbitAlpha = 1 - Math.exp(-3.6 * dt);
+      const swayAlpha = 1 - Math.exp(-2.6 * dt);
+      const dragDecay = Math.pow(0.0015, dt);
+      const hoverAlpha = 1 - Math.exp(-7.5 * dt);
+
       // 1. Smooth mouse coordinate interpolation
-      this.smoothMouse.x += (this.targetMouse.x - this.smoothMouse.x) * 0.05;
-      this.smoothMouse.y += (this.targetMouse.y - this.smoothMouse.y) * 0.05;
+      this.smoothMouse.x += (this.targetMouse.x - this.smoothMouse.x) * mouseAlpha;
+      this.smoothMouse.y += (this.targetMouse.y - this.smoothMouse.y) * mouseAlpha;
 
       // 2. Camera swoop & push-in on entry (Power4.easeOut matching Michael Gatt)
       if (this.isCameraSwooping) {
@@ -739,14 +756,14 @@
 
         // Inertia coasting after drag release
         if (Math.abs(this.dragVelocityRotY) > 0.0001 || Math.abs(this.dragVelocityY) > 0.1) {
-          this.targetRotY += this.dragVelocityRotY;
-          this.targetPosY += this.dragVelocityY;
-          this.dragVelocityRotY *= 0.90;
-          this.dragVelocityY *= 0.90;
+          this.targetRotY += this.dragVelocityRotY * (dt * 60);
+          this.targetPosY += this.dragVelocityY * (dt * 60);
+          this.dragVelocityRotY *= dragDecay;
+          this.dragVelocityY *= dragDecay;
         } else {
           // If no active drag, smooth towards resting mouse sway position
-          this.targetRotY += (swayRotY - this.targetRotY) * 0.04;
-          this.targetPosY += (swayPosY - this.targetPosY) * 0.04;
+          this.targetRotY += (swayRotY - this.targetRotY) * swayAlpha;
+          this.targetPosY += (swayPosY - this.targetPosY) * swayAlpha;
         }
       }
 
@@ -755,8 +772,8 @@
       this.targetPosY = THREE.MathUtils.clamp(this.targetPosY, -this.maxTravelY, this.maxTravelY);
 
       // Smooth camera interpolation
-      this.currentRotY += (this.targetRotY - this.currentRotY) * 0.055;
-      this.currentPosY += (this.targetPosY - this.currentPosY) * 0.055;
+      this.currentRotY += (this.targetRotY - this.currentRotY) * orbitAlpha;
+      this.currentPosY += (this.targetPosY - this.currentPosY) * orbitAlpha;
 
       // In-place camera yaw orbit matching Michael Gatt (camera.position.z is 0 once swoop finishes)
       this.camera.rotation.y = this.currentRotY;
@@ -770,7 +787,10 @@
 
       if (this.onScrollProgress && this.maxRotY > 0) {
         const progress = THREE.MathUtils.clamp((-this.currentRotY / this.maxRotY + 1) * 0.5, 0, 1);
-        this.onScrollProgress(progress);
+        if (Math.abs(progress - this._lastReportedScroll) > 0.001) {
+          this._lastReportedScroll = progress;
+          this.onScrollProgress(progress);
+        }
       }
 
       // 4. Staggered Origami Mesh Unfolding & Radial Glide-In (Power4.easeOut)
@@ -813,15 +833,19 @@
         this.meshes.forEach((m) => {
           const targetOp = m.userData.targetOpacity !== undefined ? m.userData.targetOpacity : (m.userData.baseOpacity || 0.95);
           const curOp = m.userData.currentOpacity !== undefined ? m.userData.currentOpacity : targetOp;
-          const nextOp = curOp + (targetOp - curOp) * 0.12;
-          m.userData.currentOpacity = nextOp;
-          if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = nextOp;
+          if (Math.abs(targetOp - curOp) > 0.001) {
+            const nextOp = curOp + (targetOp - curOp) * hoverAlpha;
+            m.userData.currentOpacity = nextOp;
+            if (m.material.uniforms.uOpacity) m.material.uniforms.uOpacity.value = nextOp;
+          }
 
           const targetSc = m.userData.targetScale !== undefined ? m.userData.targetScale : 1.0;
           const curSc = m.userData.currentScale !== undefined ? m.userData.currentScale : targetSc;
-          const nextSc = curSc + (targetSc - curSc) * 0.12;
-          m.userData.currentScale = nextSc;
-          m.scale.set(nextSc, nextSc, 1.0);
+          if (Math.abs(targetSc - curSc) > 0.0005) {
+            const nextSc = curSc + (targetSc - curSc) * hoverAlpha;
+            m.userData.currentScale = nextSc;
+            m.scale.set(nextSc, nextSc, 1.0);
+          }
         });
       }
 

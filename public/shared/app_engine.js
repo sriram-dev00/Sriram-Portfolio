@@ -1331,8 +1331,8 @@
       <div class="index-hover-preview" id="indexHoverPreview" aria-hidden="true">
         <div class="index-preview-card" id="indexPreviewCard">
           <div class="index-preview-foreground-wrapper">
-            <img class="index-preview-media img" alt="" style="display:none;" />
-            <video class="index-preview-media vid" autoplay loop muted playsinline style="display:none;"></video>
+            <img class="index-preview-media img" alt="" decoding="async" style="display:none;" />
+            <video class="index-preview-media vid" autoplay loop muted playsinline preload="metadata" style="display:none;"></video>
           </div>
         </div>
       </div>
@@ -1448,18 +1448,25 @@
       }
     }
 
-    function renderPreviewFrame() {
+    let lastPreviewFrameTime = performance.now();
+    function renderPreviewFrame(now = performance.now()) {
       if (activeView !== 'index') {
         indexPreviewRafId = null;
         return;
       }
 
-      // Smooth horizontal and vertical glide with responsive tracking
-      currentX += (targetX - currentX) * 0.088;
-      currentY += (targetY - currentY) * 0.088;
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastPreviewFrameTime) / 1000));
+      lastPreviewFrameTime = now;
+      const alpha = 1 - Math.exp(-6.0 * dt);
 
-      if (previewCard) {
-        previewCard.style.transform = `translate3d(${currentX.toFixed(1)}px, ${currentY.toFixed(1)}px, 0)`;
+      const dx = targetX - currentX;
+      const dy = targetY - currentY;
+      if (Math.abs(dx) > 0.08 || Math.abs(dy) > 0.08) {
+        currentX += dx * alpha;
+        currentY += dy * alpha;
+        if (previewCard) {
+          previewCard.style.transform = `translate3d(${currentX.toFixed(1)}px, ${currentY.toFixed(1)}px, 0)`;
+        }
       }
 
       indexPreviewRafId = requestAnimationFrame(renderPreviewFrame);
