@@ -722,12 +722,10 @@ button:focus-visible {
   user-select: none;
   opacity: 0;
   visibility: hidden;
-  filter: blur(4px);
-  transform: translate(-50%, calc(-50% + 12px));
-  transition: opacity 0.42s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.42s cubic-bezier(0.16, 1, 0.3, 1),
-    visibility 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate(-50%, calc(-50% + 8px));
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -737,29 +735,7 @@ button:focus-visible {
 .space-center-desc.is-active {
   opacity: 1;
   visibility: visible;
-  filter: blur(0px);
   transform: translate(-50%, -50%);
-}
-
-@keyframes scTextReveal {
-  from {
-    opacity: 0;
-    filter: blur(3px);
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0px);
-    transform: translateY(0);
-  }
-}
-
-.space-center-desc.is-switching .sc-title {
-  animation: scTextReveal 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.space-center-desc.is-switching .sc-desc {
-  animation: scTextReveal 0.44s cubic-bezier(0.16, 1, 0.3, 1) 0.04s both;
 }
 
 .space-center-desc .sc-title {
@@ -774,13 +750,12 @@ button:focus-visible {
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95);
   pointer-events: auto;
   cursor: pointer;
-  transition: color 0.3s ease, letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.3s ease, opacity 0.3s ease;
+  transition: color 0.25s ease;
 }
 
 .space-center-desc .sc-title:hover {
   color: #ffffff;
-  letter-spacing: 0.42em;
-  text-shadow: 0 0 22px rgba(255, 255, 255, 0.55);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
 }
 
 .space-center-desc .sc-cat {

@@ -700,21 +700,12 @@
     const descTextEl = document.getElementById('spaceCenterDescText') || descEl.querySelector('.sc-desc');
     const catEl = document.getElementById('spaceCenterCat') || descEl.querySelector('.sc-cat');
 
-    const nextSlug = targetProj.slug || targetSlug || proj.slug || '';
-    const prevSlug = descEl.dataset.slug || '';
-    const wasActive = descEl.classList.contains('is-active');
-
     if (titleEl) titleEl.textContent = targetProj.title || proj.title || '';
     if (descTextEl) descTextEl.textContent = targetProj.description || targetProj.short || proj.description || proj.short || '';
     if (catEl) catEl.textContent = targetProj.category || proj.category || '';
 
-    descEl.dataset.slug = nextSlug;
+    descEl.dataset.slug = targetProj.slug || targetSlug || proj.slug || '';
     descEl.classList.add('is-active');
-    if (wasActive && prevSlug && prevSlug !== nextSlug) {
-      descEl.classList.remove('is-switching');
-      void descEl.offsetWidth;
-      descEl.classList.add('is-switching');
-    }
     if (indexToggleEl) indexToggleEl.classList.add('hide-for-desc');
   }
 
