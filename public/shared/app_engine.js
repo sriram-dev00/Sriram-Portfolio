@@ -1195,12 +1195,62 @@
         <p class="sc-desc" id="spaceCenterDescText"></p>
         <div class="sc-cat" id="spaceCenterCat">CATEGORY</div>
       </div>
+      <div class="space-scrollbar" id="spaceScrollBar" role="slider" aria-label="3D Space horizontal scroll" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+        <div class="space-scrollbar-track">
+          <div class="space-scrollbar-thumb" id="spaceScrollThumb"></div>
+        </div>
+      </div>
     `;
     stage = spaceV.querySelector('.home-stage');
     if (stage) {
       updateStagePerspective();
     }
     field = spaceV.querySelector('#field');
+
+    const spaceScrollBar = spaceV.querySelector('#spaceScrollBar');
+    const spaceScrollThumb = spaceV.querySelector('#spaceScrollThumb');
+    const updateSpaceScrollBar = (progress) => {
+      if (!spaceScrollThumb) return;
+      const pct = Math.max(0, Math.min(1, progress));
+      spaceScrollThumb.style.left = `calc(${(pct * 100).toFixed(2)}% - ${(pct * 36).toFixed(2)}px)`;
+      if (spaceScrollBar) {
+        spaceScrollBar.setAttribute('aria-valuenow', String(Math.round(pct * 100)));
+      }
+    };
+
+    if (spaceScrollBar) {
+      let isScrubbingBar = false;
+      const scrubToClientX = (clientX) => {
+        const rect = spaceScrollBar.getBoundingClientRect();
+        if (!rect.width) return;
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        updateSpaceScrollBar(ratio);
+        if (spaceEngine3DInstance && typeof spaceEngine3DInstance.setScrollProgress === 'function') {
+          spaceEngine3DInstance.setScrollProgress(ratio);
+        }
+      };
+
+      spaceScrollBar.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        isScrubbingBar = true;
+        spaceScrollBar.classList.add('is-dragging');
+        scrubToClientX(e.clientX);
+        try { spaceScrollBar.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      spaceScrollBar.addEventListener('pointermove', (e) => {
+        if (!isScrubbingBar) return;
+        e.stopPropagation();
+        scrubToClientX(e.clientX);
+      });
+      const stopScrub = (e) => {
+        if (!isScrubbingBar) return;
+        isScrubbingBar = false;
+        spaceScrollBar.classList.remove('is-dragging');
+        try { spaceScrollBar.releasePointerCapture(e.pointerId); } catch (_) {}
+      };
+      spaceScrollBar.addEventListener('pointerup', stopScrub);
+      spaceScrollBar.addEventListener('pointercancel', stopScrub);
+    }
 
     const centerDesc = spaceV.querySelector('#spaceCenterDesc');
     if (centerDesc) {
@@ -1221,6 +1271,7 @@
       spaceEngine3DInstance = new window.SpaceEngine3D(stage, {
         projects: spaceTiles,
         layout: LAYOUT,
+        onScrollProgress: updateSpaceScrollBar,
         onHoverTile: (proj) => {
           if (proj) {
             const targetSlug = proj.targetSlug || proj.targetProject || proj.project || proj.slug || '';

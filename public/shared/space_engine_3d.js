@@ -83,6 +83,7 @@
       this.options = options;
       this.onHoverTile = options.onHoverTile || null;
       this.onClickTile = options.onClickTile || null;
+      this.onScrollProgress = options.onScrollProgress || null;
 
       // Scene & Camera
       this.scene = null;
@@ -509,7 +510,7 @@
 
     _onPointerDown(e) {
       const targetEl = (e.target && typeof e.target.closest === 'function') ? e.target : null;
-      if (targetEl && targetEl.closest('button, a, .fixed-footer, .brand-header, .index-toggle, .audio-toggle, .space-center-desc')) {
+      if (targetEl && targetEl.closest('button, a, .fixed-footer, .brand-header, .index-toggle, .audio-toggle, .space-center-desc, .space-scrollbar')) {
         return;
       }
       this.isPointerDown = true;
@@ -686,6 +687,15 @@
       this.videoElements.forEach((v) => v.pause());
     }
 
+    setScrollProgress(progress) {
+      const clamped = THREE.MathUtils.clamp(progress, 0, 1);
+      if (this.maxRotY > 0) {
+        this.targetRotY = -(clamped * 2 - 1) * this.maxRotY;
+      }
+      this.dragVelocityRotY = 0;
+      this.dragVelocityY = 0;
+    }
+
     _loop(now) {
       if (!this.isRunning) return;
 
@@ -757,6 +767,11 @@
         this.camera.rotation.x = 0;
       }
       this.camera.rotation.z = 0;
+
+      if (this.onScrollProgress && this.maxRotY > 0) {
+        const progress = THREE.MathUtils.clamp((-this.currentRotY / this.maxRotY + 1) * 0.5, 0, 1);
+        this.onScrollProgress(progress);
+      }
 
       // 4. Staggered Origami Mesh Unfolding & Radial Glide-In (Power4.easeOut)
       if (this.isUnfolding) {

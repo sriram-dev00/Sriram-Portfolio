@@ -110,14 +110,27 @@ body::-webkit-scrollbar {
 body.scroll-ok {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(233, 231, 226, 0.25) transparent !important;
 }
 
 body.scroll-ok::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  display: block !important;
+  width: 4px !important;
+  height: 4px !important;
+}
+
+body.scroll-ok::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+body.scroll-ok::-webkit-scrollbar-thumb {
+  background: rgba(233, 231, 226, 0.24) !important;
+  border-radius: 999px !important;
+}
+
+body.scroll-ok::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 231, 226, 0.55) !important;
 }
 
 a {
@@ -3346,8 +3359,8 @@ body:has(.center-hero-overlay.active) .index-toggle {
   padding-right: 6vw;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 231, 226, 0.24) transparent;
   -webkit-mask-image: linear-gradient(to bottom,
       transparent 0px,
       transparent 85px,
@@ -3365,7 +3378,20 @@ body:has(.center-hero-overlay.active) .index-toggle {
 }
 
 .index-page-inner::-webkit-scrollbar {
-  display: none;
+  width: 4px;
+}
+
+.index-page-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.index-page-inner::-webkit-scrollbar-thumb {
+  background: rgba(233, 231, 226, 0.24);
+  border-radius: 999px;
+}
+
+.index-page-inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 231, 226, 0.55);
 }
 
 .index-list {
@@ -3789,12 +3815,26 @@ body:has(.center-hero-overlay.active) .index-toggle {
   background: #000000;
   padding: 0;
   margin: 0;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(233, 231, 226, 0.24) transparent !important;
 }
 
 [data-view="about"]::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  display: block !important;
+  width: 4px !important;
+}
+
+[data-view="about"]::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+[data-view="about"]::-webkit-scrollbar-thumb {
+  background: rgba(233, 231, 226, 0.24) !important;
+  border-radius: 999px !important;
+}
+
+[data-view="about"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 231, 226, 0.55) !important;
 }
 
 /* Sections Structure */
@@ -4770,4 +4810,72 @@ body.in-gate-state .center-hero-overlay {
 #btn-enter-without-sound:hover {
   color: #ffffff;
   text-decoration-color: #ffffff;
+}
+
+/* ==========================================================================
+   3D SPACE HORIZONTAL SCROLL BAR (Matching michaelgatt.com)
+   ========================================================================== */
+.space-scrollbar {
+  position: fixed;
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%);
+  width: min(260px, 52vw);
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 42;
+  pointer-events: auto;
+  opacity: 0.72;
+  transition: opacity 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.space-scrollbar:hover,
+.space-scrollbar.is-dragging {
+  opacity: 1;
+}
+
+.space-scrollbar-track {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background: rgba(233, 231, 226, 0.18);
+  border-radius: 999px;
+}
+
+.space-scrollbar-thumb {
+  position: absolute;
+  top: 50%;
+  left: calc(50% - 18px);
+  transform: translateY(-50%);
+  width: 36px;
+  height: 2px;
+  background: rgba(233, 231, 226, 0.72);
+  border-radius: 999px;
+  transition: background 0.25s ease, height 0.2s ease;
+  pointer-events: none;
+}
+
+.space-scrollbar:hover .space-scrollbar-thumb,
+.space-scrollbar.is-dragging .space-scrollbar-thumb {
+  height: 3px;
+  background: #ffffff;
+}
+
+body.in-gate-state .space-scrollbar,
+.view.space-receded .space-scrollbar {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 640px) {
+  .space-scrollbar {
+    bottom: 62px;
+    width: min(200px, 56vw);
+  }
 }
