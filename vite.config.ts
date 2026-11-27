@@ -43,6 +43,7 @@ function classicScriptPassthrough(scriptPaths: string[]): Plugin {
 }
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     classicScriptPassthrough([
@@ -63,16 +64,16 @@ export default defineConfig({
   build: {
     target: 'esnext',
     assetsInlineLimit: 4096,
-
-    // No manualChunks here.
-    //
-    // The active entry-point (index.html) uses the vanilla IIFE engine;
-    // src/main.tsx is not referenced from index.html, so React is never
-    // imported in the Rollup graph.  Declaring a manual chunk for
-    // ['react', 'react-dom'] when neither package appears in the graph
-    // produces an empty 0-byte chunk and the build warning
-    // "Generated an empty chunk: react".  Removing the declaration
-    // eliminates both the warning and the unnecessary empty file.
-    rollupOptions: {},
+    rollupOptions: {
+      input: 'index.react.html',
+      output: {
+        entryFileNames: 'assets/react-app.js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: (assetInfo) =>
+          assetInfo.name && assetInfo.name.endsWith('.css')
+            ? 'assets/react-app.css'
+            : 'assets/[name][extname]',
+      },
+    },
   },
 });

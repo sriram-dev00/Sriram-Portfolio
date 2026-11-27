@@ -40,9 +40,10 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [activeProjectSlug, setActiveProjectSlug] = useState<string | null>(initial.slug);
   const [activeHoveredProject, setActiveHoveredProject] = useState<Project | null>(null);
 
-  // If user deep-links to #about, #contact, #index, or #project directly, bypass gate
+  // If user deep-links to #about, #contact, #index, or #project directly, or already passed gate this session, bypass gate
   const [isGatePassed, setGatePassed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
+    if (sessionStorage.getItem('portfolio_gate_passed') === 'true') return true;
     const { view } = parseHash(window.location.hash);
     return view !== 'space';
   });
@@ -51,10 +52,11 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const sound = useAudioEngine();
 
   const navigate = useCallback((view: ViewName, slug?: string) => {
+    setActiveHoveredProject(null);
     setActiveView(view);
     setActiveProjectSlug(slug || null);
-    const newHash = slug ? `#${view}/${slug}` : `#${view}`;
-    if (window.location.hash !== newHash) {
+    const newHash = view === 'space' ? '#' : (slug ? `#${view}/${slug}` : `#${view}`);
+    if (window.location.hash !== newHash && !(view === 'space' && (window.location.hash === '' || window.location.hash === '#'))) {
       window.location.hash = newHash;
     }
   }, []);
@@ -62,6 +64,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     const handleHashChange = () => {
       const { view, slug } = parseHash(window.location.hash);
+      setActiveHoveredProject(null);
       setActiveView(view);
       setActiveProjectSlug(slug);
     };
@@ -70,8 +73,9 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Toggle scroll permissions matching vanilla app_engine.js
+  // Toggle scroll & project-active permissions matching vanilla app_engine.js
   useEffect(() => {
+    document.body.classList.toggle('project-active', activeView === 'project');
     if (activeView === 'space' || activeView === 'index') {
       document.body.classList.remove('scroll-ok');
     } else {

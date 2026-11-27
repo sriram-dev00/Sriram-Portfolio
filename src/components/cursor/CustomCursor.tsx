@@ -31,9 +31,11 @@ export const CustomCursor: React.FC = () => {
     setIsSupported(isFine);
     if (!isFine) return;
 
+    let lastTime = performance.now();
     const startLoop = () => {
       if (isLoopRunningRef.current) return;
       isLoopRunningRef.current = true;
+      lastTime = performance.now();
       rafIdRef.current = requestAnimationFrame(renderLoop);
     };
 
@@ -45,7 +47,10 @@ export const CustomCursor: React.FC = () => {
       isLoopRunningRef.current = false;
     };
 
-    const renderLoop = () => {
+    const renderLoop = (now: number) => {
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
+      lastTime = now;
+
       const charData = charDataRef.current;
       const mouseX = mouseXRef.current;
       const mouseY = mouseYRef.current;
@@ -62,11 +67,13 @@ export const CustomCursor: React.FC = () => {
           targetBaseY = mouseY - 24;
         }
 
+        const opAlpha = 1 - Math.exp(-13.0 * dt);
         for (let i = 0; i < charData.length; i++) {
           const cd = charData[i];
           const targetX = startX + cd.baseOffsetX;
           const targetY = targetBaseY;
-          const easing = Math.max(0.06, 0.22 * Math.pow(0.86, i));
+          const speed = Math.max(4.0, 15.0 * Math.pow(0.86, i));
+          const easing = 1 - Math.exp(-speed * dt);
 
           const dx = targetX - cd.x;
           const dy = targetY - cd.y;
@@ -78,7 +85,7 @@ export const CustomCursor: React.FC = () => {
 
           cd.x += dx * easing;
           cd.y += dy * easing;
-          cd.opacity += dop * 0.2;
+          cd.opacity += dop * opAlpha;
 
           if (cd.el) {
             cd.el.style.transform = `translate3d(${cd.x.toFixed(2)}px, ${cd.y.toFixed(2)}px, 0)`;

@@ -20,6 +20,7 @@ export const SoundGate: React.FC = () => {
     if (isExiting || isGatePassed) return;
     setIsExiting(true);
     setIsGateExiting(true);
+    sessionStorage.setItem('portfolio_gate_passed', 'true');
 
     if (withSound) {
       sound.enableAudio(true);
@@ -29,11 +30,11 @@ export const SoundGate: React.FC = () => {
 
     setTimeout(() => {
       document.body.classList.remove('in-gate-state');
-    }, 150);
+    }, 220);
 
     setTimeout(() => {
       setGatePassed(true);
-    }, 1100);
+    }, 950);
   }, [isExiting, isGatePassed, sound, setGatePassed, setIsGateExiting]);
 
   if (isGatePassed) return null;

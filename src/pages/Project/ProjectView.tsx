@@ -496,9 +496,6 @@ export const ProjectView: React.FC = () => {
                           decoding="async"
                         />
                       )}
-                      <span className="proj-view-media-pill" onClick={openFullImage}>
-                        VIEW MEDIA
-                      </span>
                     </div>
                   </div>
 
@@ -586,9 +583,6 @@ export const ProjectView: React.FC = () => {
                       <span>{project.title}</span>
                     </div>
                   )}
-                  <span className="proj-view-media-pill" onClick={openFullImage}>
-                    VIEW MEDIA
-                  </span>
                 </div>
               </div>
             </div>

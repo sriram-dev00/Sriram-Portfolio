@@ -22,20 +22,28 @@ export const IndexView: React.FC = () => {
 
   const indexProjects = PROJECTS.filter((p) => !p.isTileOnly && !p.targetSlug);
 
-  // Smooth 60fps lerp tracking loop
+  // Smooth frame-rate independent delta-time lerp tracking loop
   useEffect(() => {
     if (activeView !== 'index') {
       setIsVisible(false);
       return;
     }
 
-    const tick = () => {
-      const p = posRef.current;
-      p.currentX += (p.targetX - p.currentX) * 0.1;
-      p.currentY += (p.targetY - p.currentY) * 0.1;
+    let lastTime = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastTime) / 1000));
+      lastTime = now;
+      const alpha = 1 - Math.exp(-7.0 * dt);
 
-      if (cardRef.current) {
-        cardRef.current.style.transform = `translate3d(${p.currentX.toFixed(1)}px, ${p.currentY.toFixed(1)}px, 0)`;
+      const p = posRef.current;
+      const dx = p.targetX - p.currentX;
+      const dy = p.targetY - p.currentY;
+      if (Math.abs(dx) > 0.08 || Math.abs(dy) > 0.08) {
+        p.currentX += dx * alpha;
+        p.currentY += dy * alpha;
+        if (cardRef.current) {
+          cardRef.current.style.transform = `translate3d(${p.currentX.toFixed(1)}px, ${p.currentY.toFixed(1)}px, 0)`;
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
