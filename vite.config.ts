@@ -67,6 +67,8 @@ export default defineConfig({
     rollupOptions: {
       input: 'index.react.html',
       output: {
+        format: 'iife',
+        name: 'PortfolioApp',
         entryFileNames: 'assets/react-app.js',
         chunkFileNames: 'assets/[name].js',
         assetFileNames: (assetInfo) =>

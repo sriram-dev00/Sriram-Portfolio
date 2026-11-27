@@ -80,7 +80,7 @@ export function useAudioEngine() {
 
   const enableAudio = useCallback((userInitiated = true) => {
     if (!audioElRef.current) {
-      const audio = new Audio('/media/ambient.mp3');
+      const audio = new Audio('./media/ambient.mp3');
       audio.loop = true;
       audio.volume = 0.5;
       audioElRef.current = audio;

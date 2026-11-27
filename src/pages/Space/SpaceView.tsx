@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { PROJECTS, TILE_LAYOUTS } from '../../data/portfolioData';
 import { Project } from '../../types/portfolio';
@@ -35,7 +35,6 @@ export const SpaceView: React.FC = () => {
   const isScrubbingRef = useRef(false);
   const prevViewRef = useRef(activeView);
   const hasTriggeredGateUnfoldRef = useRef(false);
-  const [scrollPct, setScrollPct] = useState(50);
 
   // Build 30-slot space tile list matching the central layout
   const spaceTiles = useMemo(() => {
@@ -105,7 +104,9 @@ export const SpaceView: React.FC = () => {
     if (scrollThumbRef.current) {
       scrollThumbRef.current.style.left = `calc(${(pct * 100).toFixed(2)}% - ${(pct * 36).toFixed(2)}px)`;
     }
-    setScrollPct(Math.round(pct * 100));
+    if (scrollBarRef.current) {
+      scrollBarRef.current.setAttribute('aria-valuenow', String(Math.round(pct * 100)));
+    }
   }, []);
 
   // Mount WebGL SpaceEngine3D once
@@ -215,7 +216,7 @@ export const SpaceView: React.FC = () => {
         aria-label="3D Space horizontal scroll"
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-valuenow={scrollPct}
+        aria-valuenow={50}
         tabIndex={0}
         onPointerDown={(e) => {
           e.stopPropagation();
